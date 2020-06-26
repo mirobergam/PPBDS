@@ -15,9 +15,11 @@ Many questions have binary answers. These questions can be answered by any pair 
  
 **Binary responses** take on only two values: success ($Y=1$) or failure ($Y=0$), yes ($Y=1$) or no ($Y=0$), et cetera. Examples (a) and (b) above have binary responses (Does a student binge drink?  Was a patient diagnosed with cancer?). Binary responses are one of the most common types of data that statisticians encounter.  We are often interested in modeling the probability of success, $p$, based on a set of covariates. As with regression, there are two broad categories of problems: *modeling for explanation* and *modeling for prediction*. Although terminology varies across fields, "regression" is generally used for situations in which our *dependent variable* is continuous. "Classification" applies to cases in which the dependent variable is binary.
 
+All of the new models touched upon in this chapter speak to the wider discussion of fitting our model structures to better fit what is being measured in the world. Using logistical regressions of any type more accurately describe the measured effect when dealing with binary variables.  
+
 In this chapter, we will look at three common techniques of **classification** of binary data.  First, we will consider logistic regression, which is similar conceptually to the linear regression models we considered in Chapters \@ref(regression) and \@ref(multiple-regression).  Second, we will consider classification and regression trees (CART).  Third, we will discuss random forests.
 
-<!-- Deepen discussion of whether structure of our model --- linear regression, CART --- match the world. -->
+
 
 <!-- MB: Should the ref() thing be replaced by a chapter number? -->
 
@@ -1202,6 +1204,8 @@ Another concern is *post-treatment bias*.  For example, let's say that we were i
 ### Out-of-sample predictions
 
 We saw that our models predicted 64%-65% of the House races from 1976--2018 accurately using `state` and `year` as predictors.  However, these models were fitted on the same data that we used to evaluate their predictions.  These are called *in-sample* predictions.  A more strenuous test of a model's performance is whether it can generate good predictions on data that were not used in fitting the model. For election forecasting, for example, we are much more interested in forecasting the 2020 election results (which we don't know) than the 1976--2018 election results (which we know).  The 2020 predictions are an example of *out-of-sample* predictions.
+
+Making out-of-sample predictions is a great way of measuring unknown unknowns in the world, which is data we haven't observed yet. When making such predictions, it is important to make sure that the conditions used to create the model match the conditions of the world you are extrapolating about. Using 1976--2018 election results to predict election results in 2020, we contend, is a pretty safe extrapolation. An unsafe extrapolation would be using UK election results to predict outcomes in the US. 
 
 While we can't evaluate our models' performance on the 2020 elections (yet!), we can take a look at the process by fitting our logistic, classification tree, and random forest models on the data we have pre-2018 and then evaluating their accuracy on the 2018 election results.  Let's start by creating tibbles of our pre-2018 and 2018 data:
 
