@@ -16,18 +16,21 @@ library(PPBDS.data)
 library(webshot)
 ```
 
-<!-- Test. -->
-<!-- 1. Table centering: Stack overflow and as an issue in a Github repo. -->
+<!-- Hi Cass! -->
+
+
+<!-- 1. Table centering. Set up time with Yao. -->
+
 
 <!-- 2. Permutation example and code. Biggest current hole is the lack of a permutation test coding example. When we do this, we will want to create the permutations "by hand," rather than relying on an R package for doing so, I think that there are some elegant ways to do this with tidyverse, like crossing() or expand(). Maybe rsample::bootstraps()?  -->
 
-<!-- 3. Read about estrogen case. https://www.teachepi.org/wp-content/uploads/OldTE/documents/courses/bfiles/The%20B%20Files_File1_HRT_Final_Complete.pdf -->
+<!-- 3. Read about estrogen case. https://www.teachepi.org/wp-content/uploads/OldTE/documents/courses/bfiles/The%20B%20Files_File1_HRT_Final_Complete.pdf CB: Done. -->
 
-<!-- 4. Explain *heterogenous treatment effects*. Tie that concept to interaction terms. Discussing that now sets the stage for more concrete discussion in the regression chapters. -->
+<!-- 4. Explain *heterogenous treatment effects*. Tie that concept to interaction terms. Discussing that now sets the stage for more concrete discussion in the regression chapters. CB: Done. -->
 
-<!-- We should have a whole section devoted to bias/confounding, centered around the simple example of college attendance which I added at the end. Mention natural experiments and maybe other stuff. Highlight some examples, like the estrogen treatments which gave women cancer, where the assignment mechanism was not random. In the train example, what if we allowed the Spanish-speakers to select which platform they went on to? What if they were guided, subconsiously, to more or less crowded platforms? What if they sought to have an effect, like the perfect doctor?  -->
+<!-- We should have a whole section devoted to bias/confounding, centered around the simple example of college attendance which I added at the end. Mention natural experiments and maybe other stuff. Highlight some examples, like the estrogen treatments which gave women cancer, where the assignment mechanism was not random. In the train example, what if we allowed the Spanish-speakers to select which platform they went on to? What if they were guided, subconsiously, to more or less crowded platforms? What if they sought to have an effect, like the perfect doctor? CB: Done -->
 
-<!-- The second biggest hole is the lack of an example somewhere between random assignment and the perfect doctor. This is where the bias/confounding example belongs (college attendance), not at the end. It is core to what we are doing. That is, the assignment mechanism is a complex and subtle beast. It will fool us if we let it. -->
+<!-- The second biggest hole is the lack of an example somewhere between random assignment and the perfect doctor. This is where the bias/confounding example belongs (college attendance), not at the end. It is core to what we are doing. That is, the assignment mechanism is a complex and subtle beast. It will fool us if we let it. CB: Done -->
 
 <!-- # Other Issues -->
 
@@ -151,8 +154,6 @@ tibble(subject = "Joe",
   tab_style(cell_text(weight = "bold"),
             location = cells_body(columns = vars(subject)))
 ```
-
-<!-- CB: Defining estimands later in this section. Would it be worth splitting this section up? -->
 
 We have Joe's potential outcome under treatment, Joe's potential outcome under control, and the difference between the two. The difference is generally called the "causal effect" or "treatment effect."  But it is in fact only one possible causal variable we might be interested in. We could also calculate the ratio of potential outcomes for Joe:
 
@@ -379,8 +380,6 @@ tibble(subject = c("Joe", "Mary", "Sally", "Bob", "James"),
             location = cells_body(columns = vars(subject)))
 ```
 
-<!-- What happens in the case that someone's control attitude is 3, and an ATE negative would reduce their expected score beyond the range of the survey? -->
-
 Note that for some estimands, filling in the same causal effect for everyone would be nonsensical.  For example, let's say you were interested in the lowest attitude score under treatment.  That's not an unreasonable thing to want to know!  But assuming that everyone has the same causal effect means that your estimate of the lowest potential attitude score is either a) the smallest observed treatment value or b) the smallest observed control value minus your estimate of the ATE, whichever is smaller. This clearly isn't a reasonable estimate of the lowest attitude score under treatment!  Thus, we need a different model if we have a different estimand.
 
 In general, do we think that if Joe wasn't on the platform with Spanish-speaking people, his attitude toward immigrants would be exactly $14.33$? Of course not! We have some uncertainty around these numbers.  There are two main sources of uncertainty we have to take into account when making a prediction for Joe:
@@ -397,11 +396,13 @@ We may not just be interested in the effect on Joe, a person in our sample, but 
 
 ## Heterogenous Treatment Effects
 
-<!-- CB: Don't know if I have explained this well? Feel like introducing interaction terms would require some introduction of regression and I don't know if that's necessary.-->
-
 Let's consider the second main source of uncertainty which we describe as individual variation. In the train study, all of the individuals surveyed are different in many different ways, for example gender, income, and age. Therefore, our study population is heterogeneous, because all of the subjects are not the same. When we estimate ATE, we are making assumptions that there is a similar treatment effect for all subjects in the study despite the heterogeneity of our sample. 
 
-There will inevitably be some random variation of treatment effect for individuals in a study. When the variation in individual treatments are non-random and correlated with some factor it is described as a *heterogenous treatment effect*. For example, maybe we think that the treatment effect varies depending on the gender of an individual. In this case, two different variables for an individual would impact our estimate of treatment effect. We will learn to deal with heterogeneous treatment effects in later chapters, however it is worth keeping in mind how assumptions of homogeneity can impact our understanding of treatment effect.
+There will inevitably be some random variation of treatment effect for individuals in a study. The effect on an individual, like Joe, may be different than the treatment effect on another individual that is seemingly very similar to Joe. This is one example of a *heterogeneous treatment effect*. 
+
+Another example of a *heterogeneous treatment effect* is when the variation in individual treatments are non-random and correlated with some factor. For example, maybe we think that the treatment effect varies depending on the gender of an individual. In this case, gender and treatment status are two variables which both have impact on the treatment effect. The two variables interact, influencing the treatment effect. In other words, the interaction effect of these two variables gives us a heterogeneous treatment effect. 
+
+So, a heterogeneous treatment effect can both explain individual variation, as well as variation between groups determined by some other variable. We will learn to deal with heterogeneous treatment effects in later chapters, however it is worth keeping in mind how assumptions of homogeneity can impact our understanding of treatment effect.
 
 # Missing data
 
@@ -469,14 +470,8 @@ tibble(subject = c("Respondent 1", "Respondent 2", "Respondent 3", "...", "Respo
 
 By surveying 1,000 people on their attitudes towards immigrants we now have some values to work with. This, however, does not solve the missing data problem. We are likely interested in the causal effect *in general*, not just for our 1,000 person sample. We'll need to think about whether our *sample* is representative of the full population. For the vast majority of US adults we still have no value. This is the second of the two most common sources of missing data: 
 
-<!-- EC: You mention second of two most common sources of missing data but the other most common source is not mentioned; you could either introduce it now or get rid of the mention. 
-
-CB: They're both outlined below. I got rid of the last sentence so hopefully that is more clear? -->
-
 1. For the units in our sample, we only see *one* potential outcome
 2. For the units outside our sample, we see *no* potential outcomes
-
-<!-- DK: The above is awkward because of bad prior editing. Please fix or add to. -->
 
 ## The infinite Rubin Table: many kinds of missing data
 
@@ -602,9 +597,7 @@ Indeed, there are an infinite number of possible treatments. The Rubin Table ext
 
 Thus, whenever you are considering a causal question, the best way to think about it is to start with the infinite Rubin Table.  First we throw out the rows we think are duplicates (such as all the observations for Joe one second from now, two seconds from now, etc.) or that are outside the scope of what we are interested in for now (maybe we don't care about outcomes 30 years in the future for this study).  Second, we throw out the columns that we don't care about, which are all the possible treatments we aren't considering.  Finally, we define precisely---in terms of potential outcomes---our estimand.  It may be something simple, such as the average treatment effect, or something more complex.  Once we have done these steps, we can start thinking about how to fill in the question marks.  But remember that the infinite Rubin Table is always there, and you should be conscious of which rows and columns you are throwing out!
 
-# Validity
-
-<!-- CB: I think this section required a different sub-heading because of me moving the missing data section. Thought of validity first. -->
+# Confounding
 
 ## The assignment mechanism
 
@@ -679,7 +672,7 @@ Therefore, the difference in means is no longer a good estimate of the ATE. In f
 
 <!-- EC: Could be a good place to introduce type S errors to tie in to a future chapter on Type M/S errors (unsure which this would be) -->
 
-<!-- CB: I am not completely clear on the definition of selection bias, or what its distinction is from just a very biased assignment mechanism? -->
+<!-- Discuss block designs, as an example of how their are many ways to do random assignment. Selection bias is when the person doing the assignments chooses on the basis of the potential outcomes. Confounding does not require selection bias. But selection bias is always an example of confounding. -->
 
 This is an extreme example of a problem called **selection bias**.  The Spanish-speaking people are not choosing platforms to stand on randomly. Rather, they are making treatment decisions based directly on the potential outcomes of each platform.  Remember, whenever the assignment mechanism is correlated with the potential outcomes there is confounding which is a problem because it means that our estimand is biased.
 
@@ -688,8 +681,6 @@ Much like how the best way to avoid making poor inferences from a sample to a po
 Randomized assignment is the best assignment mechanism for inferring the average treatment effect because if the sample is large enough, the difference in sample means between treated and control units ($\widehat{ATE}$) will be very close to the actual ATE from that sample. `r margin_note("'Actual ATE' in this case would be the ATE you could calculate if you were omniscient and knew all potential outcomes, which is of course impossible.")` (You still can't know *individual* treatment effects without more assumptions, because of the fundamental problem of causal inference.)
 
 Thus, if you are interested in causal inference, randomized trials are the best approach. In many circumstances, however, randomized trials are not possible due to ethical or practical concerns. In such scenarios there is by necessity a non-random assignment mechanism.
-
-<!-- Having trouble thinking of a necessity for non-random assignment mechanism in this example. Maybe some platforms are too crowded, so there is no way of actually knowing if anyone nearby heard the Spanish? So you have to do the experiment on a platform where the Spanish can be heard at all. --> 
 
 For example, let's say some of the train platforms in the experiment are so loud the Spanish-speaking people might not be heard by anyone nearby. Therefore by necessity, only quieter platforms can be assigned to the treatment group. This non-random assignment may introduce confounding. `r margin_note("Maybe the louder platforms have people that are generally more friendly and social. This might be correlated with more liberal attitudes towards immigrants.")` Say there is some systematic difference between the people on quieter platforms compared with the people on the louder platforms. In that case, the assignment mechanism is correlated with potential outcomes, so there is confounding. This means even a simple estimand like ATE would be biased. 
 
@@ -901,8 +892,8 @@ In this chapter, we explained that there are many possible causal estimands that
 We will cover these topics more when we discuss regression and other models, but moving beyond a simple difference in means can help a lot with causal inference:
 
 1. More complex models can help correct for non-random treatment assignments, if the factors that lead to treatment assignment are known.
-1. More complex models can also help with estimating different treatment effects for different groups.  Recall we discussed the possible assumption that are different treatment effects for Democrats and Republicans, $\tau_1$ and $\tau_2$.  While you could just calculate the difference in means for each group, that may lead to small sample sizes, especially if there are a lot of groups.  More complex models can help *pool* information across groups to get better estimates. `r margin_note("Reference Heterogenous Treatment Effect Section?")`
-1. Finally, the difference in means doesn't work with continuous treatments, such as taking 1,000 mg or 1,001 mg of a drug.  Regression and other models can handle continuous treatments much better.
+1. More complex models can also help with estimating different treatment effects for different groups.  Recall we discussed the possible assumption that are different treatment effects for Democrats and Republicans, $\tau_1$ and $\tau_2$.  While you could just calculate the difference in means for each group, that may lead to small sample sizes, especially if there are a lot of groups.  More complex models can help *pool* information across groups to get better estimates. 
+1. Finally, the difference in means doesn't work with continuous treatments, such as taking Spanish being spoken at Volume level 3 or Volume level 4. `r margin_note("We look at this in later chapters.")` Regression and other models can handle continuous treatments much better.
 
 ## Causal inference and prediction
 
@@ -972,8 +963,6 @@ By considering more potential outcomes in this way, we can cause SUTVA to hold. 
 
 ## Correlation with Potenial Outcomes
 
-<!-- DK: This is important stuff, but I am not sure that I like this example. Nor am I sure that it belongs here. And it certainly merits a Rubin Table to drive the point home. -->
-
 When considering the relationship between a treatment and an outcome, one of the most important assumptions is a lack of correlation between treatment assignment and the potential outcomes. Consider a version of the train experiment. Assume that, if a Republican is not on the platform with Spanish-speaking people, they will have an attitude value of X. If they were on a platform where they could hear Spanish, their attitude would have been X + 2. A Democrat would have an attitude X regardless of whether or not they are on the platform with Spanish-speaking people. In other words, the causal effect of being in the treatment group is +2 for Republicans, and 0 for Democrats. If we could run an experiment with random assignment, we would discover that the average causal effect is somewhere between 0 and 2, depending on the relative proportion of the Republicans and Democrats.
 
 `r margin_note("Let's say here attitude X is 9.")`
@@ -1025,8 +1014,6 @@ tibble(subject = c("R", "R", "D", "R", "D"),
 Keep in mind that the problem arises when there is a correlation between treatment assignment and *potential* outcome, not simply a correlation between treatment assignment and outcome. In this case, the correlation between treatment assignment and outcome is zero! Everyone has the same salary. Just looking at the outcomes we observe is not enough. We must make assumptions about the outcomes we don't observe, about what would have happened.
 
 ## Natural Experiments: Hormone Replacement Therapy
-
-<!-- CB: Thought about putting this up with assignment mechanism too? Conflicted on where to put it. -->
 
 ```{r echo=FALSE, fig.margin = TRUE}
 knitr::include_graphics("03-rubin-causal-model/images/HRT.png")
