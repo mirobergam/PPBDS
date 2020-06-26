@@ -7,9 +7,6 @@ output_yaml:
 <!-- Deepen discussion of whether structure of our model --- linear regression, CART --- match the world. -->
 <!-- Discussion of unknown unknowns esp when talking about extrapolating data to 2020 -->
 
-<!-- Testing to see if merging branch closes the branch -->
-<!--  New comment, please open new pull request or reopen old one... --> 
-
 # Discrete Response {#classification}
 
 Many questions have binary answers. These questions can be answered by any pair of two answers (such as yes/no). Two examples of these questions include: 
@@ -19,6 +16,8 @@ Many questions have binary answers. These questions can be answered by any pair 
 **Binary responses** take on only two values: success ($Y=1$) or failure ($Y=0$), yes ($Y=1$) or no ($Y=0$), et cetera. Examples (a) and (b) above have binary responses (Does a student binge drink?  Was a patient diagnosed with cancer?). Binary responses are one of the most common types of data that statisticians encounter.  We are often interested in modeling the probability of success, $p$, based on a set of covariates. As with regression, there are two broad categories of problems: *modeling for explanation* and *modeling for prediction*. Although terminology varies across fields, "regression" is generally used for situations in which our *dependent variable* is continuous. "Classification" applies to cases in which the dependent variable is binary.
 
 In this chapter, we will look at three common techniques of **classification** of binary data.  First, we will consider logistic regression, which is similar conceptually to the linear regression models we considered in Chapters \@ref(regression) and \@ref(multiple-regression).  Second, we will consider classification and regression trees (CART).  Third, we will discuss random forests.
+
+<!-- Deepen discussion of whether structure of our model --- linear regression, CART --- match the world. -->
 
 <!-- MB: Should the ref() thing be replaced by a chapter number? -->
 
@@ -114,7 +113,6 @@ house_ch12 <- house_results %>%
 ```
 
 <!-- DK: We use same dataset from other chapter, we need to modify this. But we won't have looked at everything! So, look at other stuff. Some is obvious, especially our new Y variable. But we can also look at stuff like number of elections per state, per year. Which state had the biggest districting rise and when? Indeed, the data exploration section in each chapter provides an occasion to learn more advanced R tricks. -->
-
 
 Recall the three common steps in an exploratory data analysis we saw in Subsection \@ref(model1EDA):
 
@@ -308,6 +306,8 @@ p_{dem\_win} = \frac{1}{1 + e^{-(0.230 - 0.249 \times south)}}
 Therefore, the predicted probability for an observation in the South is $\frac{1}{1 + e^{-(0.230 - 0.249)}}$ (`r round(plogis(0.230 - 0.249), 3)`) and the predicted probability for an observation outside the South is $\frac{1}{1 + e^{-(0.230)}}$ (`r round(plogis(0.230), 3)`) a difference of `r round(plogis(0.230 - 0.249) - plogis(0.230), 3)`.  Thus, an observation being the South is associated with a `r round(plogis(0.230 - 0.249) - plogis(0.230), 3)` decrease in the predicted probability of a Democratic victory.
 
 Note that you could also estimate this value through the so-called **"divide by 4" rule**: $-0.249 / 4 \approx 0.062$.  We'll discuss this further when we talk about interpreting the coefficiences of continuous predictors in logistic regression models.
+
+<!-- Here would be a good place to begin a discusssion of validity --> 
 
 Let's now estimate the uncertainty around our coefficients.  We'll start by showing how you can do this through the bootstrap.  We'll begin by loading the **infer** package.  We're going to use the function `rep_sample_n()` to resample from our data 1,000 times:
 
@@ -529,6 +529,7 @@ tidy(house_year_model,
   select(term, estimate, conf.low, conf.high) %>%
   gt() %>%
   tab_source_note(md("Logistical Regression Table"))
+
 ```
 
 How do we interpret the coefficients in this model?  Since the `year` coefficient is negative, that means that each additional year is associated with a reduction in the chances of a Democratic victory. 
@@ -649,6 +650,8 @@ house_interact_model %>%
        x = "") +
   theme_classic()
 ```
+
+<!-- Here is a great place to discuss unknown unknowns --> 
 
 ### Fitting many models using `map()`
 
