@@ -3,10 +3,6 @@ output_yaml:
   - _output.yml
 ---
 
-<!-- Work in discussion on validity. If you are changing the example in the chapter, do that first -->
-<!-- Deepen discussion of whether structure of our model --- linear regression, CART --- match the world. -->
-<!-- Discussion of unknown unknowns esp when talking about extrapolating data to 2020 -->
-
 # Discrete Response {#classification}
 
 Many questions have binary answers. These questions can be answered by any pair of two answers (such as yes/no). Two examples of these questions include: 
@@ -18,8 +14,6 @@ Many questions have binary answers. These questions can be answered by any pair 
 All of the new models touched upon in this chapter speak to the wider discussion of fitting our model structures to better fit what is being measured in the world. Using logistical regressions of any type more accurately describe the measured effect when dealing with binary variables.  
 
 In this chapter, we will look at three common techniques of **classification** of binary data.  First, we will consider logistic regression, which is similar conceptually to the linear regression models we considered in Chapters \@ref(regression) and \@ref(multiple-regression).  Second, we will consider classification and regression trees (CART).  Third, we will discuss random forests.
-
-
 
 <!-- MB: Should the ref() thing be replaced by a chapter number? -->
 
@@ -253,7 +247,7 @@ We see roughly linear relationships after the logit transformation within-region
 Let's start our modeling by predicting `dem_win` with a single categorical explanatory variable.  We'll start with a binary variable for whether an observation is in the South and we will progress to the categorical variable `region`.  As we'll see, the syntax for running a logistic regression in R is very similar to that for running a linear regression.  In fact, we'll follow the same basic steps:
 
 1. We first "fit" the logistic regression model using the `glm(y ~ x, family, data)` function and save it in `house_region_model`.
-1. We get the regression table by applying the `tidy()` function from the **broom** package to `house_region_model`.  We'll print the `term`, `estimate`, `conf.low`, and `conf.high` columns.
+2. We get the regression table by applying the `tidy()` function from the **broom** package to `house_region_model`.  We'll print the `term`, `estimate`, `conf.low`, and `conf.high` columns.
 
 Note that the key difference is that instead of using `lm()`, we are now using `glm()`.  `glm()` operates very similarly to `lm()`, but it has an additional argument: `family`.  To run a logistic regression, we use `family = binomial`.
 
@@ -1205,7 +1199,7 @@ Another concern is *post-treatment bias*.  For example, let's say that we were i
 
 We saw that our models predicted 64%-65% of the House races from 1976--2018 accurately using `state` and `year` as predictors.  However, these models were fitted on the same data that we used to evaluate their predictions.  These are called *in-sample* predictions.  A more strenuous test of a model's performance is whether it can generate good predictions on data that were not used in fitting the model. For election forecasting, for example, we are much more interested in forecasting the 2020 election results (which we don't know) than the 1976--2018 election results (which we know).  The 2020 predictions are an example of *out-of-sample* predictions.
 
-Making out-of-sample predictions is a great way of measuring unknown unknowns in the world, which is data we haven't observed yet. When making such predictions, it is important to make sure that the conditions used to create the model match the conditions of the world you are extrapolating about. Using 1976--2018 election results to predict election results in 2020, we contend, is a pretty safe extrapolation. An unsafe extrapolation would be using UK election results to predict outcomes in the US. 
+Making out-of-sample predictions is a great way of measuring unknown unknowns in the world, which is data we haven't yet observed. When making such predictions, it is important to make sure that the conditions used to create the model match the conditions of the world you are extrapolating about. Using 1976--2018 election results to predict election results in 2020, we contend, is a pretty safe extrapolation. An example of similar but unsafe extrapolation would be using UK election results to predict outcomes in the US. 
 
 While we can't evaluate our models' performance on the 2020 elections (yet!), we can take a look at the process by fitting our logistic, classification tree, and random forest models on the data we have pre-2018 and then evaluating their accuracy on the 2018 election results.  Let's start by creating tibbles of our pre-2018 and 2018 data:
 
@@ -1252,8 +1246,3 @@ tibble(logistic = mean(house_2018_preds$logistic == house_2018_preds$dem_win),
 ```
 
 Here we see that when fitting the models on pre-2018 data and testing them on 2018 data, the random forest specification performs the best and the classification tree the worse, with the logistic regression in-between.
-
-# Testing comments
-
-
-# Tester comments
