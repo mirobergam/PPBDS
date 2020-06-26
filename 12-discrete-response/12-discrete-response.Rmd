@@ -7,7 +7,8 @@ output_yaml:
 <!-- Deepen discussion of whether structure of our model --- linear regression, CART --- match the world. -->
 <!-- Discussion of unknown unknowns esp when talking about extrapolating data to 2020 -->
 
-
+# testing this 
+# testing 2 
 # Discrete Response {#classification}
 
 Many questions have binary answers. These questions can be answered by any pair of two answers (such as yes/no). Two examples of these questions include: 
@@ -1250,4 +1251,7 @@ tibble(logistic = mean(house_2018_preds$logistic == house_2018_preds$dem_win),
 ```
 
 Here we see that when fitting the models on pre-2018 data and testing them on 2018 data, the random forest specification performs the best and the classification tree the worse, with the logistic regression in-between.
+
+# test
+# test 2
 
