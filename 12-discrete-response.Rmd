@@ -748,6 +748,8 @@ img_path <- "images"
 
 We have learned how to fit models for binary responses using logistic regression.  However, logistic regression is just one of many methods we can use to model binary responses.  CART is another approach, which we'll learn about in this section.  In the next section, we'll learn about random forests.
 
+<!-- MB: Validity/model fitting the world-->
+
 A **tree** is basically a flow chart of yes or no questions. The general idea of the methods we are describing is to define an algorithm that uses data to create these trees with predictions at the ends, referred to as _nodes_. Decision trees predict an outcome variable $Y$ by *partitioning* the predictors.
 
 Decision trees like this are often used in practice. For example, to decide on a person's risk of poor outcome after having a heart attack, doctors use the following:
@@ -787,7 +789,9 @@ If you study the formula carefully you will see that it is in fact 0 in the perf
 
 Once we are done partitioning the predictor space into regions, in each region a prediction is made using the observations in that region. 
 
-But when do we stop partitioning?  Every time we split and define two new partitions, the Gini Index improves. This is because with more partitions, our model has more flexibility to adapt to our data.  However, our model may therefore perform worse when exposed to new data (this problem is called *overfitting*).  To avoid this, the algorithm sets a minimum for how much the Gini Index must improve for another partition to be added. This parameter is referred to as the _complexity parameter_ ($c_p$). The measure of fit must improve by a factor of $c_p$ for the new partition to be added. Large values of $c_p$ will therefore force the algorithm to stop earlier which results in fewer nodes.
+But when do we stop partitioning?  Every time we split and define two new partitions, the Gini Index improves. This is because with more partitions, our model has more flexibility to adapt to our data.  However, our model may therefore perform worse when exposed to new data (this problem is called *overfitting*). This connects to our discussion of validity and models, as the conditions used to create the model will be too specific to accurately extrapolate to new data points. To avoid this, the algorithm sets a minimum for how much the Gini Index must improve for another partition to be added. This parameter is referred to as the _complexity parameter_ ($c_p$). The measure of fit must improve by a factor of $c_p$ for the new partition to be added. Large values of $c_p$ will therefore force the algorithm to stop earlier which results in fewer nodes.
+
+<!-- MB: Use overfitting to discuss validity/model fitting the world-->
 
 Classification trees have certain advantages that make them very useful. They are highly interpretable, even more so than linear models. They are easy to visualize (if small enough).  Finally, they can model human decision processes. However, in terms of accuracy, they are rarely the best performing method since they are not very flexible. Random forests, explained in the next section, improve on some of the shortcomings of classification trees.
 
