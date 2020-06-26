@@ -897,7 +897,7 @@ But which tree is better?  We can answer that question using the `tune_grid()` f
 <!-- AR: material below commented out; can be deleted unless it may be
 repurposed for a discussion of the tune package at another time -->
 
-<!-- The basic idea is that we want to test out various values of $c_p$. and select the model that performs best.  We will provide code on how to decide which model is best by calculating the accuracy on 25 bootstrapped samples of our data.  (We wouldn't want to calculate the accuracy on our full data, because a lower value of $c_p$ will always perform best on any particular dataset, but the resulting model may not perform well on out-of-sample observations; this is an example of a general phenomenon called *overfitting*.)
+<!-- The basic idea is that we want to test out various values of $c_p$. and select the model that performs best.  We will provide code on how to decide which model is best by calculating the accuracy on 25 bootstrapped samples of our data.  (We wouldn't want to calculate the accuracy on our full data, because a lower value of $c_p$ will always perform best on any particular dataset, but the resulting model may not perform well on out-of-sample observations; this is an example of a general phenomenon called *overfitting*.) --> 
 
 First, we need to update the model specification to note that we are tuning the `cost_complexity` parameter.  We can do that using the `update()` function and setting `cost_complexity = tune()`:
 
