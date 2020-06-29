@@ -5,6 +5,14 @@ output_yaml:
 
 # Discrete Response {#classification}
 
+<!-- Use CCES for data work. Map 0 and 1 to approve and disapprove. 
+Chapter assumes classification is just 0 or 1, but more broadly it can be with multiple categories.
+Don't frame chapter based on different models, base it on different ways of solving problems. 
+Speed up discussion of logistic regressions, maybe just do only one. 
+Delete aggressively,
+Learn tidymodels. Start without tidymodels but then move it over to tidymodels. 
+Margin note for math stuff -->
+
 Many questions have binary answers. These questions can be answered by any pair of two answers (such as yes/no). Two examples of these questions include: 
   a. Are students with below average grades more likely to binge drink?
   b. Is exposure to a particular chemical associated with a cancer diagnosis?
@@ -16,20 +24,6 @@ All of the new models touched upon in this chapter speak to the wider discussion
 In this chapter, we will look at three common techniques of **classification** of binary data.  First, we will consider logistic regression, which is similar conceptually to the linear regression models we considered in Chapters \@ref(regression) and \@ref(multiple-regression).  Second, we will consider classification and regression trees (CART).  Third, we will discuss random forests.
 
 <!-- MB: Should the ref() thing be replaced by a chapter number? -->
-
-<!-- MB: Only include this section if it uses new/unique packages -->
-
-### Needed packages {-}
-
-Recall from our discussion in Section \@ref(tidyverse-package) that loading the **tidyverse** package by running `library(tidyverse)` loads the following commonly used data science packages all at once:
-
-* **ggplot2** for data visualization
-* **dplyr** for data wrangling
-* **tidyr** for converting data to "tidy" format
-* **readr** for importing spreadsheet data into R
-* As well as the more advanced **purrr**, **tibble**, **stringr**, and **forcats** packages
-
-Read Section \@ref(packages) for information on how to install and load R packages. 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
