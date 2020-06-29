@@ -30,6 +30,7 @@ library(tidyverse)
 library(broom)
 library(skimr)
 library(fivethirtyeight)
+library(PPBDS.data)
 ```
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
@@ -76,6 +77,8 @@ ggplot(dat, aes(x = x)) +
 The mathematical function $log\left(\frac{p}{1 - p}\right)$ is called the *logit function* and it transforms variables from the space $(0, 1)$ (like probabilities) to $(-\infty, \infty)$.  The inverse of that function, the *standard logistic function*, is $\frac{1}{1 + e^{-x}}$ and transforms variables from the space $(-\infty, \infty)$ to $(0, 1)$.  From that latter function's name we get the terminology of *logistic regression*.
 
 ### House elections: exploratory data analysis
+
+<!-- MB: Maybe just cut this entire section on exploratory data analysis?-->
 
 What affects whether a Democrat or Republican wins a race in the U.S. House of Representatives? This is an example of a binary response: either a Democrat wins (and a Republican loses) or a Republican wins (and a Democrat loses).^[It is rare that third party candidates mount serious bids in U.S. House elections, so it isn't a much of an oversimplication to think of the variable as binary.] In this section, we are going to consider several models predicting Democratic victory in House races. First, we will consider a single categorical variable as a predictor, the region in which a district lies: Midwest, Northeast, South, or West. Second, we will consider a single continuous variable: year. Finally, we fill fit a model that contains both separately, and than also an interaction between the two.
 
