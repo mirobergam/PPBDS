@@ -109,13 +109,18 @@ library(PPBDS.data)
 # Including three as marking approval
 
 cces_ch12 <- cces %>%
+  
   mutate(pres_approval = as.integer(case_when(
     approval == 5 ~ 1,
     approval == 4 ~ 1,
     approval == 3 ~ 1,
     approval == 2 ~ 0,
     approval == 1 ~ 0
-  )))
+  ))) %>%
+  
+  # Selecting relevant variables
+  
+  select(year, race, ideology, education, pres_approval)
 
 ```
 
@@ -146,12 +151,12 @@ cces_ch12 %>%
   sample_n(5) %>%
   gt() %>%
   cols_label(
-    region = md("Region"),
-    state = md("State"),
-    district = md("Distrct"),
     year = md("Year"),
-    dem_win = md("Democrat Win?")) %>%
-  tab_source_note(md("A random sample of 5 out of the 4,201 district-years"))
+    race = md("Race"),
+    ideology = md("Ideology"),
+    education = md("Education"),
+    pres_approval = md("President Approval?")) %>%
+  tab_source_note(md("A random sample of 5 out of the 452,755 individuals surveyed"))
 
 ```
 
@@ -159,7 +164,7 @@ Now that we’ve looked at the raw values in our `house_ch12` data frame and got
 
 ```{r}
 cces_ch12 %>% 
-  select(pres_approval, region, year) %>% 
+  select(pres_approval, ideology, year) %>% 
   skim()
 ```
 
