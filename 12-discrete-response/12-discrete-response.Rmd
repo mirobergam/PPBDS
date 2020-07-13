@@ -120,7 +120,11 @@ cces_ch12 <- cces %>%
   
   # Selecting relevant variables
   
-  select(year, race, ideology, education, pres_approval)
+  select(year, race, ideology, education, pres_approval) %>%
+  
+  # Filtering just for 2018 Trump approvaal
+  
+  filter(year > 2017)
 
 ```
 
@@ -175,8 +179,8 @@ Let’s now perform the last of the three common steps in an exploratory data an
 For our categorical variable, we'll look at histograms of `dem_win` faceted by `region`:
 
 ```{r}
-house_ch12 %>%
-  ggplot(aes(x = dem_win)) +
+cces_ch12 %>%
+  ggplot(aes(x = pres_approval)) +
   geom_histogram(bins = 10, color = "white") +
   labs(x = "Democratic victory percentage, 1976-2018", 
        y = "Number of districts",
