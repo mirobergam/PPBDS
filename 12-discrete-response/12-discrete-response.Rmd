@@ -87,7 +87,7 @@ What affects whether a Democrat or Republican wins a race in the U.S. House of R
 The data on House election results from 1976 to 2018 can be found in the `house_results` data frame in **politicaldata** package.  We'll create a version of this data frame called `house_ch12` that creates a new column `dem_win` that notes for each state if the Democratic candidate in a congressional district received more votes than the other candidates.  We'll also join it with the `state_info` data frame in the **fivethirtyeight** package to add the `region` of each state.
 
 ```{r}
-library(politicaldata)
+library(PPBDS.data)
 
 house_ch12 <- house_results %>%
   
@@ -103,6 +103,19 @@ house_ch12 <- house_results %>%
   rename(state_abbrev = state_abb) %>%
   left_join(state_info) %>%
   select(region, state, district, year, dem_win)
+
+# Creating a binary presidential approval variable
+
+cces_ch12 <- ccess %>%
+  mutate(pres_approval = casewhen(
+    approval_ch = "Strongly Approve" ~ 1,
+    approval_ch = "Approve / Somewhat Approve" ~ 1,
+    approval_ch = "Disapprove / Somewhat Disapprove" ~ 0,
+    approval_ch = "Strongly Approve" ~ 1,
+    approval_ch = "Neither Approve Nor Disapprove" ~ NA_character_,
+    approval_ch = "Never Heard / Not Sure" ~ NA_character_
+  ))
+
 ```
 
 <!-- DK: We use same dataset from other chapter, we need to modify this. But we won't have looked at everything! So, look at other stuff. Some is obvious, especially our new Y variable. But we can also look at stuff like number of elections per state, per year. Which state had the biggest districting rise and when? Indeed, the data exploration section in each chapter provides an occasion to learn more advanced R tricks. -->
