@@ -199,7 +199,6 @@ trains %>%
 
 ```
 
-
 The simplest model would be to guess that a person's age, conditional on their party membership, is equal to the mean age of people in that party.
 
 ```{r}
@@ -243,18 +242,15 @@ tibble(subject = c("Emily", "Dominic", "John", "Cassidy", "Miro"),
 
 ```
 
-This table is very simple, which is the point. There is no causal effect to be studied as we are simply trying to predict the immutable variable of age.
+This table is very simple, which is the point. There is no causal effect as we are simply trying to predict the immutable variable of age.
 
 This mathematical formula will also help us better understand the model:
 $$ y = b_0 + b_1 x $$
-$$ y = (42.6) + (41.16) x $$
-When the individual is a Democrat (x=0), their age is predicted to be 42.6. When the individual is a Republican (x=1), their age is predicted to be 41.16. 
+$$ y = (41.16) + (42.6 - 41.16) x $$
+When the individual is a Republican (x=0), their age is predicted to be 41.16. When the individual is a Republican (x=1), their age is predicted to be 42.6. 
 
 $$ y_i = b_0 + b_1 x_i + \epsilon_i $$
-
-If you know the age and party affiliation of any single individual, you can solve for epsilson, or the residual, of that observation. This is how much the individual's age varies from the prediction of their age in the model. 
-
-<!-- There's an issue with this formula... should there not be an intercept? But then the math doesn't work for dems -->
+If you know the age and party affiliation of any single individual, you can solve for the epsilson, or the residual, of that observation. This is how much the individual's age varies from the prediction of their age in the model. The age of any single observation is known as the *fitted value*. 
 
 The final aspect of model structure is realism. Does this model reflect the real world accurately?
 
@@ -271,7 +267,7 @@ trains %>%
   select(term, conf.low, estimate, conf.high)
 ```
 
-The confidence intervals that we've generated display the upper and lower bounds of the mean age of Democrat and Republican commuters on this train platform. This touches on the idea of **parameter uncertainty**: even if a model is constructed in a logical way, we are unable to know our parameters exactly, the parameters in this case being the mean ages of the two parties. Confidence intervals are one way to capture this uncertainty, so that we don't over-confidently put forward one definitively value. 
+The confidence intervals that we've generated display the upper and lower bounds of the mean age of Democrat and Republican commuters on this train platform. This touches on the idea of **parameter uncertainty**: even if a model is constructed in a logical way, we are unable to know our parameters exactly, the parameters in this case being the mean ages of the two parties. Confidence intervals are one way to capture this uncertainty, so that we don't over-confidently put forward one value rather than a range. 
 
 ```{r}
 trains %>%
@@ -283,7 +279,7 @@ You may notice how the range of the confidence interval for Republicans is large
 
 ### Unmodeled Variation
 
-If a new Democrat entered the train station, how easy would it be to guess their age with our model? Could you confidently say that they would be within the interval bounds of 40 and 45?
+If a new Democrat entered the train station, how easy would it be to guess their age with our model? Could you confidently say that they would be within the Democrat interval bounds of 40 and 45?
 
 $$ y_i = b_0 + b_1 x_i + \epsilon_i $$
 One shouldn't be too confident in that prediction. The new Democrat's age comes in two parts: the beta (determined by their political party) and their epsilon/residual (how much noise there is in this observation that offsets it from the beta prediction). While the beta values have been determined by our model, the epsilon value represents *unmodeled variation* that could likely put the value outside of these bounds. 
