@@ -16,6 +16,8 @@ library(tufte)
 
 <!-- 1) Add a Rubin Table for the age ~ party section. Include discussion of modeling for prediction. -->
 
+<!-- At end of EDA, add a plot of raw data, jittered or whatever to look good. -->
+
 <!-- 2) Explain meaning of regression results in age ~ party. Discuss key themes like parameter uncertainty and unmodeled variation. Also, predicted value and residual. -->
 
 <!-- 3) Send a PR when each of these is done. We can then Zoom and discuss next steps. Much of the chapter is a mess so we need to go step-by-step. -->
@@ -23,6 +25,8 @@ library(tufte)
 <!--
 
 Outline of the chapter
+
+0) Open with a question.
 
 1) EDA for trains
 
@@ -34,7 +38,7 @@ Outline of the chapter
 
 5) Models requiring the bootstrap. Ratio of average age of democrats versus republicans.
 
-6) Prediction. 
+6) Prediction. Use the models to answer your question.
 
 -->
 
@@ -90,6 +94,8 @@ ch8 %>%
 ```
 
 `skim()` shows us what the different values of `treatment` are because it is a factor. Unfortunately, it does not do the same for character variables like `party`. The ranges for `age` and `att_end` seem reasonable. Recall that participants were asked three questions about immigration issues, each of which allowed for an answer which was a strength of agreement between 1 and 5, with higher values indicating more agreement with conservative viewpoints. So, the most liberal possible value is 3 and the most conservative is 15.
+
+<!-- add a plot -->
 
 
 ## Review of One Parameter Estimation
@@ -253,7 +259,7 @@ trains %>%
   select(term, conf.low, estimate, conf.high)
 ```
 
-The confidence intervals that we've generated display the upper and lower bounds of the mean age of Democrat and Republican commuters on this train platform. This touches on the idea of *parameter uncertainty*: even if a model is constructed in a logical way, we are unable to know our parameters exactly, the parameters in this case being the mean ages of the two parties. Confidence intervals are one way to capture this uncertainty, so that we don't over-confidently put forward one definitively value. 
+The confidence intervals that we've generated display the upper and lower bounds of the mean age of Democrat and Republican commuters on this train platform. This touches on the idea of **parameter uncertainty**: even if a model is constructed in a logical way, we are unable to know our parameters exactly, the parameters in this case being the mean ages of the two parties. Confidence intervals are one way to capture this uncertainty, so that we don't over-confidently put forward one definitively value. 
 
 ```{r}
 trains %>%
@@ -269,8 +275,6 @@ If a new Democrat entered the train station, how easy would it be to guess their
 
 $$ y_i = b_0 + b_1 x_i + \epsilon_i $$
 One shouldn't be too confident in that prediction. The new Democrat's age comes in two parts: the beta (determined by their political party) and their epsilon/residual (how much noise there is in this observation that offsets it from the beta prediction). While the beta values have been determined by our model, the epsilon value represents *unmodeled variation* that could likely put the value outside of these bounds. 
-
-
 
 <!-- DK: I went fast above, but that is all the key material. Still need to add a Rubin Table example, highlighting that this is modeling for prediction. There is only one column for Y because it is impossible to change someone's age, whatever manipulations you make to party. -->
 
