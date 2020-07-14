@@ -188,6 +188,18 @@ The 95% confidence interval calculated via `lm()` is, more or less, the same as 
 
 But what if, instead of having no other information about our sample beyond their ages, we also knew their political party? How would we make a model which included this other information? This is a model for prediction, rather than a model for causal inference, because `age` can not be changed, regardless what happens to `party`. That is, someone's age is the same regardless of the party of which they are a member.
 
+```{r}
+
+trains %>%
+  ggplot(aes(x = party, y = age)) + 
+  geom_jitter(width = 0.2) + 
+  labs(x = "Party",
+       y = "Age",
+       title = "Age by Party Affiliation in Trains Dataset")
+
+```
+
+
 The simplest model would be to guess that a person's age, conditional on their party membership, is equal to the mean age of people in that party.
 
 ```{r}
