@@ -5,20 +5,26 @@ output_yaml:
 
 # Sampling {#sampling}
 
+<!-- Priorities: --> 
 
-<!-- Priorities: -->
+<!-- 1) Fix "`summarise()` ungrouping output (override with `.groups`" -->
 
-<!-- -1) Fix "`summarise()` ungrouping output (override with `.groups`" -->
+<!-- 2) Replace kable() with gt(). -->
 
-<!-- 0) Replace kable() with gt(). No code chunk names. No purl or width in figures. -->
+<!-- 3) Fix missing references. (Look for ?? in html). Maybe just drop references to figures. can you figure out how to do them? Keep references to section. -->
 
-<!-- 1) Remove library(moderndive) and anything which depends in it. This may require creating our own copy of some of its built in datasets, or replacing them. Example: the code uses `tactile_prop_red` a dataset in **moderndive**. So, create, on the fly, a similar looking data set and just use that. (Hint: IN your own code chunk, use the include=FALSE code chunk option.) See where we create the `urn` object for an guidance. -->
+<!-- 4) Do the fig.height do anything useful. If not, delete. -->
 
-<!-- 2) Set up Zoom with Cass about "sampling mechanism," which is just like the "assignment mechanism." How did some beads get sampled and some did not? Bias and censoring are relevant topics here. Every problem has a Rubin Table highlighting what God would know, what we know, and then how we form a pdf about what we don't know. (Read chapter 3 for background.) This is even so with sampling! Until we sample a bead, it is a "?". Then, it resolves to red/white. After drawing our sample, we make inferences about the other beads. In one sense, we are inferring the value of p. In another, we are guessing what each of the "?" is, at least in expectation. But we can then also capture uncertainty! Each bead might be red or white, regardless of p. And there is uncertainty about p as well. This is the first time we are seeing both model uncertainty --- what is p? --- and predictive uncertainty --- what color is the next bead? -->
+<!-- 5) Change Preceptor Table. Should have two columns: "ID" and "color". Talk about Ideal, Actual and Reduced (sort of, all the rows with questio marks are "exchangeable") Preceptor Tables. Just have a posterior for p, just like Vivian. Then you have a posterior for a specific prediction question. Example: Use a new paddle to draw out 50 beads 1,000 times. What is a good 95% confidence interval for number of red beads? (Discuss with Tahmid.) -->
 
-<!-- 3) Set up Zoom with Vivian. Draw direct connection to her coin example. -->
+<!-- 6) Read bok/themes.Rmd. Do you have a math portion? Probably not. -->
 
-<!-- How about an urn with more than two colors? An urn with an income is written on the bead? -->
+<!-- 7) Set up Zoom with Cass about "sampling mechanism," which is just like the "assignment mechanism." How did some beads get sampled and some did not? Bias and censoring are relevant topics here. Re-running the experiment and comparing the new results to our predictions, derived from the Predictive Preceptor Table, is how we confirm that our conclusions are correct. -->
+
+<!-- 8) Set up Zoom with Vivian. Draw direct connection to her coin example. Advice about how to create your joint distribution. -->
+
+<!-- 9) Set up Zoom with Tahmid. Talk about how your discussion of Tables connects to his. Maybe you don't discuss  the Fitted and Prediction Preceptor Tables-->
+
 
 <!-- Key issues for summer 2020. -->
 
@@ -46,20 +52,25 @@ output_yaml:
 
 <!-- Revisit Albert's functions. Is it OK that urn is just treated as a global variable? Or should it be passed in as an argument. Also, are two functions really necessary? -->
 
+<!-- Discuss hypothesis tests and why we hate them. See style.Rmd for details. -->
+
 <!-- Discuss hypothesis tests and why we hate them. See themes.Rmd for details. -->
 
 <!-- Also interesting to think about tables which we know are finite but we don't ever know how many rows, like number of living people in US right now (i.e., includes planes landing? someone whose heart has stopped beating but has not been "pronounced" dead?)  -->
+
+<!-- How about an urn with more than two colors? An urn with an income is written on the bead? -->
+
 
 <!-- Might also use Topic 16 from the Workshop here, or save it for the next chapter. -->
 
 Last chapter, we learned about probability, the act of quantifying uncertainty. This chapter, we will be learning about *sampling*, the beginning of our journey toward inference. As always, we will need the **tidyverse** package. The **infer** package has a handy function, `rep_sample_n()`, for simulating the process of sampling.
 
-```{r message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(infer)
 ```
 
-```{r message=FALSE, warning=FALSE, echo=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 # Packages needed internally, but not in text.
 library(gt)
 library(knitr)
@@ -77,8 +88,6 @@ Take a look at the urn in Figure \@ref(fig:sampling-exercise-1). It has a certai
 
 Let's now ask ourselves, what proportion of this urn's balls are red? 
 
-<!-- What is the best approach to R code chunks for images in the book? What is "purl" doing? Why out.width set to 95%? Need to understand this better and standardize it. -->
-
 ```{r, echo=FALSE, fig.cap="An urn with red and white balls."}
 knitr::include_graphics("06-sampling/images/sampling_bowl_1.jpg")
 ```
@@ -89,16 +98,20 @@ One way to answer this question would be to perform an exhaustive count: remove 
 
 Instead of performing an exhaustive count, let's insert a shovel into the urn as seen in Figure \@ref(fig:sampling-exercise-2). Using the shovel, let's remove $5 \cdot 10 = 50$ balls, as seen in Figure \@ref(fig:sampling-exercise-3). Here, we are taking a *random sample* of the total population of balls. 
 
-```{r sampling-exercise-2, echo=FALSE, fig.cap="Inserting a shovel into the urn.", purl=FALSE, out.width = "100%"}
+```{r, echo=FALSE, fig.cap="Inserting a shovel into the urn."}
 knitr::include_graphics("06-sampling/images/sampling_bowl_2.jpg")
 ```
 
 
-```{r sampling-exercise-3, echo=FALSE, fig.cap="Removing 50 balls from the urn.", purl=FALSE, out.width = "100%"}
+```{r, echo=FALSE, fig.cap="Removing 50 balls from the urn."}
 knitr::include_graphics("06-sampling/images/sampling_bowl_3_cropped.jpg")
 ```
 
 Observe that 17 of the 50 sampled balls are red and thus 17/50 = 0.34 = 34% of the shovel's balls are red. We can view the proportion of balls that are red in this shovel as a guess of the proportion of balls that are red in the entire urn. While not as exact as doing an exhaustive count of all the balls in the urn, our guess of 34% took much less time and energy to make. 
+
+However, say, we started this activity over from the beginning. In other words, we replace the 50 balls back into the urn and start over. Would we remove exactly 17 red balls again? Would our guess at the proportion of the urn's balls that are red be exactly 34% again? Maybe? 
+
+What if we repeated this activity several times following the process shown in Figure \@ref(fig:sampling-exercise-3b)? Would we obtain exactly 17 red balls each time? In other words, would our guess at the proportion of the urn's balls that are red be exactly 34% every time? Surely not. 
 
 However, say, we started this activity over from the beginning. In other words, we replace the 50 balls back into the urn and start over. Would we remove exactly 17 red balls again? Would our guess at the proportion of the urn's balls that are red be exactly 34% again? Maybe? 
 
@@ -117,7 +130,7 @@ Each of our 33 groups of friends will do the following:
 - Return the balls into the urn.
 - Mix the contents of the urn a little to not let a previous group's results influence the next group's. 
 
-```{r sampling-exercise-3b, echo=FALSE, fig.show='hold', fig.cap="Repeating sampling activity 33 times.", purl=FALSE, out.width = "30%"}
+```{r, echo=FALSE, fig.show='hold', fig.cap="Repeating sampling activity 33 times."}
 # Need new picture
 
 knitr::include_graphics(c("06-sampling/images/tactile_2_a.jpg", "06-sampling/images/tactile_2_b.jpg", "06-sampling/images/tactile_2_c.jpg"))
@@ -125,13 +138,13 @@ knitr::include_graphics(c("06-sampling/images/tactile_2_a.jpg", "06-sampling/ima
 
 Each of our 33 groups of friends make note of their proportion of red balls from their sample collected. Each group then marks their proportion of their 50 balls that were red in the appropriate bin in a hand-drawn histogram as seen in Figure \@ref(fig:sampling-exercise-4).
 
-```{r sampling-exercise-4, echo=FALSE, fig.cap="Constructing a histogram of proportions.", purl=FALSE, out.width = "80%"}
+```{r, echo=FALSE, fig.cap="Constructing a histogram of proportions."}
 knitr::include_graphics("06-sampling/images/tactile_3_a.jpg")
 ```
 
 Recall from Section \@ref(histograms) that histograms allow us to visualize the *distribution* of a numerical variable. In particular, where the center of the values falls and how the values vary. A partially completed histogram of the first 10 out of 33 groups of friends' results can be seen in Figure \@ref(fig:sampling-exercise-5).
 
-```{r sampling-exercise-5, echo=FALSE, fig.cap="Hand-drawn histogram of first 10 out of 33 proportions.", purl=FALSE, out.width = "70%"}
+```{r, echo=FALSE, fig.cap="Hand-drawn histogram of first 10 out of 33 proportions."}
 knitr::include_graphics("06-sampling/images/tactile_3_c.jpg")
 ```
 
@@ -142,28 +155,48 @@ Observe the following in the histogram in Figure \@ref(fig:sampling-exercise-5):
 * However, the most frequently occurring proportions were between 0.30 and 0.35 red, right in the middle of the distribution.
 * The shape of this distribution is somewhat bell-shaped. 
 
-Let's construct this same hand-drawn histogram in R using your data visualization skills that you honed in Chapter \@ref(viz). The 33 groups of friends' results are saved in the `tactile_prop_red` data frame included in the **moderndive** package. Run the following to display the first 10 of 33 rows:
+Let's construct this same hand-drawn histogram in R using your data visualization skills that you honed in Chapter \@ref(viz). First, let's create an object, `tactile_sample_urn` that saves the results from our 33 groups of friends. Run the following to display the tibble:
 
-```{r}
-library(moderndive)
 
-tactile_prop_red
+```{r, echo=FALSE}
+tactile_sample_urn <- tibble(group = c("Ilyas, Yohan", "Ellie, Terrance", "Mark, Ramses", 
+                                      "Sophie, Brian", "Maeve, Josh", "Sanjana, Yuko", 
+                                      "Nam, Joshua", "Siobhan, Jane", "Caroline, Edna",
+                                      "Mal, Francis", "Vignesh, Eliot", "Griffin, Mary",
+                                      "Mak, Sophie", "Mark, Jane", "Ishan, Cass",
+                                      "Katie, Anthony", "Aaron, Mike", "Yuki, Harry",
+                                      "Damani, Melissa", "Conrad, Vlad", "Yao, Kate",
+                                      "Aayush, Karen", "Ace, Chris", "Claire, Cloud",
+                                      "Dania, Derek", "Dohyun, Estel", "Esther, Henry",
+                                      "Ian, Iman", "Mia, James", "Morgan, Emily",
+                                      "Frank, Clara", "Paddy, Matt", "Maddie, Brent"),
+                            red_balls = c("21", "17", "21", "21", "18", "19", "19",
+                                          "11", "15", "17", "16", "18", "17", "21",
+                                          "15", "20", "11", "21", "15", "16", "23",
+                                          "15", "18", "16", "21", "18", "17", "18",
+                                          "15", "21", "21", "16", "19")) %>% 
+  sample_frac() %>% 
+  mutate(red_balls = as.numeric(red_balls)) %>% 
+  mutate(prop_red = red_balls/50) %>% 
+  mutate(replicate = 1:33)
+
+tactile_sample_urn
 ```
 
 Observe for each `group` that we have their names, the number of `red_balls` they obtained, and the corresponding proportion out of 50 balls that were red named `prop_red`. We also have a `replicate` variable enumerating each of the 33 groups. We chose this name because each row can be viewed as one instance of a replicated (in other words repeated) activity: using the shovel to remove 50 balls and computing the proportion of those balls that are red. 
 
 Let's visualize the distribution of these 33 proportions using `geom_histogram()` with `binwidth = 0.05` in Figure \@ref(fig:samplingdistribution-tactile). This is a computerized and complete version of the partially completed hand-drawn histogram you saw in Figure \@ref(fig:sampling-exercise-5). Note that setting `boundary = 0.4` indicates that we want a binning scheme such that one of the bins' boundary is at 0.4. This helps us to more closely align this histogram with the hand-drawn histogram in Figure \@ref(fig:sampling-exercise-5).
 
-```{r eval=FALSE}
-tactile_prop_red %>%
+```{r, eval=FALSE}
+tactile_sample_urn %>%
   ggplot(aes(x = prop_red)) +
   geom_histogram(binwidth = 0.05, boundary = 0.4, color = "white") +
   labs(x = "Proportion of 50 balls that were red", 
        title = "Distribution of 33 proportions red") 
 ```
 
-```{r samplingdistribution-tactile, echo=FALSE, fig.cap="Distribution of 33 proportions based on 33 samples of size 50.", fig.height=3.1}
-tactile_histogram <- ggplot(tactile_prop_red, aes(x = prop_red)) +
+```{r, echo=FALSE, fig.cap="Distribution of 33 proportions based on 33 samples of size 50.", fig.height=3.1}
+tactile_histogram <- ggplot(tactile_sample_urn, aes(x = prop_red)) +
   geom_histogram(binwidth = 0.05, boundary = 0.4, color = "white")
 tactile_histogram + 
   labs(x = "Proportion of 50 balls that were red", 
@@ -332,13 +365,13 @@ virtual_prop_red
 
 As with our 33 groups of friends' tactile samples, there is variation in the resulting 33 virtual proportions red. Let's visualize this variation in a histogram in Figure \@ref(fig:samplingdistribution-virtual). Note that we add `binwidth = 0.05` and `boundary = 0.4` arguments as well. Recall that setting `boundary = 0.4` ensures a binning scheme with one of the bins' boundaries at 0.4. Since the `binwidth = 0.05` is also set, this will create bins with boundaries at 0.30, 0.35, 0.45, 0.5, etc. as well.
 
-```{r eval=FALSE}
+```{r, eval=FALSE}
 ggplot(virtual_prop_red, aes(x = prop_red)) +
   geom_histogram(binwidth = 0.05, boundary = 0.4, color = "white") +
   labs(x = "Proportion of 50 balls that were red", 
        title = "Distribution of 33 proportions red") 
 ```
-```{r samplingdistribution-virtual, echo=FALSE, fig.cap="Distribution of 33 proportions based on 33 samples of size 50.", fig.height=3.2}
+```{r, echo=FALSE, fig.cap="Distribution of 33 proportions based on 33 samples of size 50.", fig.height=3.2}
 virtual_histogram <- ggplot(virtual_prop_red, aes(x = prop_red)) +
   geom_histogram(binwidth = 0.05, boundary = 0.4, color = "white")
 virtual_histogram + 
@@ -350,11 +383,11 @@ Observe that we occasionally obtained proportions red that are less than 30%. On
 
 Let's now compare our virtual results with our tactile results from the previous section in Figure \@ref(fig:tactile-vs-virtual). Observe that both histograms are somewhat similar in their center and variation, although not identical. These slight differences are again due to random sampling variation. Furthermore, observe that both distributions are somewhat bell-shaped.
 
-```{r tactile-vs-virtual, echo=FALSE, fig.cap="Comparing 33 virtual and 33 tactile proportions red.", fig.height=2.9}
+```{r, echo=FALSE, fig.cap="Comparing 33 virtual and 33 tactile proportions red.", fig.height=2.9}
 facet_compare <- bind_rows(
   virtual_prop_red %>% 
     mutate(type = "Virtual sampling"), 
-  tactile_prop_red %>% 
+  tactile_sample_urn %>% 
     select(replicate, red = red_balls, prop_red) %>% 
     mutate(type = "Tactile sampling")
 ) %>% 
@@ -391,13 +424,14 @@ virtual_prop_red
 
 Observe that we now have 1,000 replicates of `prop_red`, the proportion of 50 balls that are red. Using the same code as earlier, let's now visualize the distribution of these 1,000 replicates of `prop_red` in a histogram in Figure \@ref(fig:samplingdistribution-virtual-1000).
 
-```{r eval=FALSE}
+```{r, eval=FALSE}
 ggplot(virtual_prop_red, aes(x = prop_red)) +
   geom_histogram(binwidth = 0.05, boundary = 0.4, color = "white") +
   labs(x = "Proportion of 50 balls that were red", 
        title = "Distribution of 1,000 proportions red") 
 ```
-```{r samplingdistribution-virtual-1000, echo=FALSE, fig.cap="Distribution of 1,000 proportions based on 1,000 samples of size 50."}
+
+```{r, echo=FALSE, fig.cap="Distribution of 1,000 proportions based on 1,000 samples of size 50."}
 virtual_prop_red <- virtual_samples %>% 
   group_by(replicate) %>% 
   summarize(red = sum(color == "red")) %>% 
@@ -411,13 +445,13 @@ virtual_histogram +
 
 Once again, the most frequently occurring proportions of red balls occur between 35% and 40%. Every now and then, we obtain proportions as low as between 20% and 25%, and others as high as between 55% and 60%. These are rare, however. Furthermore, observe that we now have a much more symmetric and smoother bell-shaped distribution. This distribution is, in fact, approximated well by a normal distribution. At this point we recommend you read the "Normal distribution" section (Appendix \@ref(appendix-normal-curve)) for a brief discussion on the properties of the normal distribution.
 
-<!-- Gambling might flow naturally here. -->
 
 ### The effect of different shovel sizes {#different-shovels}
 
 Now say instead of just one shovel, you have three choices of shovels to extract a sample of balls with: shovels of size 25, 50, and 100.
 
-```{r three-shovels, echo=FALSE, fig.align='center', fig.cap="Three shovels to extract three different sample sizes.", out.width='100%', purl=FALSE}
+
+```{r, echo=FALSE, fig.align='center', fig.cap="Three shovels to extract three different sample sizes."}
 knitr::include_graphics("06-sampling/images/three_shovels.png")
 ```
 
@@ -497,7 +531,7 @@ virtual_prop_red_100 %>%
 
 For easy comparison, we present the three resulting histograms in a single row with matching x and y axes in Figure \@ref(fig:comparing-sampling-distributions).
 
-```{r comparing-sampling-distributions, echo=FALSE, fig.height=3, fig.cap="Comparing the distributions of proportion red for different sample sizes."}
+```{r, echo=FALSE, fig.height=3, fig.cap="Comparing the distributions of proportion red for different sample sizes."}
 # DK: What is the purpose of all this file exist checking? Should we just be
 # creating all this on the fly, probably with a set.seed?
 
@@ -572,7 +606,7 @@ virtual_prop_red_100 %>%
 
 Let's compare these three measures of distributional variation in Table \@ref(tab:comparing-n).
 
-```{r comparing-n, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 comparing_n_table <- virtual_prop %>% 
   group_by(n) %>% 
   summarize(sd = sd(prop_red)) %>% 
@@ -763,7 +797,7 @@ Note that last word we wrote in bold: **infer**. The act of "inferring" means to
 
 Now, for some important statistical definitions related to sampling. As a refresher of our 1,000 repeated/replicated virtual samples of size $n$ = 25, $n$ = 50, and $n$ = 100 in Section \@ref(sampling-simulation), let's display Figure \@ref(fig:comparing-sampling-distributions) again as Figure \@ref(fig:comparing-sampling-distributions-1b).  
 
-```{r comparing-sampling-distributions-1b, echo=FALSE, fig.cap="Previously seen three distributions of the sample proportion $\\widehat{p}$.", fig.height=3.1}
+```{r, echo=FALSE, fig.cap="Previously seen three distributions of the sample proportion $\\widehat{p}$.", fig.height=3.1}
 comparing_sampling_distributions
 ```
 
@@ -785,7 +819,7 @@ Unfortunately, these names confuse many people who are new to statistical infere
 
 To help reinforce these concepts, let's re-display Figure \@ref(fig:comparing-sampling-distributions) but using our new terminology, notation, and definitions relating to sampling in Figure \@ref(fig:comparing-sampling-distributions-2). 
 
-```{r comparing-sampling-distributions-2, echo=FALSE, fig.cap="Three sampling distributions of the sample proportion $\\widehat{p}$."}
+```{r, echo=FALSE, fig.cap="Three sampling distributions of the sample proportion $\\widehat{p}$."}
 p_hat_compare <- virtual_prop %>% 
   mutate(
     n = str_c("n = ", n),
@@ -828,13 +862,53 @@ We also saw in the previous section that as your sample size $n$ increases, your
 So random sampling ensures our point estimates are *accurate*, while on the other hand having a large sample size ensures our point estimates are *precise*. While the terms "accuracy" and "precision" may sound like they mean the same thing, there is a subtle difference. Accuracy describes how "on target" our estimates are, whereas precision describes how "consistent" our estimates are. Figure \@ref(fig:accuracy-vs-precision) illustrates the difference.
 
 
-```{r accuracy-vs-precision, echo=FALSE, fig.cap="Comparing accuracy and precision.", purl=FALSE, out.width="75%", out.height="75%"}
+```{r, echo=FALSE, fig.cap="Comparing accuracy and precision.", out.width="75%", out.height="75%"}
 knitr::include_graphics("06-sampling/images/accuracy_vs_precision.jpg")
 ```
 
-<!-- DRAFT: Let's apply these ideas to gambling. If we were to bet money on the proportion of the red balls in the urn, and we could perform virtual simulations beforehand, we would want the most *accurate* and most *precise* estimate. Here, our *estimand*, the thing we want to know, would be the proportion of red balls in the urn. INCORP DISCUSSION OF PREDICTION UNCERTAINTY, UNMODELED VARIATION, PARAMETER UNCERTAINTY,  -->
+If we were to bet money on the proportion of the red balls in the next shovel taken from the urn, and we could perform virtual simulations beforehand, how would we go about it? We want the most *accurate* and *precise* estimate. Of the simulations covered in this chapter, we have established that the largest shovel size (100) performed many times is most approppriate for this goal. Let's look at the histogram for the shovel with 100 slots with 1000 repetitions.
 
-<!-- MF: Stick with urn example for gambling? Something less predictable & involving more unknowns might be better for explanining model structure, paramater uncertainty, prediction uncertainty, etc. On the other hand, I don't want this chapter to get too lengthy.  -->
+```{r, echo=FALSE}
+virtual_prop_red_100 %>%
+  ggplot(aes(x = prop_red)) +
+  geom_histogram(binwidth = 0.05, boundary = 0.4, color = "white") +
+  labs(x = "Proportion of 100 balls that were red", title = "Proportion of Red Balls With 100 Shovel Slots") 
+```
+
+Now, let's say that we are presented the following bet: if the proportion of red balls in the next shovel falls between 35 and 40%, we win and get 100 dollars! But if it falls anywhere above or below that margin, we lose and must pay 100 dollars. Do we take the bet? First, let's analyze the situation. 
+
+Our **estimand**, the thing we want to know, would be the proportion of red balls in the urn. If we had hand-picked and manually counted each ball and its color identity, the estimand would be a matter of arithmitic. Since we don't have the time to do so, we must find our estimand using other methods (like the sampling above).
+
+Our **model structure**, using the large shovel and performing the sample 1000 times, ensures an accurate and precise model on which we may make our prediction. It closely resembles the real-life situation, estimating the proportion of red balls in an urn, and we may therefore assume the model is valid.
+
+<!-- outcome = model + random stuff; 
+color of bead = p + random stuff 
+# of red = p * size of paddle + random stuff
+
+-->
+
+**Parameter uncertainty** states that, even when our model structure is valid, we must estimate the parameters. We can never perfectly estimate the proportion of red balls. In this situation, we must decide if the parameters (a proportion between 35% and 40%) are generous enough to risk our money.
+
+**Unmodeled variation**, the idea that, no matter how accurate our model is, some randomness is intrinsic. It is possible, though unlikely, that the next shovel would have a proportion below 20%, despite the fact that our model does not show this possibility!
+
+**Prediction uncertainty** highlights our ability, or lack thereof, to predict the future. As stated above, even with very helpful simulations, it's possible that the actual proportion of red balls in the next shovel is not shown on the histogram above. 
+
+Now, let's revisit our bet: if the proportion of red balls in the next shovel falls between 35% and 40%, we win and get 100 dollars. If it falls anywhere above or below that margin, we lose and must pay 100 dollars. Now that we understand the strengths and weaknesses of the model, do we take the deal? 
+
+The proportion of red balls that occurs most frequenty in our model *does* exist in the margin between 35% and 40%. That sounds great then, right? Not so fast.
+
+This is where **parameter uncertainty** comes into play. Though our model is valid and we see that the most common proportion does exist in this parameter, the proportion of red balls falls in between the proposed margins about 40% of the time. That's great! But if we think about this a bit more, this means that, in about 60% of the simulations, the proportion of red balls *does not* fall in the proposed margins. In other words, though the most likely value of the estimand is between 35% and 40%, it is *more* likely that the estimand falls above or below these margins. The odds are not in our favor.
+
+Let's imagine that we argue that the parameters are extended to the propotion of red balls being between 30% and 40%. Now, the parameters suggest that we would be correct around 70% of the time. Do we take this bet?
+
+It depends on how willing we are to risk 100 dollars. If we consider **prediction uncertainty**, we might hesitate. Even if we have proof that the proportion of red balls lies between 30% and 40% in our samples the majority of the time, there is always the possibility that the proportion falls outside of these margins. After all, our sampling proves that the proportion falls out of these margins **30%** of the time!
+
+**Unmodeled variation** further complicates our decision. Randomness is always possible! 
+
+To recap: the **estimand**, our proportion of red balls in the next shovel, is difficult to predict due to **unmodeled variation** and **prediction uncertainty**, even though our **model structure** is precise and accurate. Considering **parameter uncertainty** ensures that we are not overly confident in our model; even if we know the most likely margin, the area outside of the margin may be a better bet! 
+
+At the end of the day, even if we can endlessly sample and ensure model validity, taking the bet is always a risk.
+
 
 ### The moral of the story {#moral-of-the-story}
 
@@ -854,7 +928,7 @@ urn %>%
 
 Let's re-display our sampling distributions from Figures \@ref(fig:comparing-sampling-distributions) and \@ref(fig:comparing-sampling-distributions-2), but now with a vertical red line marking the true population proportion $p$ of balls that are red = 37.5% in Figure \@ref(fig:comparing-sampling-distributions-3). We see that while there is a certain amount of error in the sample proportions $\widehat{p}$ for all three sampling distributions, on average the $\widehat{p}$ are centered at the true population proportion red $p$.
 
-```{r comparing-sampling-distributions-3, echo=FALSE, fig.cap="Three sampling distributions with population proportion $p$ marked by vertical line."}
+```{r, echo=FALSE, fig.cap="Three sampling distributions with population proportion $p$ marked by vertical line."}
 p <- urn %>% 
   summarize(mean(color == "red")) %>% 
   pull()
@@ -991,22 +1065,102 @@ In other words, their sampling distribution increasingly follows a *normal distr
 
 Shuyi Chiou, Casey Dunn, and Pathikrit Bhattacharyya created a 3-minute and 38-second video at <https://youtu.be/jvoxEYmQHNM> explaining this crucial statistical theorem using the average weight of wild bunny rabbits and the average wingspan of dragons as examples. Figure \@ref(fig:CLT-video-preview) shows a preview of this video.
 
-```{r CLT-video-preview, echo=FALSE, fig.cap="Preview of Central Limit Theorem video.", purl=FALSE, out.width = "75%"}
+```{r, echo=FALSE, fig.cap="Preview of Central Limit Theorem video.", out.width = "75%"}
 knitr::include_graphics("06-sampling/images/CLT_video_preview.png")
 ```
 
 
 ## Rubin Causal Model
 
-Now that we have mastered sampling, let's consider how these scenarios connect to the Rubin Causal Model (RCM). For the most part, they don't! 
+Now that we have mastered sampling, let's consider how these scenarios connect to the Rubin Causal Model (RCM). 
 
-Remember the RCM's slogan: *No causation without manipulation*. In both the urn example and our Obama poll, we are not manipulating our units (the balls and the opinions of the pollees, respectively). There are not a control and treatment condition to compare; there is no causal effect to measure. That must mean that the RCM is completely irrelevant, right?
+For the most part, they don't! 
 
-Not exactly. Certain elements of the RCM *can* be applied here. 
+Remember the RCM's slogan: *No causation without manipulation*. In both the urn example and our Obama poll, we are not manipulating our units (the balls and the opinions of the pollees, respectively). There are not a control and treatment condition to compare; there is no causal effect to measure. Therefore, the RCM cannot be directly applied to these scenarios. 
 
-In both the RCM and in our exercises, randomization is *incredibly important* to ensure validity and precision. In the RCM, this randomization exists in the form of  **random assignment**, the act of assigning units a condition (control or treatment) randomly. In sampling, this randomization exists in the form of **random sampling**.
+However, the **Rubin Table** can be applied to sampling. How? Let's find out.
 
-<!-- MF: Still wondering how to incorporate RCM into this chapter, since we are not dealing with assignment & two realities (one observed, one not observed) for each ball. Should this section focus on proving that RCM is still relevant, or explaining that RCM can't be applied perfectly to the urn scenario? -->
+### What We Know
+
+When we sample 25 balls from our urn, we are taking a random sample of balls, finding the proportion that are red, and generalizing to estimate the total proportion of red balls in the entire urn. Imagine we use the shovel in our urn and sample 25 balls; the proportion of red balls is found to be 42%. What does this information tell us about Ball 1? Ball 2? Let's visulize this by looking at the first 25 balls of our urn, identified by ball_ID, after taking a random sample. In this table, 1 represents "yes" and 0 represents "no".
+
+```{r, echo = FALSE}
+rubin_table <- tibble(ball_ID = 1:25,
+                      red_ball = c("?", "?", "?", "?", "1", "?", "?", "?", "?", 
+                                   "?", "?", "?", "?", "0", "?", "?", "?", "?", 
+                                   "?", "?", "?", "?", "?", "?", "?"),
+                      white_ball = c("?", "?", "?", "?", "0", "?", "?", "?", "?", 
+                                   "?", "?", "?", "?", "1", "?", "?", "?", "?", 
+                                   "?", "?", "?", "?", "?", "?", "?"))
+
+rubin_table
+```
+
+Where is all of our data? Well, when we took a sample of 25 balls from the total urn, we only happened to catch two values in the first 25 balls, Ball 5 and Ball 14. The rest of the balls were not sampled and we cannot say for certain whether they are white or red.
+
+So, given all of these unknown values, what *can* we say about Ball 1? We know the proportion of red balls in our sample is 42%. Does this mean that Ball 1 has a 42% chance of being red? As we learned in Chapter 5, this is not true! Let's delve into why this assumption is wrong. 
+
+We can only claim *for certain* that, of the 25 balls that we sampled (of the total 1500 balls in the urn), 42% were red. If we were making a prediction of the probability of one of our **sampled** balls being red, 42% would be the  correct guess! If we were making a prediction of the probability that an **unsampled** ball was red, the answer of 42% would be incorrect. Let's revisit the histogram of our 1000 virtually sampled proportions using a virtual shovel.
+
+```{r, echo = FALSE}
+virtual_prop_red <- virtual_samples %>% 
+  group_by(replicate) %>% 
+  summarize(red = sum(color == "red")) %>% 
+  mutate(prop_red = red / 50)
+virtual_histogram <- ggplot(virtual_prop_red, aes(x = prop_red)) +
+  geom_histogram(binwidth = 0.05, boundary = 0.4, color = "white")
+virtual_histogram + 
+  labs(x = "Proportion of 50 balls that were red", 
+       title = "Distribution of 1,000 proportions red")
+```
+
+Here, we see a decent amount of variation in the proportion of red balls. In some extreme cases, our proportion was as low as 20% and as high as 60%! If we took either one of these extremes and tried to make an assumption of Ball 1, we would most certainly be incorrect. This is why we run many simulations to make the *best possible prediction*. 
+
+
+### What we wish we knew
+
+As is the case in the RCM, we wish we knew the values for every single unit in every possible scenario. The analogous ideal here would be a tibble where we know the color identity of every single ball. To compare to our previous Rubin Table, this is what we wish we knew in regards to our first 25 balls:
+
+```{r, echo = FALSE}
+ideal_rubin_table <- tibble(ball_ID = 1:25,
+                      red_ball = c("1", "1", "0", "1", "1", "1", "1", "0", "1", 
+                                   "1", "0", "1", "1", "1", "0", "1", "1", "1", 
+                                   "0", "0", "1", "0", "0", "0", "0"),
+                      white_ball = c("0", "0", "1", "0", "0", "0", "0", "1", "0", 
+                                   "0", "1", "0", "0", "0", "1", "0", "0", "0", 
+                                   "1", "1", "0", "1", "1", "1", "1"))
+
+ideal_rubin_table
+```
+
+Let's say that, after manually going through our entire urn, we find that the **true** and **real** proportion of red balls is exactly 37.5%. We know each ball's color identity in the entire urn. To revisit the terminology of Chapter 5, we would be dealing with P(A|B), the probability of Ball 1 being red given that we know the color_ID of every single ball in the urn. If the proportion of red balls is **exactly** 37.5%, we can say whether Ball 1 is red or not with 100% certainty, since we know the exact number of red and white balls in the urn. 
+
+However, as has been emphasized before, real-life sampling is far more complex than our urn example. The process is **extremely** prone to error. Despite that, most people overestimate the validity of conclusions drawn from sampling. To stress how easy it is for sampling to be manipulated, let's revisit the poll on Obama's approval rating from earlier. 
+
+### Sampling is hard to get right!
+
+Here is an excerpt from the NPR article on the poll:
+
+> "According to a new Harvard University Institute of Politics poll (IOP), just 41 percent of millennials — adults ages 18-29 — approve of Obama's job performance, his lowest-ever standing among the group and an 11-point drop from April."
+
+Now, let's look at the details on the method of sampling: 
+
+> "The online survey of 2,089 adults was conducted from Oct. 30 to Nov. 11, just weeks after the federal government shutdown ended and the problems surrounding the implementation of the Affordable Care Act began to take center stage. The poll's margin of error was plus or minus 2.1 percentage points."
+
+What about millenials that do not use the internet? What about people that do not use the online platform the survey operated on? What about people that do not speak English or Spanish, the two languages that the IOP offers in their surveys? These millenials are **censored** from the study due to its sampling mechanism. 
+
+Censored data, in which the observed value of some variable is only partially known, is a large problem in sampling. Would conducting the poll over the phone be less prone to censoring than the internet? Unfortunately, older citizens are far more likely than young citizens to both answer the phone and own landlines, thus skewing the sampled population to an older age. All sampling mechanisms are prone to error. 
+
+There are problems beyond the censoring issue in the sampling method. Are certain people, like Harvard students, more likely to fill out the survey? Are younger millenials more likely to fill online surveys compared to their older millenial counterparts? These issues decrease the **randomness** of the sample population.
+
+All of these issues with the **sampling mechanism** decrease the validity of the concluded approval rating. 
+
+### Prediction Uncertainty
+
+This brings us to a very important aspect of sampling: **prediction uncertainty**. 
+
+
+
 
 <!-- With a big enough sample, we can probably get a pretty good measure of the average blood pressure for that sample.  Have we solved our problem?  That is, can we now assume that our estimate of the average blood pressure in our sample is a good estimate of the average blood pressure in the U.S. adult population? -->
 
