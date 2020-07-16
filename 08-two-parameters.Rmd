@@ -7,8 +7,12 @@ output_yaml:
 # Two Parameters {#two-parameters}
 
 ```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy = FALSE, cache.extra = packageVersion('tufte'))
+
 library(gt)
+library(tidyverse)
 library(tufte)
+library(PPBDS.data)
 ```
 
 
@@ -238,12 +242,10 @@ tibble(subject = c("1", "2", "...", "55", "...", "204", "205", "...", "1,000", "
        age = c("34", "?", "...", "36", "...", "44", "?",  "...", "50", "...", "?"),
        party = c("Republican", "?", "...", "Democrat", "...", "Democrat", "?",  "...", "Republican", "...", "?")) %>%
   gt() %>%
-  cols_label(subject = md("ID"),
-             age = md("Age"),
-             party = md("Party")) %>%
+  cols_label(subject = md("**ID**"),
+             age = md("**Age**"),
+             party = md("**Party**")) %>%
   tab_style(cell_borders(sides = "right"),
-            location = cells_body(columns = vars(subject))) %>%
-  tab_style(cell_text(weight = "bold"),
             location = cells_body(columns = vars(subject))) %>%
   cols_align(align = "center", columns = TRUE) %>%
   fmt_markdown(columns = TRUE)
@@ -267,7 +269,15 @@ When the individual is a Republican ($x_r$=1 and $x_d$=0), their fitted value is
 The equation is not finished yet! 
 
 $$\epsilon_i = y_i - \hat{y_i}$$
-In order to calculate each observation's residual, or the "noise" that sets them apart from the model's prediction, you subtract the observation's age by their fitted value. 
+In order to calculate each observation's residual, you subtract the observation's age by their fitted value. 
+
+```{r, include = FALSE}
+
+library(tufte)
+
+margin_note("The residual or epsilon value is also known as the 'noise'. The number represents the real world variability of any singular observation that offsets it from the model's prediction.")
+
+```
 
 $$ y_i = \hat{b_1}x_r + \hat{b_2} x_d + \epsilon_i $$
 Once you do this, you have a complete equation. 
@@ -316,12 +326,10 @@ tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele
        age = c("31", "34", "63", "45", "55", "53", "24"),
        party = c("Democrat", "Republican", "Democrat", "Democrat", "Republican", "Democrat", "Republican")) %>%
   gt() %>%
-  cols_label(subject = md("ID"),
-             age = md("Age"),
-             party = md("Party")) %>%
+  cols_label(subject = md("**ID**"),
+             age = md("**Age**"),
+             party = md("**Party**")) %>%
   tab_style(cell_borders(sides = "right"),
-            location = cells_body(columns = vars(subject))) %>%
-  tab_style(cell_text(weight = "bold"),
             location = cells_body(columns = vars(subject))) %>%
   cols_align(align = "center", columns = TRUE) %>%
   fmt_markdown(columns = TRUE)
@@ -337,12 +345,11 @@ tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele
        party = c("Democrat", "Republican", "Democrat", "Democrat", "Republican", "Democrat", "Republican"),
        fitted = c("42.6", "41.1", "42.6", "42.6", "41.1", "42.6", "41.1")) %>%
   gt() %>%
-  cols_label(subject = md("ID"),
-             age = md("Age"),
-             party = md("Party")) %>%
+  cols_label(subject = md("**ID**"),
+             age = md("**Age**"),
+             fitted = md("**fitted**"),
+             party = md("**Party**")) %>%
   tab_style(cell_borders(sides = "right"),
-            location = cells_body(columns = vars(subject))) %>%
-  tab_style(cell_text(weight = "bold"),
             location = cells_body(columns = vars(subject))) %>%
   cols_align(align = "center", columns = TRUE) %>%
   fmt_markdown(columns = TRUE)
@@ -359,13 +366,12 @@ tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele
        fitted = c(42.6, 41.1, 42.6, 42.6, 41.1, 42.6, 41.1)) %>%
   mutate(noise = fitted - age) %>%
   gt() %>%
-  cols_label(subject = md("ID"),
-             age = md("$$y_i$$"),
-             party = md("Party"),
-             noise = md("residual")) %>%
+  cols_label(subject = md("**ID**"),
+             age = md("**$$y_i$$**"),
+             party = md("**Party**"),
+             fitted = md("**fitted**"),
+             noise = md("**residual**")) %>%
   tab_style(cell_borders(sides = "right"),
-            location = cells_body(columns = vars(subject))) %>%
-  tab_style(cell_text(weight = "bold"),
             location = cells_body(columns = vars(subject))) %>%
   cols_align(align = "center", columns = TRUE) %>%
   fmt_markdown(columns = TRUE)
@@ -483,8 +489,6 @@ ATE <- mean_ends$mean_att_end[2] - mean_ends$mean_att_end[1]
 
 Next, the second part of model structure, the formula. 
 
-<!-- MB: Was told to do this way -- Doesn't this equation just rid of the point of being a causal model?--> 
-
 $$ y_i = b_1 x_t + b_2 x_c$$
 Once again, we start here. We can make our parameters constants, $\hat{b_1}$ and $\hat{b_1}$, by assigning them to the estimates of the model. Plugging in these numbers outputs an estimated att_end for the observation, or our *fitted value*   $\hat{y_i}$. 
 
@@ -512,19 +516,17 @@ x <- lm(data = trains, att_end ~ treatment - 1) %>%
   select(term, estimate, conf.low, conf.high) %>%
   as_tibble()
 
-### MB: How do I calculate the confidence interval for ATE 
-
 ```
+
+<!-- MB: How do I calculate the confidence interval for ATE  -->
 
 The confidence intervals show our confidence in the average treatment effect of the `trains` dataset being representative of the true average treatment effect on Boston commuters.
 
 ### Unmodeled Variation
 
-### Rubin Table
+### Preceptor Table
 
-Now, we'll create the RCM table of possible outcomes, as we did back in ch3:
-
-<!-- EM: The Rubin tables below should be structurally different from the ones you constructed for age and party affiliation because age~party is merely predictive while att_end~treatment is CAUSAL. This explains there being TWO outcome columns for the att_end~treament model instead of only ONE outcome column, like we have for the age~party Rubin Table. Make sure that this distinction is clear — burn it into the reader's mind. -->
+Now, we'll create the Preceptor table -- a RCM table in this case -- of possible outcomes, as we did back in ch3:
 
 ```{r}
 
@@ -545,8 +547,6 @@ trains_RCM %>%
                 Control = md("$$Y_c(u)$$"),
                 Treated = md("$$Y_t(u)$$")) %>%
   tab_style(cell_borders(sides = "right"),
-            location = cells_body(columns = vars(subject))) %>%
-  tab_style(cell_text(weight = "bold"),
             location = cells_body(columns = vars(subject))) %>%
   cols_align(align = "center", columns = TRUE) %>%
   tab_header(title = "Att_end of First Ten Respondents of Train Dataset")
@@ -570,14 +570,12 @@ tibble(subject = 1:7,
                 Treated = md("$$Y_t(u)$$")) %>%
   tab_style(cell_borders(sides = "right"),
             location = cells_body(columns = vars(subject))) %>%
-  tab_style(cell_text(weight = "bold"),
-            location = cells_body(columns = vars(subject))) %>%
   cols_align(align = "center", columns = TRUE) %>%
   tab_header(title = "Att_end of First Ten Respondents of Train Dataset")
 
 ```
 
-Recall our earlier conversation regarding the difference between confidence intervals; an argument could be made that, taking individual variation into account, prediction intervals would be more accurate indicators of uncertainty than confidence intervals. We can construct the above table using prediction intervals instead, generated using the `predict()` function:
+Recall our earlier conversation regarding the difference between confidence intervals. An argument could be made that, taking individual variation into account, prediction intervals would be more accurate indicators of uncertainty than confidence intervals. We can construct the above table using prediction intervals instead, generated using the `predict()` function:
 
 ```{r}
 
@@ -615,13 +613,19 @@ tibble(subject = 1:7,
                 Treated = md("$$Y_t(u)$$")) %>%
   tab_style(cell_borders(sides = "right"),
             location = cells_body(columns = vars(subject))) %>%
-  tab_style(cell_text(weight = "bold"),
-            location = cells_body(columns = vars(subject))) %>%
   cols_align(align = "center", columns = TRUE) %>%
   tab_header(title = "Att_end of First Ten Respondents of Train Dataset") %>%
-  tab_footnote(footnote = "Note: minimum att_end is 3 and maximum att_end is 15",
+  tab_footnote(footnote = "Note: ",
                locations = cells_column_labels(
       columns = T))
+```
+
+```{r, include = FALSE}
+
+library(tufte)
+
+margin_note("The minimum att_end is 3 and maximum att_end is 15.")
+
 ```
 
 Regardless of whether we use confidence or prediction intervals for these unknowns, however, the table looks a bit funky: take a look at subject 3. According to this model, subject 3's attitude under control would be HIGHER than his/her attitude under treatment, which corresponds to a negative treatment effect. This would mean that he/she would become more LIBERAL after undergoing treatment, which flies in the face of the ATE we calculated earlier. Another example of this can be seen with subject 7, whose predicted `att_end` under treatment is lower than his/her `att_end` under control (also signifying a shift towards liberal attitudes regarding immigration). 
@@ -649,8 +653,6 @@ tibble(subject = 1:7,
                 Control = md("$$Y_c(u)$$"),
                 Treated = md("$$Y_t(u)$$")) %>%
   tab_style(cell_borders(sides = "right"),
-            location = cells_body(columns = vars(subject))) %>%
-  tab_style(cell_text(weight = "bold"),
             location = cells_body(columns = vars(subject))) %>%
   cols_align(align = "center", columns = TRUE) %>%
   tab_header(title = "Att_end of First Ten Respondents of Train Dataset")
