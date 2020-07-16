@@ -225,7 +225,7 @@ trains %>%
 
 The initials "lm" stand for "linear model." We are creating a model in which age is a function of party. The "-1" term causes the model to provide us with the mean for each group. The coefficient estimates are the same as the mean values for age within each party. 
 
-There are three parts of understanding any model structure: whether it is causal or predictive, the mathematical formula, and realism. This model is predictive and has nothing to do with causality. Rather than modelling how the explanatory variable will change the outcome variable, we are using the explanatory variable (party) to simply predict the outcome variable (age). The difference between these two model types becomes clear when we construct a Rubin Table: 
+There are three parts of understanding any model structure: whether it is causal or predictive, the mathematical formula, and realism. This model is predictive and has nothing to do with causality. Rather than modelling how the explanatory variable will change the outcome variable, we are using the explanatory variable (party) to simply predict the outcome variable (age). The difference between these two model types becomes clear when we construct a Preceptor Table: 
 
 ```{r, echo = FALSE}
 
@@ -247,18 +247,28 @@ tibble(subject = c("1", "2", "...", "55", "...", "204", "205", "...", "1,000", "
 
 ```
 
-The purpose of a Preceptor Table is to capture all of the data such that if the question marks were filled out, one wouldn't need to construct a model. The rows in this Rubin Table represent the (roughly) 100,000 commuters on which our model is extrapolating. Only 115 of these commuters had their data recorded in the experiment, which is why some observations lack data. 
+The purpose of a Preceptor Table is to capture all of the data such that if the question marks were filled out, one wouldn't need to construct a model. The rows in this Preceptor Table represent the (roughly) 100,000 commuters on which our model is extrapolating. Only 115 of these commuters had their data recorded in the experiment, which is why some observations lack data. 
 
-This table is very simple, which is the point. There is no causal effect as we are simply trying to predict the immutable variable of age. Rather than representing unknown causal effects as they may in other Rubin Tables, the question marks in a Rubin Table like this simply denote missing data, as this is a predictive model. 
+This table is very simple, which is the point. There is no causal effect as we are simply trying to predict the immutable variable of age. Rather than representing unknown causal effects as they may in other Preceptor Tables, the question marks in this table simply denote missing data, as this is a predictive model. 
 
 This mathematical formula will also help us better understand the model:
 
-$$ y_i = b_1 x_r + b_2 x_d + \epsilon_i $$
-$$ y = (41.16) + (42.6 - 41.16) x $$
-When the individual is a Republican (x=0), their age is predicted to be 41.16. When the individual is a Republican (x=1), their age is predicted to be 42.6. 
+$$ y_i = b_1 x_r + b_2 x_d $$
 
-$$ y_i = b_0 + b_1 x_i + \epsilon_i $$
-If you know the age and party affiliation of any single individual, you can solve for the epsilson, or the residual, of that observation. This is how much the individual's age varies from the prediction of their age in the model. The age of any single observation is known as the *fitted value*. 
+You couldn't know the true value of our parameters ($b_1$ and $b_2$) unless you surveyed every single commuter in the station. This is why we use models to give us estimates. A hat denotes a number that is constant and no longer variable. Because we have estimates for our parameters, $\hat{b_1}$ and $\hat{b_1}$, are denoted by hats. With these numbers plugged in, you determine a singular y value (age) for each observation, thus the denotation  $\hat{y_i}$. This is called the *fitted value*. 
+
+$$ \hat{y_i} = \hat{b_1} x_r + \hat{b_2} x_d  $$
+$$ \hat{y_i} = (41.16)x_r + (42.6)x_d $$
+When the individual is a Republican ($x_r$=0), their fitted value is 41.16. When the individual is a Democrat ($x_d$=0), their fiited value is 42.6. 
+
+The equation is not finished yet! 
+
+$$\epsilon_i = y_i - \hat{y_i}$$
+In order to calculate each observation's residual, or the "noise" that sets them apart from the model's prediction, you subtract the observation's age by their fitted value. 
+
+$$ y_i = \hat{b_1}x_r + \hat{b_2} x_d + \epsilon_i $$
+Once you do this, you have a complete equation. 
+
 
 The final aspect of model structure is realism. Does this model reflect the real world accurately?
 
@@ -290,6 +300,7 @@ You may notice how the range of the confidence interval for Republicans is large
 If a new Democrat entered the train station, how easy would it be to guess their age with our model? Could you confidently say that they would be within the Democrat interval bounds of 40 and 45?
 
 $$ y_i = b_0 + b_1 x_i + \epsilon_i $$
+
 One shouldn't be too confident in that prediction. The new Democrat's age comes in two parts: the beta (determined by their political party) and their epsilon/residual (how much noise there is in this observation that offsets it from the beta prediction). While the beta values have been determined by our model, the epsilon value represents *unmodeled variation* that could likely put the value outside of these bounds. 
 
 ### Preceptor Table
@@ -359,7 +370,7 @@ tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele
 ```
 
 The other half of the equation, the noise, is represented by epilson, which accounts for the difference between each individual's age from its fitted value. Note the new column name for age: $$y_i$$ is the sum of the fitted epilson value. 
-Recall our discussion of unmodeled variation. This Preceptor table shows how just a sample of 7 individuals captures a wide range of residuals, making it difficult to predict the age of a new individual who walks in the room.
+Recall our discussion of unmodeled variation. This Preceptor table shows how just a sample of 7 individuals captures a wide range of residuals, making it difficult to predict the age of a new individual who walks in the room even using our model.
 
 
 
