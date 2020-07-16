@@ -335,6 +335,33 @@ tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele
 
 ```
 
+The fitted values are the same for all Republicans and for all Democrats. Remember that the actual age of each observation is the addition of the model and "real-world" noise (or the residual). The fitted value represents the "model" part of that equation, which is why each value is one of the two coefficients outputted by our model. 
+
+```{r, echo = FALSE}
+
+tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele"),
+       age = c(31, 34, 63, 45, 55, 53, 24),
+       party = c("Democrat", "Republican", "Democrat", "Democrat", "Republican", "Democrat", "Republican"),
+       fitted = c(42.6, 41.1, 42.6, 42.6, 41.1, 42.6, 41.1)) %>%
+  mutate(noise = fitted - age) %>%
+  gt() %>%
+  cols_label(subject = md("ID"),
+             age = md("$$y_i$$"),
+             party = md("Party"),
+             noise = md("residual")) %>%
+  tab_style(cell_borders(sides = "right"),
+            location = cells_body(columns = vars(subject))) %>%
+  tab_style(cell_text(weight = "bold"),
+            location = cells_body(columns = vars(subject))) %>%
+  cols_align(align = "center", columns = TRUE) %>%
+  fmt_markdown(columns = TRUE)
+
+```
+
+The other half of the equation, the noise, is represented by epilson, which accounts for the difference between each individual's age from its fitted value. Note the new column name for age: $$y_i$$ is the sum of the fitted epilson value. 
+Recall our discussion of unmodeled variation. This Preceptor table shows how just a sample of 7 individuals captures a wide range of residuals, making it difficult to predict the age of a new individual who walks in the room.
+
+
 
 <!-- DK: I went fast above, but that is all the key material. Still need to add a Rubin Table example, highlighting that this is modeling for prediction. There is only one column for Y because it is impossible to change someone's age, whatever manipulations you make to party. -->
 
