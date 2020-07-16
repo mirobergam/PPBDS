@@ -77,7 +77,7 @@ ch8 %>%
   glimpse()
 ```
 
-Pay attention to the variable "type." Do they make sense? Perhaps. But there are certainly grounds for suspicion. Why are `age` and `att_end` doubles rather than integers? Looking at the values, it appears that they are not recorded more accurately than simple integers. Why is `party` a character variable and `treament` a factor variable? It could be that these are intentional choices made by the creator of the tibble, i.e., us. These could be mistakes. Or, most likely, these choices are a mixture of sensible and arbitrary. Regardless, it is your responsibility to notice them. You can't make a good model without looking closely at the data which you are using.
+Pay attention to the variable "type." Do they make sense? Perhaps. But there are certainly grounds for suspicion. Why are `age` and `att_end` doubles rather than integers? Why is `party` a character variable and `treament` a factor variable? It could be that these are intentional choices made by the creator of the tibble, i.e., us. These could be mistakes. Or, most likely, these choices are a mixture of sensible and arbitrary. Regardless, it is your responsibility to notice them. You can't make a good model without looking closely at the data which you are using.
 
 `skim` from the **skimr** package is the best way to get an overview of a tibble.
 
@@ -88,26 +88,28 @@ ch8 %>%
 
 `skim()` shows us what the different values of `treatment` are because it is a factor. Unfortunately, it does not do the same for character variables like `party`. The ranges for `age` and `att_end` seem reasonable. Recall that participants were asked three questions about immigration issues, each of which allowed for an answer which was a strength of agreement between 1 and 5, with higher values indicating more agreement with conservative viewpoints. So, the most liberal possible value is 3 and the most conservative is 15.
 
-Plotting some variables from the dataset is another important tool in exploratory data analysis:
+Plotting some variables from the dataset is another important practice in exploratory data analysis:
 
 ```{r}
 
 ch8 %>%
-  ggplot(aes(x = party)) + 
-  geom_bar() + 
+  ggplot(aes(x = party, y = age)) + 
+  geom_jitter(width = 0.1, height = 0) + 
   labs(x = "Party",
-       y = "Number of individuals",
-       title = "Distribution of Political Affiliations")
+       y = "Age",
+       title = "Age by Party Affiliation in Trains Dataset")
+
 
 ch8 %>%
-  ggplot(aes(x = age)) + 
-  geom_bar() + 
-  labs(x = "Age",
-       y = "Number of individuals",
-       title = "Distribution of Ages")
+  ggplot(aes(x = treatment, y = att_end)) + 
+  geom_boxplot() + 
+  labs(x = "Treatment",
+       y = "Attitude End",
+       title = "Attutide End by Treatment in Trains Dataset")
 
 ```
 
+From these plots, we can gather that Democrats in this dataset are on average older than the Republicans, with their mode age being 50. Additionally, treated individuals seem to have a higher attitude end than the control group. The control group seems to have an high outlier for attitude end. 
 
 
 ## Review of One Parameter Estimation
@@ -200,17 +202,6 @@ The 95% confidence interval calculated via `lm()` is, more or less, the same as 
 
 But what if, instead of having no other information about our sample beyond their ages, we also knew their political party? How would we make a model which included this other information? This is a model for prediction, rather than a model for causal inference, because `age` can not be changed, regardless what happens to `party`. That is, someone's age is the same regardless of the party of which they are a member.
 
-```{r}
-
-trains %>%
-  ggplot(aes(x = party, y = age)) + 
-  geom_jitter(width = 0.2) + 
-  labs(x = "Party",
-       y = "Age",
-       title = "Age by Party Affiliation in Trains Dataset")
-
-```
-
 The simplest model would be to guess that a person's age, conditional on their party membership, is equal to the mean age of people in that party.
 
 ```{r}
@@ -240,9 +231,9 @@ There are three parts of understanding any model structure: whether it is causal
 
 # Using real sampled ages but making my own tibble
 
-tibble(subject = c("1", "2", "...", "56", "...", "115", "... 10,000"),
-       age = c("34", "53", "...", "36", "...", "44", "?"),
-       party = c("Republican", "Democrat", "...", "Democrat", "...", "Democrat", "?")) %>%
+tibble(subject = c("1", "2", "...", "55", "...", "204", "205", "...", "1,000", "...", "100,000"),
+       age = c("34", "?", "...", "36", "...", "44", "?",  "...", "50", "...", "?"),
+       party = c("Republican", "?", "...", "Democrat", "...", "Democrat", "?",  "...", "Republican", "...", "?")) %>%
   gt() %>%
   cols_label(subject = md("ID"),
              age = md("Age"),
