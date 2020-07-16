@@ -5,50 +5,32 @@ output_yaml:
 
 # Probability
 
-<!-- 1) Initial part of the chapter will begin with three examples, each of which shows us three different sorts of probability distributions: mathematical, empirical, posterior. The three examples are flipping one coin, rolling two dice and the distribution of electoral votes. We do all three types for a coin, then all three for two dice and, finally, all three for electoral votes. Recall that a probability distribution is a mathematical object which covers a set of outcomes. All distinct outcomes have chances of occurring between 0 and 1. The sum of all the chances equals 1. We use `p()` as our symbol for probability distributions, with context demonstrating which type of probability distribution --- mathematical, empirical, posterior --- it is. -->
+<!-- 1) Add screen shot from https://projects.economist.com/us-2020-forecast/president of electoral vote forecast. This is p(electoral votes for the Democratic nominee) or, shorter p(ev). It is just like all our other p()'s. It is a distribution because all values are between 0 and 1 and the sum is one. But it does not come from either math or from (direct) experience. Instead it is the distribution --- colloquially, the posterior distribution --- which comes from our modeling process. But this p() is, conceptually, the same as all our other p()'s. But what is the equivalent of the mathematical distribution for electoral votes and the empirical distribution? Good question! For math, I think we simulate the electoral vote distribution which would result from each state being a 50/50 toss up. Completely unrealistic, but very mathematical. For the empirical probability distribution, just look at the outcomes for 1960 and after. (I realize that this only gives us 17 values --- all probably unique --- but that is the data we have!) -->
 
-<!-- There are three kinds of probability distributions: mathematical, empirical and posterior. There are *mathematical* distributions (which are mathematical formulas, using fair dice). There are *empirical* distributions (which are data). Compare math of two dice and empirical data resulting from rolling the pair 20 times. The probability distribution is the Platonic form. The empirical distribution will often look like the mathematical probability distribution, but it will rarely be exactly the same. The third type of distribution is a *posterior* distribution, which is a measures of your belief about things you can't see right now. You can have posterior distributions about things in the past --- How many electoral votes would Hilary Clinton have won if she picked a different VP? About things in the present --- What is the median height of Harvard students? And about things in the future --- How many electoral votes will Joe Biden win?  -->
-
-<!-- 2) Add screen shot from https://projects.economist.com/us-2020-forecast/president of electoral vote forecast. This is p(electoral votes for the Democratic nominee) or, shorter p(ev). It is just like all our other p()'s. It is a distribution because all values are between 0 and 1 and the sum is one. But it does not come from either math or from (direct) experience. Instead it is the distribution --- colloquially, the posterior distribution --- which comes from our modeling process. But this p() is, conceptually, the same as all our other p()'s. But what is the equivalent of the mathematical distribution for electoral votes and the empirical distribution? Good question! For math, I think we simulate the electoral vote distribution which would result from each state being a 50/50 toss up. Completely unrealistic, but very mathematical. For the empirical probability distribution, just look at the outcomes for 1960 and after. (I realize that this only gives us 17 values --- all probably unique --- but that is the data we have!) -->
+<!-- 2) Get rid of infer package, I think. Do we really need rep_sample_n()? -->
 
 
-<!-- 3) Think about ways we can ensure that students have done the reading. Previous chapters use tutorial questions. What sort of questions could we use? -->
+<!-- 3) Adding three model example. -->
+
+<!-- 4) Use p(A) everywhere.  -->
+
+<!-- 5) PROBABILITY DOES NOT EXIST. de finetti (photo! Italian?) -->
+
+<!-- 6) More animations -->
+
+
+<!-- Other Stuff -->
+
+<!-- mean income  p(MI), P(MI), pd(MI) or pdf(MI).   Start with p(models, data you might see) before you see the data, but after you know the experiment you are planning to do. Then, you see the data. Cool! p(models | data = what you saw) == p(models | data) -->
+
+<!-- 3) Think about ways we can ensure that students have done the reading. Previous chapters use tutorial questions. What sort of questions could we use? ->
 
 <!-- 4) Code snippets are cut off. How to fix? Make those sections wider? Make code smaller? Set up Zoom to discuss with Yao. -->
 
-<!-- 5) Get rid of infer package, I think. Do we really need rep_sample_n()? -->
-
-
-
-
-<!-- TODOS
-
-1) Revise PDF section. The tension between writing the exact truth and making sure students get the intuition, which is thinking in terms of p().  pdf, pmf, pd, p where "f" means function; d means continuous and m means discrete.  pd is just a probability distribution, which comes from counts.  
-
-Use p(A). 
-
-mean income  p(MI), P(MI), pd(MI) or pdf(MI).   Start with p(models, data you might see) before you see the data, but after you know the experiment you are planning to do. Then, you see the data. Cool! p(models | data = what you saw) == p(models | data)
-
-2) Right before comparing two models, add a section showing that a tree diagram may look different depending on whether order matters. Are we looking for sum or do we care about the order of rolling H vs T as well? Flip 2 coins. Only 4 branches from one dot if we care about sum. But if order matters, we need a more extensive diagram with 6 branches.
-
-4) 
-- Workshop statistics quote + generally populate sidebar
-- Add Rossman quote to side.
-- More quotes and fun stuff.
-
-5) PROBABILITY DOES NOT EXIST. de finetti (photo! Italian?)
-
-8) Add section on unknown unknowns
-
-9) Go into terms like parameter uncertainty, validity, unmodeled variation (either give them their own section headings or make them italicized terms.)
-
-10) Integrate Maria's animations
-
-11) gradethis and learnr
-
-12) add section at the bottom noting the key themes from DK
-
--->
+<!-- 4)  -->
+<!-- - Workshop statistics quote + generally populate sidebar -->
+<!-- - Add Rossman quote to side. -->
+<!-- - More quotes and fun stuff. -->
 
 
 <!-- DK: Things to discuss 
@@ -134,9 +116,6 @@ The opening paragraph of *Workshop Statistics:  Discovery with Data, A Bayesian 
 
 ```
 
-
-
-
 What does it mean that Trump has a *30% chance* of winning re-election this fall? That there is a *90% probability* of rain today? That the die at the casino is *unfair*? If I roll that die 10 times and five of those times I get a three, how likely is it that the die is *unfair*?
 
 Probability is about quantifying uncertainty. We can think of probability as a proportion. The probability of an event occurring is a number from 0 to 1, where 1 means that the event is 100% certain.
@@ -149,9 +128,79 @@ This allows us to make the following statements:
 
 * The probability of rolling either a 1 or 2 is 2/6, or 1/3.  
 * The probability of rolling either 1, 2, 3, 4, 5, or 6 is 1.  
-* The probability of flipping a coin and getting a tail is 1/2.  
+* The probability of flipping a coin and getting a tail is 1/2.
 
-The set of possible outcomes --- heads or tails for the coin, 1 through 6 for the die --- can be either discrete or continuous. This is the *domain* of the probability distribution.  
+<!-- Be precise about technical terms: outcome and domain. Be more smooth. -->
+
+For the purposes of this course, a *probability distribution* is a mathematical object that covers a set of outcomes, where each distinct outcome has a chance of occurring between 0 and 1. The sum of all chances equals to 1. Throughout this chapter, we will use p() to denote probability distributions. The set of possible outcomes --- heads or tails for the coin, 1 through 6 for the die --- can be either discrete or continuous. This set of possible outcomes is the *domain* of the probability distribution. There are three types of probability distributions: mathematical, empirical, and posterior. Let's walk through some examples to better understand each type of probability distribution.
+
+Say we are flipping a coin a hundred times.
+
+A *mathematical distribution* is based on mathematical formulas. Assuming that the dice is perfectly fair, we should get heads as many times as we get tails.
+
+```{r, echo = FALSE}
+
+# Flipping one coin 100 times
+
+mydata <- tibble(
+  results = c(
+    rep(0, 50),
+    rep(1, 50)
+))
+
+ggplot(mydata, aes(x = results)) +
+  geom_histogram(aes(y=..count../sum(..count..)), binwidth = 1, 
+                 fill = "dark green", color = "white") +
+  labs(title = "Histogram Probability Distribution for Flipping One Coin",
+       x = "Results",
+       y = "Probability") +
+  scale_x_continuous(breaks = seq(0,1,1), labels = c("Heads", "Tails"))
+
+```
+
+An *empirical distribution* is based on data. You can think of this as the probability distribution created by running a simulation. In theory, if we increase the number of coins we flip in our simulation, the empirical distribution will look more and more similar to the mathematical distribution. The probability distribution is the Platonic form. The empirical distribution will often look like the mathematical probability distribution, but it will rarely be exactly the same.
+
+```{r, echo = FALSE}
+
+# Flipping one coin 100 times
+
+coin <- c(0, 1)
+
+sims <- 100
+
+results <- sample(coin, sims, replace=TRUE)
+
+mydata <- tibble(results)
+
+ggplot(mydata, aes(x = results)) +
+  geom_histogram(aes(y=..count../sum(..count..)), binwidth = 1, 
+                 fill = "dark green", color = "white") +
+  labs(title = "Histogram Probability Distribution for Flipping One Coin",
+       x = "Results",
+       y = "Probability") +
+  scale_x_continuous(breaks = seq(0,1,1), labels = c("Heads", "Tails"))
+
+```
+
+An *posterior distribution* is based on beliefs and expectations. It displays your belief about things you can't see right now. You may have posterior distributions for events in the past, present, or future.
+
+Past: How many electoral votes would Hilary Clinton have won if she picked a different VP?
+Present: What is the median height of Harvard students?
+Future: How many electoral votes will a presidential candidate win?
+
+In the case of the coin toss, the posterior distribution changes depending on your beliefs. For instance, let's say your friend brought a coin to school and asked to bet you. If the result is heads, you have to pay them $5. This makes you suspicious; your posterior distribution would reflect this, meaning that the probability of heads would be a lot higher than the probability of tails.
+
+A posterior distribution for a more complicated issue like electoral votes requires more nuanced expectations. See this projection from The Economist, which uses various assumptions to generate a forecast.
+
+```{r, echo=FALSE, fig.margin=TRUE, fig.cap="Dice and Probability."}
+
+knitr::include_graphics("05-probability/images/election_distribution.png")
+
+```
+
+<!-- 1) Initial part of the chapter will begin with three examples, each of which shows us three different sorts of probability distributions: mathematical, empirical, posterior. The three examples are flipping one coin, rolling two dice and the distribution of electoral votes. We do all three types for a coin, then all three for two dice and, finally, all three for electoral votes. Recall that a probability distribution is a mathematical object which covers a set of outcomes. All distinct outcomes have chances of occurring between 0 and 1. The sum of all the chances equals 1. We use `p()` as our symbol for probability distributions, with context demonstrating which type of probability distribution --- mathematical, empirical, posterior --- it is. -->
+
+<!-- There are three kinds of probability distributions: mathematical, empirical and posterior. There are *mathematical* distributions (which are mathematical formulas, using fair dice). There are *empirical* distributions (which are data). Compare math of two dice and empirical data resulting from rolling the pair 20 times. The probability distribution is the Platonic form. The empirical distribution will often look like the mathematical probability distribution, but it will rarely be exactly the same. The third type of distribution is a *posterior* distribution, which is a measures of your belief about things you can't see right now. You can have posterior distributions about things in the past --- How many electoral votes would Hilary Clinton have won if she picked a different VP? About things in the present --- What is the median height of Harvard students? And about things in the future --- How many electoral votes will Joe Biden win?  -->
 
 Now, let's take our understanding of probability and apply it to a data science context.
 
