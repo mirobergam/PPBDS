@@ -227,7 +227,7 @@ The initials "lm" stand for "linear model." We are creating a model in which age
 
 There are three parts of understanding any model structure: whether it is causal or predictive, the mathematical formula, and realism. This model is predictive and has nothing to do with causality. Rather than modelling how the explanatory variable will change the outcome variable, we are using the explanatory variable (party) to simply predict the outcome variable (age). The difference between these two model types becomes clear when we construct a Rubin Table: 
 
-```{r}
+```{r, echo = FALSE}
 
 # Using real sampled ages but making my own tibble
 
@@ -247,12 +247,13 @@ tibble(subject = c("1", "2", "...", "55", "...", "204", "205", "...", "1,000", "
 
 ```
 
-The rows in this Rubin Table represent the 115 commuters for whom data was gathered and the remainder of the (roughly) 10,000 commuters that our model is extrapolating on. The purpose of a Rubin Table is to capture all of the data such that if the question marks were filled out, one wouldn't need to construct a model.
+The purpose of a Preceptor Table is to capture all of the data such that if the question marks were filled out, one wouldn't need to construct a model. The rows in this Rubin Table represent the (roughly) 100,000 commuters on which our model is extrapolating. Only 115 of these commuters had their data recorded in the experiment, which is why some observations lack data. 
 
 This table is very simple, which is the point. There is no causal effect as we are simply trying to predict the immutable variable of age. Rather than representing unknown causal effects as they may in other Rubin Tables, the question marks in a Rubin Table like this simply denote missing data, as this is a predictive model. 
 
 This mathematical formula will also help us better understand the model:
-$$ y = b_0 + b_1 x $$
+
+$$ y_i = b_1 x_r + b_2 x_d + \epsilon_i $$
 $$ y = (41.16) + (42.6 - 41.16) x $$
 When the individual is a Republican (x=0), their age is predicted to be 41.16. When the individual is a Republican (x=1), their age is predicted to be 42.6. 
 
@@ -291,7 +292,49 @@ If a new Democrat entered the train station, how easy would it be to guess their
 $$ y_i = b_0 + b_1 x_i + \epsilon_i $$
 One shouldn't be too confident in that prediction. The new Democrat's age comes in two parts: the beta (determined by their political party) and their epsilon/residual (how much noise there is in this observation that offsets it from the beta prediction). While the beta values have been determined by our model, the epsilon value represents *unmodeled variation* that could likely put the value outside of these bounds. 
 
-### Rubin Table
+### Preceptor Table
+
+To continue our discussion of unmodeled variation, we'll bring back our Preceptor Table. This time, it will be a reduced table for just a few observations with data: 
+
+```{r, echo = FALSE}
+
+tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele"),
+       age = c("31", "34", "63", "45", "55", "53", "24"),
+       party = c("Democrat", "Republican", "Democrat", "Democrat", "Republican", "Democrat", "Republican")) %>%
+  gt() %>%
+  cols_label(subject = md("ID"),
+             age = md("Age"),
+             party = md("Party")) %>%
+  tab_style(cell_borders(sides = "right"),
+            location = cells_body(columns = vars(subject))) %>%
+  tab_style(cell_text(weight = "bold"),
+            location = cells_body(columns = vars(subject))) %>%
+  cols_align(align = "center", columns = TRUE) %>%
+  fmt_markdown(columns = TRUE)
+
+```
+
+Let's begin by adding each individual's fitted value for age from our model. 
+
+```{r, echo = FALSE}
+
+tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele"),
+       age = c("31", "34", "63", "45", "55", "53", "24"),
+       party = c("Democrat", "Republican", "Democrat", "Democrat", "Republican", "Democrat", "Republican"),
+       fitted = c("42.6", "41.1", "42.6", "42.6", "41.1", "42.6", "41.1")) %>%
+  gt() %>%
+  cols_label(subject = md("ID"),
+             age = md("Age"),
+             party = md("Party")) %>%
+  tab_style(cell_borders(sides = "right"),
+            location = cells_body(columns = vars(subject))) %>%
+  tab_style(cell_text(weight = "bold"),
+            location = cells_body(columns = vars(subject))) %>%
+  cols_align(align = "center", columns = TRUE) %>%
+  fmt_markdown(columns = TRUE)
+
+```
+
 
 <!-- DK: I went fast above, but that is all the key material. Still need to add a Rubin Table example, highlighting that this is modeling for prediction. There is only one column for Y because it is impossible to change someone's age, whatever manipulations you make to party. -->
 
