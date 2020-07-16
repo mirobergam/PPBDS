@@ -262,7 +262,7 @@ You couldn't know the true value of our parameters ($b_1$ and $b_2$) unless you 
 
 $$ \hat{y_i} = \hat{b_1} x_r + \hat{b_2} x_d  $$
 $$ \hat{y_i} = (41.16)x_r + (42.6)x_d $$
-When the individual is a Republican ($x_r$=0), their fitted value is 41.16. When the individual is a Democrat ($x_d$=0), their fiited value is 42.6. 
+When the individual is a Republican ($x_r$=1 and $x_d$=0), their fitted value is 41.16. When the individual is a Democrat ($x_r$=0 and $x_d$=1), their fiited value is 42.6. 
 
 The equation is not finished yet! 
 
@@ -459,7 +459,7 @@ lm(data = trains, att_end ~ treatment - 1, )
 
 ```
 
-The *fitted value* of att_end was 8.4 for the control group and 10 for the treated group. 
+The *fitted value* of att_end was 8.45 for the control group and 10 for the treated group. Because a higher att_end means more conservative towards stances on immigration, it seems that treated individuals ended up more conservative on this issue than the control group. 
 
 ### Model Structure
 
@@ -483,6 +483,20 @@ ATE <- mean_ends$mean_att_end[2] - mean_ends$mean_att_end[1]
 
 Next, the second part of model structure, the formula. 
 
+<!-- MB: Was told to do this way -- Doesn't this equation just rid of the point of being a causal model?--> 
+
+$$ y_i = b_1 x_t + b_2 x_c$$
+Once again, we start here. We can make our parameters constants, $\hat{b_1}$ and $\hat{b_1}$, by assigning them to the estimates of the model. Plugging in these numbers outputs an estimated att_end for the observation, or our *fitted value*   $\hat{y_i}$. 
+
+$$ \hat{y_i} = \hat{b_1} x_t + \hat{b_2} x_c  $$
+$$ \hat{y_i} = (8.45)x_t + (10)x_c $$
+When the individual is treated ($x_t$=1 and $x_c$=0), their fitted value is 8.45. When the individual is a control ($x_d$=0), their fiited value is 42.6. 
+
+Subtract the recorded att_end by fitted value for the epsilon value...
+$$\epsilon_i = y_i - \hat{y_i}$$
+...And you can now complete your equation.
+$$ y_i = \hat{b_1}x_r + \hat{b_2} x_d + \epsilon_i $$
+<!-- MB: Realism -->
 
 ### Parameter Uncertainty
 
@@ -493,19 +507,16 @@ Here, we see that the average treatment effect is `r ATE`; this is the average c
 
 trains$treatment <-fct_relevel(trains$treatment, "Control", "Treated")
 
-lm(data = trains, att_end ~ treatment - 1) %>% 
+x <- lm(data = trains, att_end ~ treatment - 1) %>% 
   tidy(conf.int = TRUE) %>%
-  select(term, estimate, conf.low, conf.high)
+  select(term, estimate, conf.low, conf.high) %>%
+  as_tibble()
 
-#To do: add row numbers, figure out a way to mutate columns as to include both values — maybe a function could be useful here?)
+### MB: How do I calculate the confidence interval for ATE 
 
 ```
 
-The confidence intervals represent our confidence in the average treatment effect of the `trains` dataset being representative of the true average treatment effect on Boston commuters.
-
-
-
-
+The confidence intervals show our confidence in the average treatment effect of the `trains` dataset being representative of the true average treatment effect on Boston commuters.
 
 ### Unmodeled Variation
 
