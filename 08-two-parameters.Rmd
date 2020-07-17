@@ -442,11 +442,32 @@ mean_ends <- trains %>%
 
 ```
 
-```{r, include = FALSE}
+```{r}
 
 ATE <- mean_ends$mean_att_end[2] - mean_ends$mean_att_end[1]
 
 ```
+
+Now, let's make a Preceptor Table for this data:
+
+```{r, echo = FALSE}
+
+tibble(subject = c("1", "2", "...", "75", "...", "564", "565", "...", "10,627", "...", "N"),
+       treatment = c("treated", "?", "...", "control", "...", "control", "?",  "...", "treated", "...", "?"),
+       att_end = c("11", "?", "...", "5", "...", "13", "?",  "...", "11", "...", "?")) %>%
+  gt() %>%
+  cols_label(subject = md("**ID**"),
+             att_end = md("**att_end**"),
+             treatment = md("**treatment**")) %>%
+  tab_style(cell_borders(sides = "right"),
+            location = cells_body(columns = vars(subject))) %>%
+  cols_align(align = "center", columns = TRUE) %>%
+  tab_header("Preceptor Table of att_end ~ treatment") %>%
+  fmt_markdown(columns = TRUE)
+
+```
+
+Preceptor Tables aim to capture all of the data such that if the question marks were filled out, one wouldn't need to construct a model. The rows in this Preceptor Table represent the N commuters on which our model is extrapolating, with N being the population of commuters using Boston public transportation. However, we're going to need a different kind of table if we want to display the causal effect of being treated -- more with this soon. 
 
 Next, the second part of model structure, the formula. 
 
