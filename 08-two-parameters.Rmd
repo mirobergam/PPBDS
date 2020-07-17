@@ -372,27 +372,6 @@ One shouldn't be too confident in that prediction. As discussed, the new Democra
 
 <!-- EM: I feel like having "Estimate other things" and "Estimate trickier things" are redundant as chapter sections because they are mostly addressed through the sections that sandwich them.  -->
 
-
-
-
-
-## Using the predict() function
-
-We will introduce a new function here, `predict()`, which takes in a model as input and, given a specified parameter, will predict the value and confidence intervals of any given data point:
-
-```{r}
-
-trains.lm <- lm(data = trains, income ~ party)
-newdata <- tibble(party = c("Republican", "Democrat"))
-
-predict(trains.lm, newdata, interval = "prediction")
-
-```
-
-Note that for both democrats and republicans, the prediction interval is significantly wider than the confidence interval. This discrepancy illustrates the *unmodeled variation* of the dataset: while the mean values, as indicated by the "fit" column, are still the best guess you can make for any given subject, we are less confident in the value range of that individual subject than we are of the value range of the mean. *The unmodeled variation widens the prediction intervals relative to the confidence intervals.*
-
-Recall our discussion regarding the wider confidence intervals for republican subjects than democrat subjects (*would like to attach a link here that takes reader up to that part of the chapter*). Although the republican and democrat average incomes had vastly different confidence intervals — the republican convidence intervals were much wider — they have very similar prediction intervals. Although the *parameter uncertainty* of these two parameters were very different, the *unmodeled variation* for both parameters was roughly the same. Even though the data points were equally spread out for both democrat and republican income, were were able to more confidently pinpoint a true value for democrat income because we had more data to work with.
-
 #### Validity
 
 We just spent a ton of time analyzing the relationship between party and income in Enos' study. Although we have already accounted for parameter uncertainty (the confidence intervals) and unmodeled variation uncertainty (the prediction intervals), we have not accounted for the *validity* of his model — that is, whether the ideas he wishes to capture are truly represented by the data he collects.
@@ -618,8 +597,22 @@ There are various sources of uncertainties and problems that have addressed in p
 
 <!-- Do we want to play the prediction game? If so, how? -->
 
-So far, we have not clearly discussed what we are using these models for. Why bother to create these models? What is their *purpose*? In many cases, the most important use of a model is for prediction. We use them to make predictions about data which we have not yet seen.
+We will introduce a new function here, `predict()`, which takes in a model as input and, given a specified parameter, will predict the value and confidence intervals of any given data point:
 
+```{r}
+
+trains.lm <- lm(data = trains, income ~ party)
+newdata <- tibble(party = c("Republican", "Democrat"))
+
+predict(trains.lm, newdata, interval = "prediction")
+
+```
+
+Note that for both Democrats and Republicans, the prediction interval is significantly wider than the confidence interval. This discrepancy illustrates the *unmodeled variation* of the dataset: while the mean values, as indicated by the "fit" column, are still the best guess you can make for any given subject, we are less confident in the value range of that individual subject than we are of the value range of the mean. *The unmodeled variation widens the prediction intervals relative to the confidence intervals.*
+
+Recall our discussion regarding the wider confidence intervals for Republican subjects than Democrat subjects (*would like to attach a link here that takes reader up to that part of the chapter*). Although the Republican and Democrat average incomes had vastly different confidence intervals — the Republican convidence intervals were much wider — they have very similar prediction intervals. Although the *parameter uncertainty* of these two parameters were very different, the *unmodeled variation* for both parameters was roughly the same. Even though the data points were equally spread out for both Democrat and Republican income, were were able to more confidently pinpoint a true value for democrat income because we had more data to work with.
+
+In many cases, the most important use of a model is for prediction. We use them to make predictions about data which we have not yet seen.
 
 Recall our earlier conversation regarding the difference between confidence intervals. An argument could be made that, taking individual variation into account, prediction intervals would be more accurate indicators of uncertainty than confidence intervals. We can construct the above table using prediction intervals instead, generated using the `predict()` function:
 
