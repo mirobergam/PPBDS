@@ -233,13 +233,13 @@ The initials "lm" stand for "linear model." We are creating a model in which age
 
 There are three parts of understanding any model structure: whether it is causal or predictive, the mathematical formula, and realism. This model is predictive and has nothing to do with causality. Rather than modelling how the explanatory variable will change the outcome variable, we are using the explanatory variable (party) to simply predict the outcome variable (age). The difference between these two model types becomes clear when we construct a Preceptor Table: 
 
-<!-- -->
+<!-- MB: The table is centered here but not in the html ... -->
 
 ```{r, echo = FALSE}
 
 # Using real sampled ages but making my own tibble
 
-tibble(subject = c("1", "2", "...", "55", "...", "204", "205", "...", "1,000", "...", "100,000"),
+tibble(subject = c("1", "2", "...", "55", "...", "204", "205", "...", "1,627", "...", "N"),
        age = c("34", "?", "...", "36", "...", "44", "?",  "...", "50", "...", "?"),
        party = c("Republican", "?", "...", "Democrat", "...", "Democrat", "?",  "...", "Republican", "...", "?")) %>%
   gt() %>%
@@ -283,10 +283,41 @@ margin_note("The residual or epsilon value is also known as the 'noise'. The num
 $$ y_i = \hat{b_1}x_r + \hat{b_2} x_d + \epsilon_i $$
 Once you do this, you have a complete equation. 
 
+To continue our discussion of these values, we'll bring back our table. We'll display a few specific observations (all of which had their data recorded) rather than representing all N commuters.
 
-The final aspect of model structure is realism. Does this model reflect the real world accurately?
+```{r, include = FALSE}
 
-<!-- More to say about realism? -->
+library(tufte)
+
+margin_note("Note that this is no longer considered a Preceptor Table by our terminology. A Preceptor Table must account for all of the observations in the real-world population that the model is.")
+
+```
+
+This time, we'll include each individual's fitted value for age from our model. We'll also include their residual.  Remember that the actual age of each observation, $y_i$, is the addition of the model's prediction (the fitted value) and real-world noise (the residual). 
+
+```{r, echo = FALSE}
+
+tibble(subject = c("4", "5,051", "76", "80,050", "578", "23", "9,088", "888"),
+       party = c("Democrat", "Republican", "Democrat", "Democrat", "Republican", "Democrat", "Republican", "Democrat"),
+       age = c(31, 34, 63, 45, 55, 53, 24, 45),
+       fitted = c(42.6, 41.1, 42.6, 42.6, 41.1, 42.6, 41.1, 42.6)) %>%
+  mutate(noise = fitted - age) %>%
+  gt() %>%
+  cols_label(subject = md("**ID**"),
+             age = md("**$y_i$**"),
+             party = md("**Party**"),
+             fitted = md("**fitted**"),
+             noise = md("**residual**")) %>%
+  tab_style(cell_borders(sides = "right"),
+            location = cells_body(columns = vars(subject))) %>%
+  cols_align(align = "center", columns = TRUE) %>%
+  fmt_markdown(columns = TRUE)
+
+```
+
+The fitted values are the same for all Republicans and for all Democrats, as the fitted value is one of the two estimates output by our model. However, almost all of the residuals are different due to each observation's own variation from the fitted value estimate. The only observations with the same residual are 80,050 and 888. This is because they are both Democrats that are the same age: with the same $y_i$ and $\hat{y_i}$, the calculation of their epsilon values are identical. This table shows how just a sample of 8 individuals captures a wide range of residuals, making it difficult to predict the age of a new individual who walks in the room even using our model.
+
+The final aspect of model structure is realism. Ask yourself, does this model reflect the real world accurately? What are its advantages and disadvantages?
 
 ### Parameter Uncertainty
 
@@ -316,72 +347,6 @@ If a new Democrat entered the train station, how easy would it be to guess their
 $$ y_i = b_0 + b_1 x_i + \epsilon_i $$
 
 One shouldn't be too confident in that prediction. The new Democrat's age comes in two parts: the beta (determined by their political party) and their epsilon/residual (how much noise there is in this observation that offsets it from the beta prediction). While the beta values have been determined by our model, the epsilon value represents *unmodeled variation* that could likely put the value outside of these bounds. 
-
-### Preceptor Table
-
-To continue our discussion of unmodeled variation, we'll bring back our Preceptor Table. This time, it will be a reduced table for just a few observations with data: 
-
-```{r, echo = FALSE}
-
-tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele"),
-       age = c("31", "34", "63", "45", "55", "53", "24"),
-       party = c("Democrat", "Republican", "Democrat", "Democrat", "Republican", "Democrat", "Republican")) %>%
-  gt() %>%
-  cols_label(subject = md("**ID**"),
-             age = md("**Age**"),
-             party = md("**Party**")) %>%
-  tab_style(cell_borders(sides = "right"),
-            location = cells_body(columns = vars(subject))) %>%
-  cols_align(align = "center", columns = TRUE) %>%
-  fmt_markdown(columns = TRUE)
-
-```
-
-Let's begin by adding each individual's fitted value for age from our model. 
-
-```{r, echo = FALSE}
-
-tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele"),
-       age = c("31", "34", "63", "45", "55", "53", "24"),
-       party = c("Democrat", "Republican", "Democrat", "Democrat", "Republican", "Democrat", "Republican"),
-       fitted = c("42.6", "41.1", "42.6", "42.6", "41.1", "42.6", "41.1")) %>%
-  gt() %>%
-  cols_label(subject = md("**ID**"),
-             age = md("**Age**"),
-             fitted = md("**fitted**"),
-             party = md("**Party**")) %>%
-  tab_style(cell_borders(sides = "right"),
-            location = cells_body(columns = vars(subject))) %>%
-  cols_align(align = "center", columns = TRUE) %>%
-  fmt_markdown(columns = TRUE)
-
-```
-
-The fitted values are the same for all Republicans and for all Democrats. Remember that the actual age of each observation is the addition of the model and noise (or the residual). The fitted value represents the "model" part of that equation, which is why each value is one of the two coefficients outputted by our model. 
-
-```{r, echo = FALSE}
-
-tibble(subject = c("Sam", "Darren", "Achele", "Anwar", "David", "Declan", "Adele"),
-       age = c(31, 34, 63, 45, 55, 53, 24),
-       party = c("Democrat", "Republican", "Democrat", "Democrat", "Republican", "Democrat", "Republican"),
-       fitted = c(42.6, 41.1, 42.6, 42.6, 41.1, 42.6, 41.1)) %>%
-  mutate(noise = fitted - age) %>%
-  gt() %>%
-  cols_label(subject = md("**ID**"),
-             age = md("**$$y_i$$**"),
-             party = md("**Party**"),
-             fitted = md("**fitted**"),
-             noise = md("**residual**")) %>%
-  tab_style(cell_borders(sides = "right"),
-            location = cells_body(columns = vars(subject))) %>%
-  cols_align(align = "center", columns = TRUE) %>%
-  fmt_markdown(columns = TRUE)
-
-```
-
-The other half of the equation is the residual, which accounts for the difference between each individual's age from its fitted value. Note the new column name for age: $y_i$ is the sum of the fitted and epilson value. 
-Recall our discussion of unmodeled variation. This Preceptor table shows how just a sample of 7 individuals captures a wide range of residuals, making it difficult to predict the age of a new individual who walks in the room even using our model.
-
 
 
 <!-- DK: I went fast above, but that is all the key material. Still need to add a Rubin Table example, highlighting that this is modeling for prediction. There is only one column for Y because it is impossible to change someone's age, whatever manipulations you make to party. -->
@@ -585,8 +550,6 @@ predict(tibble(treatment = c("Treated", "Control")),
 ```
 
 And we can reconstruct the table by filling in the unknowns with the predictions (note that these are unchanged) and their associated levels of uncertainty (which HAVE changed to accomodate for individual variation within the data):
-
-<!-- EM: Note that some of the uncertainty boundaries exceed 3 or 15, which were the minimum and maximum values for att_end, respectively. This should be made apparent in a margin note for the tables that have uncertainty bounds below 3 or above 15. -->
 
 ``` {r}
 
