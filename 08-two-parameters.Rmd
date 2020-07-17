@@ -202,34 +202,38 @@ The 95% confidence interval calculated via `lm()` is, more or less, the same as 
 
 ## `age` as a function of `party`
 
-<!-- No use of bootstrap. Make clear the distinction between "modeling for prediction" and "modeling for causation." The first is only about comparisons between categories. The second is stronger, a claim about changing an individual; it is a claim about potential outcomes. -->
-
 But what if, instead of having no other information about our sample beyond their ages, we also knew their political party? How would we make a model which included this other information? This is a model for prediction, rather than a model for causal inference, because `age` can not be changed regardless what happens to `party`. That is, someone's age is the same regardless of the party of which they are a member.
 
 The simplest model would be to guess that a person's age, conditional on their party membership, is equal to the mean age of people in that party.
 
 ```{r}
+
 trains %>% 
   group_by(party) %>% 
   summarize(age_average = mean(age))
+
 ```
 
 If a new Boston commuter named Jake showed up at the station, what would be a good guess as to their age? If you don't know anything else about this person, then guessing the mean age of the sample, `r round(mean(trains$age), 1)` makes sense, as we learned in Chapter \@ref(one-parameter). But, if we know that the person is a Republican, than this guess would be (slightly) too high. Among the population of Boston commuters, (it seems that) Republican's are younger than average. So, conditional on knowing that Jake is a Republican, we should guess that his age is  `r round(mean(trains$age[trains$party == "Republican"]), 1)`. 
 
 However, instead of calculating these averages by hand, it is more convenient to use `lm()`, a function for creating linear statistical models. Start by estimating a simple model:
 
-<!-- DK: Would now be a time to start using tidymodels syntax so that we could avoid the horribleness of the dot? -->
-
 ```{r}
+
 trains %>% 
   lm(data = ., age ~ party - 1)
+
 ```
+
+Our predictive model's estimates are the same as the averages we calculated because that's most helpful number in estimating the age of an individual in the dataset knowing only their party, at least with our current set of tools. 
 
 ### Model Structure
 
 The initials "lm" stand for "linear model." We are creating a model in which age is a function of party. The "-1" term causes the model to provide us with the mean for each group. The coefficient estimates are the same as the mean values for age within each party. 
 
 There are three parts of understanding any model structure: whether it is causal or predictive, the mathematical formula, and realism. This model is predictive and has nothing to do with causality. Rather than modelling how the explanatory variable will change the outcome variable, we are using the explanatory variable (party) to simply predict the outcome variable (age). The difference between these two model types becomes clear when we construct a Preceptor Table: 
+
+<!-- -->
 
 ```{r, echo = FALSE}
 
