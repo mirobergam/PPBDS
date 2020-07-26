@@ -1,43 +1,41 @@
-# Summer 
-
-## Consider next week
-
-https://allisonhorst.shinyapps.io/missingexplorer (Friday talk with Evelyn?)
-
-https://desiree.rbind.io/post/2020/learnr-iframes/ 
-
-https://github.com/rstudio/learnr/pull/390
-
-https://github.com/rstudio/learnr/issues/392
-
-How much do you want to get involved in Evelyn's world? Big concern: Even if this works, it does not scale. Also, how do we know what students have done? Perhaps relevant:
-
-https://pastebin.com/JK3zV6EP
-https://github.com/dtkaplan/submitr
-
-How to set digits option?
-
-Background:
-
-https://education.rstudio.com/blog/2020/07/learning-learnr/
-https://rmarkdown.rstudio.com/authoring_shiny_prerendered.HTML
-
+# Summer
 
 ## TODO
 
-Or we can just work on straight book stuff, of which there is a lot to do!
+0) ms-errors and simpson knit, but then the embedded slides do not have graphics.
 
-1) Get simpsons-paradox.Rmd and m-s-errors.Rmd to work. Animations don't appear as they should.
+1) When we build the book, packages.bib should be regenerated. 
 
-2) How do we get it to fail noisily if one chapter fails? `knitr::include_graphics()` does not seem to produce an error when we build the book. How do we test?  
+2) We don't want everything in all the .bib files to be in the References section, just things mentioned in the text and all packages.
 
-3) Think about the bib/ directory. We need to fix our citations. Automate the citation of whatever packages we are using. The references are a mess, put together from 3 different original sources. First, there a bib directory, with three files in it. Second, within index.Rmd there was a call to knitr::write_bib, which is a famously dangerous and confusing function. I guess that this creates packages.bib. (I have since deleted this.) Third, there is the links.md file, which is supposed to replace a lot of the references like @R-readr, mainly in chapter 2. That seems not to work at all. Come up with a plan to deal with all these. Deal with bibliography. Our source books use very different approaches. write_bib() is infamous for making trouble. I like the way that MD writes out new versions of citations associated with R packages that have been updated. Seems like all chapters generate references at the end. That is fine, but it should be standardized. Or do all those references belong at the end?
+3) Test the whole book for every pull request. That means this must become a package. Please investigate sensible ways to have a bookdown book that is an R package, or at least part of one. Please think about whether we should combine PPBDS.data and PPBDS. Perhaps a useful reference: https://fromthebottomoftheheap.net/2020/04/30/rendering-your-readme-with-github-actions/
 
-4) How should we format code chunks? The code in many current code chunks is "cut off," meaning that it does not appear in the output files. See examples in chapter 5. The hack solution is to format the code so that, instead of being 80 (or whatever) characters across, it is only 50, or whatever we currently allow for. I don't like that since the code looks weird and ugly. Another solution is to allow (some) code chunks to extend into the margin. (You can see that Healy does that, at least for some code output boxes. Another solution is to make the font in code chunks smaller. I suspect that this last one is best. We need to pick a font so that 80 characters appear, or at least more than our currently shown. Would also be nice to provide authors with an easy way of knowing when they have written to wide.
+4) Is $\widehat{p}$ different from $\hat{p}$? Do we care?
+
+5) Can we delete the history of a repo? Our repos get large because there are so many large files and changes therein. So, whenever we clone/download, it takes a lot of time, especially with poor internet connections. But we don't care about that history! We will never go back. So, all I care about is the state of the repo today, and then keeping track going forward.
+
+
+
+## Social Media Plan
+
+1) Students look at three main things when deciding to take a course (sent from one of our new followers on Instagram!):
+  - Q Guide scores and reviews
+  - The professor (or preceptor!)
+  - Anecdotal stoties from friends
+
+2) We need more from you! Pictures and vertical videos for Instagram about your everyday life. Students value the human connection even more in remote learning.
+
+3) We also need more from Gov 50 alumn! I have an interactive story that will go up once we hit 250 followers that alumn will share. We can also create sponsored posts/stories if students are interested. I have already approved my personal account and will post a sponsored post soon.
+
+4) Advertising logistics:
+  - We can target 18-22 year-old users associated with Harvard College and living in the US.
+  - $25 total, $5/day campaign will have an estimated reach of 2,500-6,600 accounts.
+  - Depending on your budget, I suggest we run 2-4 of these campaigns in August.
+  - Each campaign will promote one of our best performing posts: I have some appropriate memes scheduled to post soon and Q Guide Score Quotes.
 
 ## Book Building
 
-* [*Bookdown*](https://bookdown.org/yihui/bookdown/) is the key reference. Note that you need to uncomment the `html:` in _bookdown.yml in order for thus build command to work (This means selecting the order of Rmd files to knit). We usually build the book by pressing the "Build Book" button under the Build panel. 
+* [*Bookdown*](https://bookdown.org/yihui/bookdown/) is the key reference. Note that you need to uncomment the `html:` in _bookdown.yml in order for thus build command to work (This means selecting the order of Rmd files to knit). We usually build the book by pressing the "Build Book" button under the Build panel.
 
 * We are using the Stanford example.
   + Make sure the **msmbstyle** package is installed
@@ -57,22 +55,18 @@ output_yaml:
   - _output.yml
 ---
 
+* To ensure that all references appear, make sure the following is added to index.Rmd header:
+---
+nocite: '@*'
+---
 
 
-## Open Questions    
-
-* `knitr::include_graphics()` does not seem to produce an error when we build the book, even if the file is missing. How can we make sure it does error? And what should our standard use of this tool look like? One approach: [Using Images in Figures](http://zevross.com/blog/2017/06/19/tips-and-tricks-for-working-with-images-and-figures-in-r-markdown-documents/).  
+## Open Questions
 
 
-* How can we make the book build faster? Maybe we should use cache=TRUE for the slow chunks. But which chunks are those?
-
-* How do we print it? I like the PDF version of Rafa's [book](https://leanpub.com/datasciencebook) available from Lean Pub. How hard is that to make?  
+* How do we print it? I like the PDF version of Rafa's [book](https://leanpub.com/datasciencebook) available from Lean Pub. How hard is that to make?
 
 * Is there a way to print out messages during the book building process so that you know where the process is? Recall that we can't (?) use R code chunk names because duplicate code chunk names cause (still?) the process to blow up.
-
-* Think about the data directory. Do we really need all these files? Couldn't we create them on the fly? What do we do when we need to update them?
-
-* Think about the images directory. What a pile of crap! Do we need all these? How can we re-organize to make it more maintainable in the future. Maybe start by making a new img/ directory and then just moving over the images we are currently using?
 
 * Consider using notes: https://desiree.rbind.io/post/2019/making-tip-boxes-with-bookdown-and-rmarkdown/
 
@@ -90,11 +84,9 @@ output_yaml:
 ## Other Items
 
 
-The world confronts us. We must make decisions. The data we want is missing. So, we create models, make estimates, admit to our uncertainty, and then decide. 
+The world confronts us. We must make decisions. The data we want is missing. So, we create models, make estimates, admit to our uncertainty, and then decide.
 
 ## Unclassified Items
-
-
 
 * Fix "No additional resources" in Chapter 6 and 7. Standardize this section across all chapters. 545 is different. Delete everywhere?
 
@@ -102,7 +94,7 @@ The world confronts us. We must make decisions. The data we want is missing. So,
 
 * Some chapters, like productivity.Rmd have a lot of footnotes. Good or bad?
 
-* Revisit the Prediction Game. 
+* Revisit the Prediction Game.
 
 
 ````markdown
@@ -113,7 +105,7 @@ plot(cars)
 
 ### From the Bookdown book
 
-preview_chapter() and serve_book() as aid to chapter writers. 
+preview_chapter() and serve_book() as aid to chapter writers.
 
 webshot() tool for including images taken from webpages. Everytime we mention how cool source X is, we should provide a webshot of it. (And we should test that it exists.) Make the productivity chapter include way less of our prose.
 
@@ -146,7 +138,7 @@ Discuss RCM, assuming that we are estimating a causal effect of some type. And, 
 
 Each chapter should finish with a new section which uses list-columns plus broom to estimate scores of models, and then pull out interesting models. See the gapminder examples from https://r4ds.had.co.nz/many-models.html#gapminder. We need the full tool set: nest, unnest and so on.
 
-Each chapter begins with a real example, a decision we must make (if only the prediction game), and then creates a model which we will use to help us. Bets are always offered. RCM discussed. Bias scenarios demonstrated. The secret weapon --- a model for each state or each year --- used.  
+Each chapter begins with a real example, a decision we must make (if only the prediction game), and then creates a model which we will use to help us. Bets are always offered. RCM discussed. Bias scenarios demonstrated. The secret weapon --- a model for each state or each year --- used.
 
 
 ## Other summer issues
@@ -157,7 +149,7 @@ https://committedtotape.shinyapps.io/freeR/
 
 Replace all photos of activities with photos from Harvard, using Tsai.
 
-Chapters 7, 8 and 9 
+Chapters 7, 8 and 9
 
 ## Approaches to Include?
 
@@ -183,18 +175,31 @@ regresssion towards the mean
 prediction/classification
 map/network/text
 
-# Appendices
+"docknitr: Use Docker Images to Process Rmarkdown Blocks" looks promising. Note the vignettes. But maybe this is a) overkill and b) only really useful for Python, which is what is used for the docknitr vignette examples. The methods used by STAT 545 and Modern Dive are probably good enough.
 
+
+# Notes on **bookdown** Book
+
+p. 64 notes that adding the suffix 2 to various output formats gives you all the cool stuff, like figure captioning and numbering.
+
+p. 74 has a useful discussion of configuration options for the _bookdown.yml file.
+
+* rmd_subdir are subdirectories to search for source Rmd files. That seems critical for my submodule structure.
+
+* output_dir is the output directory of the process (_book by default).
+
+* clean is vector of files and directories to be cleaned by the clean_book() function.
+
+pp. 5-6 discuss rmd_files as the way to define your own ordering for output files. This also goes in the _bookdown.yml file.
+
+Probably worth going through the book again in January.
+
+
+# Appendices
 
 Appendices have information that either a) a prof might reasonably decide not to assign or b) often contain material that students already know.
 
-* Getting set up with Git --- explicit pointers to Happy Git with R. Or copies thereof?
-
-* Type S/M Errors
-
-* Simpson's Paradox
-
-* Why Bayes
+* Why Bayes?
 
 * Messed up research articles. We need to prepare case studies of messed up articles. Start with those that Gelman cites. The tricky part is trying to figure out how to include these in class. And during which week do we use them.
 
@@ -206,7 +211,7 @@ Appendices have information that either a) a prof might reasonably decide not to
 
 * How to Make Tables using gt package, other stuff?
 
-https://themockup.blog/posts/2020-05-16-gt-a-grammer-of-tables/x`xxx
+https://themockup.blog/posts/2020-05-16-gt-a-grammer-of-tables/
 
 * List of cool packages, googlesheet4 examples. : https://datavizm20.classes.andrewheiss.com/example/10-example/
 
@@ -227,3 +232,4 @@ https://datavizm20.classes.andrewheiss.com/example/10-example/
 
 * Entry about best class.
 
+http://zevross.com/blog/2017/06/19/tips-and-tricks-for-working-with-images-and-figures-in-r-markdown-documents/

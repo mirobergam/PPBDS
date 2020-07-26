@@ -3,90 +3,44 @@ output_yaml:
   - _output.yml
 ---
 
-# One Parameter {#one-parameter}
 
-```{r include=FALSE}
-library(tufte)
-library(gt) 
-library(patchwork)
-```
+<!-- TO-DO: -->
 
+<!-- 1. Read Chapter 5 and zoom with Vivian about the connection between the two chapters. And don't stop talking unytil you can explain to her satisfaction what a posterior distrubution is, and until she can explain, to your satisfaction, what the bootstrap that you are using in chapter 7 is doing.  You are estimating $\tau$, which is the true mean height of the population. It is a parameter you don't know. Vivian was estimating $p$, the true likelihood of a specific coin coming up heads. It is also a parameter we can't know. She uses data (like 8 heads out of 20), to construct a posterior probability for $p$. You use data (like the height of 2,475 men) to construct a posterior probability for $\tau$. It is the same thing, although your tools, whether bootstrap or lm() are easier to work with than her tools. This is a key connection to make when we are discussing parameter uncertainty. Read the set of notes at the start of chapter 6. Should we create the joint distribution of models and data like we did in chapter 5? How would we? Or is it enough just to claim that this is what lm() does for us? -->
 
-<!-- Explain PPBDS.data and how to install it at start of chapter. Just a sentence or two, with `remotes::install_github("davidkane9/PPBDS.data")` in the sentence, along with note that, obviously, one needs to `library(remotes)` first. This would make for a good margin note. -->
+<!-- 2. Fix summarize warnings. I think you just need to provide a value for the `.groups` argument, perhaps just `.groups = "drop_last"`, which is the default. Of course, you also need to explain what this does. But why do we need to specify the default? Done -->
 
-<!-- 
+<!-- 3. Find a place for this quote somewhere as a sidemargin note. -->
 
-Read Chapter 5 and zoom with Vivian about the connection between the two chapters
+<!-- > In this sense, the bootstrap distribution represents an (approximate) -->
+<!-- nonparametric, noninformative posterior distribution for our parameter. -->
+<!-- But this bootstrap distribution is obtained painlessly --- without having to -->
+<!-- formally specify a prior and without having to sample from the posterior -->
+<!-- distribution. Hence we might think of the bootstrap distribution as a “poor -->
+<!-- man’s” Bayes posterior. By perturbing the data, the bootstrap approximates -->
+<!-- the Bayesian effect of perturbing the parameters, and is typically -->
+<!-- much simpler to carry out. --- Elements of Statistical Learning, 2nd edition, by Hastie et al, page 271. -->
 
-Figure out the 5-8 subparts and the sub-subparts within each. This will evolve over time, of course.
+<!-- Outline of the Chapter -->
 
-1. Pennies. Pretty much as it is now, with perhaps the addition of showing how lm(year ~ 1) gives the same answer.
-
-Exploratory Data Analysis of nhanes
-
-2. height from the 5,000 nhanes observations for 2009. This can go much faster. Two key differences from pennies. First, we know the truth, so we can examine whether or not the bootstrap works. (That is, we pull a sample of 40 and see if the bootstrap confidence interval from that 40 includes the true mean of the 5,000.) Second, we simultaneously calculate two things: mean height and 75th percentile height. The first can also be done with lm(). But the second can not! Which is why we sometimes need the bootstrap.
-
-Possibly focus on just 2500 men and their average height. their mean height is this, but we make a game and I give you a sample of like 40. Her's the 40, and give me a 95% CI using the bootstrap tools we learned. If we do the same procedure, then 950 should include the truth. That's how we know bootstraps is correct and I could only demonstrate this to you if we know what the truth is. 
-
-Cut this from chapter 8. Something like it belongs here
-
-=======
-Consider a bootstrap sample of the trains dataset with 1,000 replicates, and the data contained in the first of these 1000 replicates: 
-
-
-```{r}
-# boots <- bootstraps(trains, 1000)
-```
-
-Because bootstrapping can take a lot of time, we often create the bootstrap sample as a new object, and then use this new object as the starting point for later analysis. You would not want to redo the bootstrap every time you made a minor change in a plot later on. The result of running `bootstraps()` is usually a tibble of class "bootstraps," with two colums: `splits`  (a list) and `id` (a character).  
-
-```{r}
-# boots
-```
-
-
-Using the `analysis()` function from the **rsample** package is useful in working with the data stored within each replicate in the `splits` column. Let's look at the 9th replicate.
-
-```{r}
-# x$boots[[9]] %>% analysis()
-```
-
-Now, let's say we're interested in calculating a single parameter across each of these bootstrapped samples: the mean income for each of these replicates. We use `mutate()` to add a new column to the tibble. We use a map function to accomplish this, as explained in Chapter \@ref(functions).
-
-```{r}
-# x <- boots %>% 
-#  mutate(mean_income = map_dbl(splits, ~ analysis(.) %>% 
-#                              pull(income) %>% 
-#                              mean()))
-
-#x
-```
+<!-- 0. Question about male height in America in 2009. Ask some questions. Done -->
 
 
 
-Now we have 1000 replicates and 1000 values of mean_income to work with. If we want to construct a distribution for the bootstrapped values of `mean_income` with a 95 percent confidence interval, we can calculate the bounds of this interval.
-=======
-End of cut section.
+<!-- 2. Exploratory Data Analysis of nhanes. temp <- nhanes %>% select(year, gender, height). Explore all three variables. Note that there are NAs. Then restrict for our use in the models like: ch7 <- %>% drop_na() %>% filter(gender == "male", year == 2009) %>% select(height). In other words, the final data set just has one variable in it. Since we are only estimating a model with one parameter, we can't make use of richer data. TA: Almost done -->
 
-3. height in the US, using all 5,000 for 2009. Let's skip the bootstrap here. (We have seen it twice already.) Instead, we just go straight to lm(), tidy() to calculate the mean and its confidence interval. Note that, unlike with 2, we can never know the truth. Then, use this as an example to discuss parameter uncertainty. 
 
-want to estimate the height for the all US women. and i give you 2500. We don't need to do bootstraps, we could just run lm and tidy for the CI. We don't really have the true value in this case, but we can talk about the parameter uncertainty in this case. Want a plot that shows the thousand diff runs in the y axis and x axis is the different cI. check chapter 8 for the plot. 
 
-4. Prediction. What can we use this model for? We think we know p(mean height for 2009), call it p(height). So what? What can we do with this and what do we need to be careful about? This is where we can discuss all our other topics from themes.Rmd. Some key topics:
+<!-- 4. Prove that the bootstrap works, that our 95% confidence intervals provide correct coverage. We make a game and I give you a sample of like 40. Here's the 40, and you give me a 95% CI using the bootstrap tools we learned. Then I give you another 40. And another. If we do this 1,00 times, and we use the same procedure for calculating a confidence interval each time, then 950 should include the truth. That's how we know bootstraps is correct and I could only demonstrate this to you if we know what the truth is.  -->
 
-possibly make them sub sub section based on themes
+<!-- 5. height in the US, using all 2,475 men for 2009. Let's skip the bootstrap here. (We have seen it twice already.) Instead, we just go straight to lm(), tidy() to calculate the mean and its confidence interval. Note that, unlike with 2, we can never know the truth. Then, use this as an example to discuss parameter uncertainty.  -->
 
--->
+<!-- 6. Prediction. What can we use this model for? We think we know p(mean height for 2009), call it p(height). So what? What can we do with this and what do we need to be careful about? This is where we can discuss all our other topics from themes.Rmd. Build a data generating mechanism. With it, we can answer any question we like!  -->
+
 
 <!-- Turn Standard error method section of coin bootstrap into a four sentence margin note. -->
 
-<!-- Fix summarize warnings. I think you just need to provide a value for the `.groups` argument, perhaps just `.groups = "drop_last"`, which is the default. Of course, you also need to explain what this does. But why do we need to specify the default? -->
-
-<!-- Switch from qscores to nhanes as the main data example. Why? The demonstration works much better with a big dataset than it does with a small one, for reasons that we ought to discuss in the chapter. Which variable should we use? Let's go with height? Use just the data from 2009, which is 5,000 observations.  -->
-
-<!-- a) We can see how good that confidence interval is because we have all the data. We know the height for all 5,000 people in the sample, so we can see what the true mean is. Did our 95% confidence interval include the mean? It should! -->
-
-<!-- b) We can replicate this experiment 1,000 times. Sample, without replacement, 43 people from nhanes. (Point out that, although we used 50 with the penny example, bootstrapping works whatever the size of our sample. So, we use 43 here.) Use the bootstrap to calculate a confidence interval for the mean. This should include the mean about 950 of the 1,000. But it will fail about 500 times! And that is cool to show. -->
+<!-- TA: Do you want me to do calculations or something for the standard error method or just explain it intuitively? -->
 
 <!-- c) Discuss how this exercise is still useful even if we begin with all our data. That is, don't sample. Just use all 5,000 people. Then, do the bootstrap to get a confidence interval. Note that the interval will be --- how much? --- smaller than the ones we got above, because we are using 116 times as much data. But it is also weird. I know exactly what the mean is! I have the entire Rubin Table! I don't need a confidence interval for the mean.  -->
 
@@ -94,16 +48,7 @@ possibly make them sub sub section based on themes
 
 <!-- e) Relatedly, what if I told you that your 2009 data I gave you did not include one person (or ten people or 100), which was (were) dropped at random from the data by mistake. What is your guess as to the height of that single person, or the height of the average of the 10 people or the tallest of the 10 classes? What is your confidence interval for that? Want to bet? These are all different estimands. -->
 
-<!-- All of this allows us to hit all the themes from style.Rmd even though we are only estimating one parameter. I think that this is enough for one chapter, especially if we keep the pennies around. No need to get into other data sets. -->
-
-<!-- 2) Need to get rid of `rep_sample_n()` and replace with `rsample:boostraps()`. Example usage [here](https://juliasilge.com/blog/beer-production/). Do this first, just to get warmed up. Make sure everything still works! Consult this [useful tutorial](https://www.danielphadley.com/bootstrap_tutto/) for the bootstraps function. We can keep everything else with the penny example the same, for now. -->
-
-
-<!-- 4) After completing the current penny example, show how we can estimate other estimands --- the median, 3rd biggest, et cetera --- in exactly the same way. All the same procedures apply in these cases. Obviously, we can go much faster and don't have to do them all. Key is to see that there are many things (and their uncertainty) which we can estimate. The mean is just one of them. We can still just use our standard Bayesian interpretation for all these estimands and uncertainty intervals. -->
-
-<!-- 3) Refer back to the probability chapter. Note that it ends with the estimating of a single parameter, the p associated with a coin. You want to remind readers of what they have already learned and also move a little bit further. Read the set of notes at the start of chapter 6.  -->
-
-<!-- 4) Recall how the probability chapter goes farther than this. It gets all the way to posterior predictions. What will be the mint year of the next penny we get from the bank? What will be the average of the next five pennies we pull? What is a reasonable uncertainty for these forecasts?  Do a posterior predictive checks. Note that we should use all the same "tools" as in that probability chapter. That is, our bootstraps has built a posterior distribution, just like the posterior distribution we built with the coin tosses. We then sample from this posterior to answer other questions. -->
+<!-- 4) Recall how the probability chapter goes farther than this. It gets all the way to posterior predictions. What will be the mint year of the next penny we get from the bank? What will be the average of the next five pennies we pull? What is a reasonable uncertainty for these forecasts?  Do a posterior predictive checks. Note that we should use all the same "tools" as in that probability chapter. That is, our bootstraps has built a posterior distribution, just like the posterior distribution we built with the coin tosses. Do we then sample from this posterior to answer other questions? Or is that too hard. -->
 
 <!-- 4a) Key issue: How to we transition from this crazy bootstrap approach to using R functions to make the same calculations. Bootstraps take too long, and they are a bother. We need to show how they give the same answer as the built in R functions and then transition away from the bootstrap. Indeed, there is an argument that this chapter (or last chapter?) is the last Bayes Scatterplot we show. That was all about intuition. Once we have that, we can just go to doing things the right way. -->
 
@@ -116,11 +61,7 @@ possibly make them sub sub section based on themes
 <!-- 7) Always nice to highlight how flexible the simulation approach is. You might be able to solve the basic problem analytically. But, as soon as some complexity comes in, simulation is your only hope. For example, Joe bets that the second oldest of the four pennies he got in change is older than 1990. Take that bet? Only (?) approach is simulation. Or maybe we should start with a bet which we know can only be solved with simulation. -->
 
 
-<!-- DK: New comments: -->
-
-<!-- 1) Get rid of ## Warning: `...` is not empty by using the `.group` argument correctly. -->
-
-<!-- 2) Get rid of ## Warning: Removed 2 rows containing missing values (geom_bar). -->
+<!-- 2) Get rid of ## Warning: Removed 2 rows containing missing values (geom_bar). Just use drop_na() and explain what you are doing. -->
 
 <!-- 3) Make our own speadsheet data? Use names from contributors to the book. -->
 
@@ -129,7 +70,6 @@ possibly make them sub sub section based on themes
 
 <!-- This is probably too hard for the chapter itself but might make for a good problem set: Estimating who is going to win an election as the votes come in. After one vote, don't know anything. After 5 votes, maybe a little. After 10 votes, more. And so on. Show how the best estimate evolves over time, as information comes in. Do this as a contest. What procedure is best? Show that some shrinkage is a very good idea. Each stage is, potentially, a new contest. See which approach wins the most contests. In the end, of course, they converge. Can't just be "Repub ahead" as H_1. Need to be "Repub = 0.6" Without this hack, can't calculate the likelihood easily. Right? See Rossman approach for tennis matches.  -->
 
-<!-- TA: Yea, I like this!
 
 <!-- Show updating as each vote comes in. Then show that you get the same answer if you just include all the votes at once. -->
 
@@ -139,36 +79,33 @@ possibly make them sub sub section based on themes
 
 <!-- Assuming this is correct, we get to bring in prediction and betting. Then, we have the motivating question: What is a good estimate for the percentage of Democrats in this bucket? How do we combine information from the overall population and from our sample to come up with a good estimate, and confidence interval, for the percentage Democratic in that bucket? Perhaps this multi-level model is one of the last things we do. Even Mr P??  -->
 
-<!-- Find a place for this quote somewhere. -->
-
-<!-- > In this sense, the bootstrap distribution represents an (approximate) -->
-<!-- nonparametric, noninformative posterior distribution for our parameter. -->
-<!-- But this bootstrap distribution is obtained painlessly --- without having to -->
-<!-- formally specify a prior and without having to sample from the posterior -->
-<!-- distribution. Hence we might think of the bootstrap distribution as a “poor -->
-<!-- man’s” Bayes posterior. By perturbing the data, the bootstrap approximates -->
-<!-- the Bayesian effect of perturbing the parameters, and is typically -->
-<!-- much simpler to carry out. --- Elements of Statistical Learning, 2nd edition, by Hastie et al, page 271. -->
-
-
 <!-- Workshop Statistics:  Discovery with Data, A Bayesian Approach by James H. Albert and Allan J. Rossman --- Topic 16 has some interesting stuff about how we learn a proportion.  -->
 
 
+# One Parameter {#one-parameter}
+
+```{r include=FALSE}
+library(patchwork)
+library(dplyr)
+```
+
+What is the average height of an American male? What is the 75th percentile of the distribution of height for American men? How certain are you are your estimates? If we past 5 men walking down the street, what are the odds that the tallest will be at least 5 centimeters taller than the shortest?
 
 
+## Pennies activity {#resampling-tactile}
 
-Before digging into this chapter, please download PPBDS data, which we will be using for this chapter. To get the PPBDS data, please run `library(remotes)` and then `remotes::install_github("davidkane9/PPBDS.data")`. In Chapter \@ref(sampling), we studied sampling. We started with a "tactile" exercise where we wanted to know the proportion of balls in the urn in Figure \@ref(fig:sampling-exercise-1) that are red. While we could have performed an exhaustive count, this would have been a tedious process. So instead, we used a shovel to extract a sample of 50 balls and used the resulting proportion that were red as an *estimate*. Furthermore, we made sure to mix the urn's contents before every use of the shovel. Because of the randomness created by the mixing, different uses of the shovel yielded different proportions red and hence different estimates of the proportion of the urn's balls that are red. 
+In Chapter \@ref(sampling), we studied sampling. We started with a "tactile" exercise where we wanted to know the proportion of balls in the urn that are red. While we could have performed an exhaustive count, this would have been a tedious process. So instead, we used a shovel to extract a sample of 50 balls and used the resulting proportion that were red as an *estimate*. Furthermore, we made sure to mix the urn's contents before every use of the shovel. Because of the randomness created by the mixing, different uses of the shovel yielded different proportions red and hence different estimates of the proportion of the urn's balls that are red. 
 
 Remember: There is a *truth* here. There is an urn. It has red and white balls in it. An exact, but unknown, number of the balls are red. An exact, but unknown, number of the balls are white. An exact, but unknown, percentage of the balls are red -- defined as the number red divided by the sum of the number red and the number white. Our goal was to estimate that unknown percentage. We wanted to make statements about the world, even if we can never be certain that those statements are *true*. We will never have the time or inclination to actually count all the balls. We use the term *parameter* for things that exist but which are unknown. We use statistics to estimate the true values of parameters.
 
-<!-- TA: This might just be me, but I think it would be helpful to reinforce the last two sentences as the topic sentences for the Remember paragraph. -->
+<!-- Reinforce the last two sentences as the topic sentences for the Remember paragraph. -->
 
 
 We then mimicked this *physical* sampling exercise with an equivalent *virtual* sampling exercise using the computer. In Subsection \@ref(different-shovels), we repeated this sampling procedure 1,000 times, using three different virtual shovels with 25, 50, and 100 slots. We visualized these three sets of 1,000 estimates in Figure \@ref(fig:comparing-sampling-distributions-3) and saw that as the sample size increased, the variation in the estimates decreased.  We then expanded this for all sample sizes from 1 to 100.
 
 In doing so, we constructed *sampling distributions*. The motivation for taking a 1,000 repeated samples and visualizing the resulting estimates was to study how these estimates varied from one sample to another; in other words, we wanted to study the effect of *sampling variation*. We quantified the variation of these estimates using their standard deviation, which has a special name: the *standard error*. In particular, we saw that as the sample size increased from 1 to 100, the standard error decreased and thus the sampling distributions narrowed. Larger sample sizes led to more *precise* estimates that varied less around the center. 
 
-<!-- TA: I think we can distinguish further the difference between standard deviation and standard error in the above paragraph. Readers can confuse the two. -->
+<!-- Distinguish further the difference between standard deviation and standard error in the above paragraph. Readers can confuse the two. -->
 
 
 We then tied these sampling exercises to terminology and mathematical notation related to sampling in Subsection \@ref(terminology-and-notation). Our *study population* was the large urn with $N$ = 2,400 balls, while the *population parameter*, the unknown quantity of interest, was the population proportion $p$ of the urn's balls that were red. Since performing a *census* would be expensive in terms of time and energy, we instead extracted a *sample* of size $n$ = 50. The *point estimate*, also known as a *sample statistic*, used to estimate $p$ was the sample proportion $\widehat{p}$ of these 50 sampled balls that were red. Furthermore, since the sample was obtained at *random*, it can be considered as *unbiased* and as *representative* of the population. Thus any results based on the sample could be *generalized* to the population. Therefore, the proportion of the shovel's balls that were red was a "good guess" of the proportion of the urn's balls that are red. In other words, we used the sample to draw *inferences* about the population.
@@ -181,31 +118,32 @@ So how does one quantify the effects of sampling variation when you only have a 
 
 What if we would like, not only a single estimate of the unknown population parameter, but also a *range of highly plausible* values? Going back to the Obama poll article, it stated that the pollsters' estimate of the proportion of all young Americans who supported President Obama was 41%. But in addition it stated that the poll's "margin of error was plus or minus 2.1 percentage points." This "plausible range" was [41% - 2.1%, 41% + 2.1%] = [38.9%, 43.1%]. This range of plausible values is what's known as a *confidence interval*, which will be the focus of the later sections of this chapter. 
 
-<!--
-Create graphic illustrating two-step process of 1) construct bootstrap distribution
-and then 2) based on bootstrap dist'n create CI?
--->
+<!-- Create graphic illustrating two-step process of 1) construct bootstrap distribution
+and then 2) based on bootstrap dist'n create CI? -->
 
-<!-- TA: For the comment above, are you referring to Obama's polling data?-->
-
-## Pennies activity {#resampling-tactile}
+### To the Bank
 
 As we did in Chapter \@ref(sampling), we'll begin with a hands-on tactile activity. We almost always need the **tidyverse** package.
+
+<!-- DK: Why can't we stick a margin note in here about how to install PPBDS.data? I can't even leave a commented out version of the note without crashing any knitting attempt. -->
 
 
 ```{r, message=FALSE, warning=FALSE}
 library(PPBDS.data)
 library(rsample)
 library(tidyverse)
+library(dplyr)
+library(gt)
+library(skimr)
 ```
 
-**PPBDS.data** includes the data sets for this book. **rsample** includes functions for bootstraping, the main statistical tool which will we use here.
+**PPBDS.data** includes the data sets for this book. **rsample** includes functions for bootstrapping, the main statistical tool which will we use in this chapter
 
 ### What is the average year on US pennies in 2019?
 
 Try to imagine all the pennies being used in the United States in 2019. That's a lot of pennies! Now say we're interested in the average year of minting of *all* these pennies. One way to compute this value would be to gather up all pennies being used in the US, record the year, and compute the average. However, this would be near impossible! So instead, let's collect a *sample* of 50 pennies from a local bank in downtown Northampton, Massachusetts, USA as seen in Figure \@ref(fig:resampling-exercise-a).
 
-<!-- TA: I think we should say we collect a random sample of 50 pennies instead of just a sample of 50 pennies-->
+<!-- CB: I think it would help  with the Preceptor table concept to ask the question of 'If we are given a random penny in 2019, what would we predict the year to be on that penny?' And that way you can tie in and reinforce the idea of the predictive model which is introduced in my chapter like we talked about. Either introduce here or around line 246? -->
 
 ```{r, echo=FALSE, fig.cap="Collecting a sample of 50 US pennies from a local bank."}
 knitr::include_graphics(c("07-one-parameter/images/bank.jpg", "07-one-parameter/images/roll.jpg"))
@@ -227,9 +165,34 @@ pennies_sample
 
 The `pennies_sample` data frame has 50 rows corresponding to each penny with two variables. The first variable `ID` corresponds to the ID labels in Figure \@ref(fig:resampling-exercise-c), whereas the second variable `year` corresponds to the year of minting saved as a numeric variable, also known as a double (`dbl`).
 
-Based on these 50 sampled pennies, what can we say about *all* US pennies in 2019? Let's study some properties of our sample by performing an exploratory data analysis. Let's first visualize the distribution of the year of these 50 pennies using our data visualization tools from Chapter \@ref(viz). Since `year` is a numerical variable, we use a histogram in Figure \@ref(fig:pennies-sample-histogram) to visualize its distribution.
+```{r, echo = FALSE}
+# Here is my guess for what a Preceptor table would look like in this
+# pennies_sample example. I haven't been showing the code for the set up so echo
+# = FALSE. Changing the columns to characters for the gt table so that I
+# can add the ... row. If you are given random penny X in 2019, what would you
+# guess the year to be? The last row is your best guess if you are given that
+# random penny. Only have one parameter so only one row to fill in because even
+# if you were given 10 random pennies, your best guess for their year is the
+# same. That would be different in the two parameter chapter because then you
+# could have two rows because you have two parameters.
 
-<!-- TA: Again, maybe 50 randomly sampled pennies-->
+pennies_sample %>%
+  slice(1:7, 50) %>%
+  mutate(ID = as.character(ID),
+         year = as.character(year)) %>%
+  add_row(ID = "...", year = "...", .after  = 7) %>%
+  add_row(ID = "X", year = "?") %>%
+  gt() %>%
+  cols_label(ID = md("**Penny ID**"),
+             year = "Year") %>%
+  tab_style(cell_borders(sides = "right"),
+            location = cells_body(columns = vars(ID))) %>%
+  tab_style(cell_text(weight = "bold"),
+            location = cells_body(columns = vars(ID))) %>%
+  cols_align(align = "center", columns = TRUE)
+```
+
+Based on these 50 sampled pennies, what can we say about *all* US pennies in 2019? Let's study some properties of our sample by performing an exploratory data analysis. Let's first visualize the distribution of the year of these 50 pennies using our data visualization tools from Chapter \@ref(viz). Since `year` is a numerical variable, we use a histogram in Figure \@ref(fig:pennies-sample-histogram) to visualize its distribution.
 
 ```{r, fig.cap="Distribution of year on 50 US pennies."}
 pennies_sample %>%
@@ -244,12 +207,36 @@ Observe a slightly left-skewed distribution, since most pennies fall between 198
 pennies_sample %>% 
   summarize(mean_year = mean(year))
 ```
+
 ```{r, echo=FALSE}
 x_bar <- pennies_sample %>% 
-  summarize(mean_year = mean(year))
+  summarize(mean_year = mean(year)) 
 ```
 
+
 Thus, if we're willing to assume that `pennies_sample` is a representative sample from *all* US pennies, a "good guess" of the average year of minting of all US pennies would be `r x_bar %>% pull(mean_year) %>% round(2)`. In other words, around `r x_bar %>% pull(mean_year) %>% round()`. This should all start sounding similar to what we did previously in Chapter \@ref(sampling)!
+
+```{r, echo = FALSE}
+# Here I am using the exact same code but adding your good guess value. Any
+# random penny you give me in 2019, my best guess would be to say its from the
+# year 1995. Basically just filling in the question mark from the original
+# Preceptor table.
+
+pennies_sample %>%
+  slice(1:7, 50) %>%
+  mutate(ID = as.character(ID),
+         year = as.character(year)) %>%
+  add_row(ID = "...", year = "...", .after  = 7) %>%
+  add_row(ID = "X", year = "1995") %>%
+  gt() %>%
+  cols_label(ID = md("**Penny ID**"),
+             year = "Year") %>%
+  tab_style(cell_borders(sides = "right"),
+            location = cells_body(columns = vars(ID))) %>%
+  tab_style(cell_text(weight = "bold"),
+            location = cells_body(columns = vars(ID))) %>%
+  cols_align(align = "center", columns = TRUE)
+```
 
 In Chapter \@ref(sampling), our *study population* was the urn of $N$ = 2400 balls. Our *population parameter* was the *population proportion* of these balls that were red, denoted by $p$. In order to estimate $p$, we extracted a sample of 50 balls using the shovel. We then computed the relevant *point estimate*: the *sample proportion* of these 50 balls that were red, denoted mathematically by $\widehat{p}$.
 
@@ -273,108 +260,89 @@ Going back to our 50 sampled pennies in Figure \@ref(fig:resampling-exercise-c),
 
 Recall that we also saw in Chapter \@ref(sampling) that such estimates are prone to *sampling variation*. For example, in this particular sample in Figure \@ref(fig:resampling-exercise-c), we observed three pennies with the year 1999. If we sampled another 50 pennies, would we observe exactly three pennies with the year 1999 again? More than likely not. We might observe none, one, two, or maybe even all 50! The same can be said for the other 26 unique years that are represented in our sample of 50 pennies.
 
-To study the effects of *sampling variation* in Chapter \@ref(sampling), we took many samples, something we could easily do with our shovel. In our case with pennies, however, how would we obtain another sample? By going to the bank and getting another roll of 50 pennies. 
+So what do we do about this sampling variation? One solution is that we create bootstrap samples! As you already know that resampling is a significant tool in data science, bootstrapping is one such resampling method that many data scientists use today. Bootstrapping essentially repeatedly draws independent samples from our data set with replacement. By sampling with replacement, the same observation can be sampled multiple times and each bootstrap sample will have the same number of observations as the original data set. 
 
-Say we're feeling lazy, however, and don't want to go back to the bank. How can we study the effects of sampling variation using our *single sample*? We will do so using a technique known as _bootstrap resampling with replacement_, which we now illustrate.
+`r margin_note("To conduct bootstraps, make sure your dowload both rsample and tidyverse libraries")`
 
-### Virtually resampling 35 times {#bootstrap-35-replicates}
+Before the computer age, scientists would use direct standard error formulas and complex Taylor Series to compute confidence intervals for an estimate. However, the bootstrap was developed as an alternative to compute standard errors and confidence intervals for any statistic in a much faster and easier way. 
 
-Let's now perform the virtual analog of our 35 friends' resampling. Using these results, we'll be able to study the variability in the sample means from 35 resamples of size 50. Let's first add a `reps = 35` argument to `rep_sample_n()` \index{infer!rep\_sample\_n()} to indicate we would like 35 replicates. Thus, we want to repeat the resampling with the replacement of 50 pennies 35 times.
+The intuition with bootstrapping is that we can model an inference about the population from resampling our sample data and then performing an inference about a sample from each resample. It will look something like this: resampled → sample → population. 
+
+The first thing we want to do when bootstrapping is creating our bootstrap samples.Since we are concerned with the `year` of pennies in 2019, let's select `year` in our data set before we create our bootstraps. Let's now perform the virtual analog for 1000 resamples. Using these results, we'll be able to study the variability in the sample means from 1000 resamples of size 50. Let's first add a `times = 1000` argument to `bootstraps()` \index{rsample!bootstraps()} to indicate we would like 1000 replicates. Remember that we must use the `rsample` library to use bootstraps. 
 
 ```{r}
-virtual_resamples <- pennies_sample %>% 
-  rep_sample_n(size = 50, replace = TRUE, reps = 35)
+set.seed(9)
+virtual_resamples <- pennies_sample %>%
+  select(year) %>%
+  bootstraps(times = 1000)
+virtual_resamples
+```
+So we have now created our bootstrap samples, which are stored in a tibble-like object, and each bootstrap sample is nested in the splits column. This means that each `rsplit` row is a different bootstrap sample and the `id` column is used to identify each bootstrap sample. 
+
+`r margin_note("Check out ?analysis in console to get an even more comprehensive review of what analysis() does")`
+Now if you are interested to view a specific bootstrap sample, you can use the `analysis()` function from the `rsample` package, which basically allows you to view a specific bootstrap sample as a data frame. To do so, type `analysis(virtual_resamples$splits[[n]]) %>% as_tibble()` where n represents the nth row bootstrap sample. We will be looking at the first bootstrap sample in this case. 
+
+```{r}
+analysis(virtual_resamples$splits[[1]]) %>% as_tibble()
+```
+As you can see, we were able to view the data in first bootstrap sample. Noticed how it has 50 rows, which is the same as our `pennies_sample`. Now that we know how to create bootstrap samples and view them, we can apply more code to our bootstraps to find our desired statistic, which is the average year of pennies in 2019. 
+
+`r margin_note("In this chapter, bootstrap samples and resamples mean the same thing")`
+To compute our desired statistics, we now create the column `boot` by `mutate(boot = map(splits, ~ analysis(.)))`. What we are doing here is that we are iterating an analysis over each bootstrap sample in a new sample. We want to iterate an analysis over each bootstrap sample, because analysis allows us to extract the mean year for each resample. 
+
+```{r}
+virtual_resamples <- pennies_sample %>%
+  select(year) %>%
+  bootstraps(times = 1000) %>%
+  mutate(boot = map(splits, ~ analysis(.)))
 virtual_resamples
 ```
 
-The resulting `virtual_resamples` data frame has 35 $\cdot$ 50 = `r 35*50` rows corresponding to 35 resamples of 50 pennies. Let's now compute the resulting 35 sample means using the same **dplyr** code as we did in the previous section, but this time adding a `group_by(replicate)`:
+`boot` is now a list-column in the tibble, which we can use if we want to find a specific characteristic of each sample like the average year. Given that `boot` is a list column and we want to pull out the mean year as we are interested in this, we can create two more columns: `years` and year_mean`, respectively.  To create our `years` column, we run `mutate(years = map(boot, ~ pull(., year)))` after creating our `boot` column. What this does is that we are now pulling the year column of each bootstrap sample, which will evidently be nested in a list. Finally, we can create the column `year_mean` to extract the mean of each bootstrap sample by now running `mutate(year_mean = map_dbl(years, ~ mean(.)))`. This command line essentially calculates the mean year from the `years` list nested column. 
 
 ```{r}
-virtual_resampled_means <- virtual_resamples %>% 
-  group_by(replicate) %>% 
-  summarize(mean_year = mean(year))
-virtual_resampled_means
+set.seed(9)
+virtual_resamples <- pennies_sample %>%
+  select(year) %>%
+  bootstraps(times = 1000) %>%
+  mutate(boot = map(splits, ~ analysis(.))) %>%
+  mutate(years = map(boot, ~ pull(., year))) %>% 
+  mutate(year_mean = map_dbl(years, ~ mean(.)))
+virtual_resamples
 ```
 
-Observe that `virtual_resampled_means` has 35 rows, corresponding to the 35 resampled means. Furthermore, observe that the values of `mean_year` vary. Let's visualize this variation using a histogram in Figure \@ref(fig:tactile-resampling-7).
-
-```{r, echo=TRUE, fig.cap="Distribution of 35 sample means from 35 resamples.", purl=FALSE}
-ggplot(virtual_resampled_means, aes(x = mean_year)) +
-  geom_histogram(binwidth = 1, color = "white", boundary = 1990) +
-  labs(x = "Resample mean year")
-```
-
-Let's compare our virtually constructed bootstrap distribution with the one our 35 friends constructed via our tactile resampling exercise in Figure \@ref(fig:orig-and-resample-means). Observe how they are somewhat similar, but not identical.
-
-```{r, echo=FALSE, fig.cap="Comparing distributions of means from resamples.", purl=FALSE}
-p3 <- ggplot(virtual_resampled_means, aes(x = mean_year)) +
-  geom_histogram(binwidth = 1, color = "white", boundary = 1990) +
-  labs(x = "Resample mean year", title = "35 means of tactile resamples") +
-  scale_x_continuous(breaks = seq(1990, 2000, 2))
-```
-
-Recall that in the "resampling with replacement" scenario we are illustrating here, both of these histograms have a special name: the *bootstrap distribution of the sample mean*. Furthermore, recall they are an approximation to the *sampling distribution* of the sample mean, a concept you saw in Chapter \@ref(sampling) on sampling. These distributions allow us to study the effect of sampling variation on our estimates of the true population mean, in this case the true mean year for *all* US pennies. However, unlike in Chapter \@ref(sampling) where we took multiple samples (something one would never do in practice), bootstrap distributions are constructed by taking multiple resamples from a *single* sample: in this case, the 50 original pennies from the bank. 
-
-
-### Virtually resampling 1,000 times {#bootstrap-1000-replicates}
-
-Remember that one of the goals of resampling with replacement is to construct the bootstrap distribution, which is an approximation of the sampling distribution. However, the bootstrap distribution in Figure \@ref(fig:tactile-resampling-7) is based only on 35 resamples and hence looks a little coarse. Let's increase the number of resamples to 1,000, so that we can hopefully better see the shape and the variability between different resamples. 
+Voila! We were able to create a thousand bootstrap samples and calculate the mean year for each resample. Let's now create a plot to visualize the distribution of the average year for each resample.
 
 ```{r}
-# Repeat resampling 1,000 times
-
-virtual_resamples <- pennies_sample %>% 
-  rep_sample_n(size = 50, replace = TRUE, reps = 1000)
-
-# Compute 1,000 sample means
-
-virtual_resampled_means <- virtual_resamples %>% 
-  group_by(replicate) %>% 
-  summarize(mean_year = mean(year), .groups = 'drop')
-
+virtual_resamples %>% 
+  ggplot() +
+    geom_histogram(aes(x = year_mean), binwidth = .1, fill = "red") +
+    labs(x = "Estimate in Year",
+         title = "Posterior Distribution for the Mean Year of American Pennies in 2019")
 ```
+fix to make posterior distribution by dividing. elaborate and give intuition here!
 
-However, in the interest of brevity, going forward let's combine these two operations into a single chain of pipe (`%>%`) operators:
-
-```{r}
-virtual_resampled_means <- pennies_sample %>% 
-  rep_sample_n(size = 50, replace = TRUE, reps = 1000) %>% 
-  group_by(replicate) %>% 
-  summarize(mean_year = mean(year))
-virtual_resampled_means
-```
-
-In Figure \@ref(fig:one-thousand-sample-means) let's visualize the bootstrap distribution of these 1,000 means based on 1,000 virtual resamples:
-
-```{r, message=FALSE, fig.cap="Bootstrap resampling distribution based on 1000 resamples."}
-virtual_resampled_means %>%
-  ggplot(aes(x = mean_year)) +
-  geom_histogram(binwidth = 1, color = "white", boundary = 1990) +
-  labs(x = "sample mean")
-```
 
 Note here that the bell shape is starting to become much more apparent. We now have a general sense for the range of values that the sample mean may take on. But where is this histogram centered? Let's compute the mean of the 1,000 resample means:
 
-```{r, eval=TRUE}
-virtual_resampled_means %>% 
-  summarize(mean_of_means = mean(mean_year))
-```
-
-```{r, echo=FALSE}
-mean_of_means <- virtual_resampled_means %>% 
-  summarize(mean(mean_year)) %>% 
+```{r}
+mean_of_means <- virtual_resamples %>%
+  select(year_mean) %>%
+  summarize(mean_of_means = mean(year_mean)) %>%
   pull() %>% 
   round(2)
 ```
 
 The mean of these 1,000 means is `r mean_of_means`, which is quite close to the mean of our original sample of 50 pennies of `r x_bar %>% pull(mean_year) %>% round(2)`. This is the case since each of the 1,000 resamples is based on the original sample of 50 pennies.
 
+Recall that in the "resampling with replacement" scenario we are illustrating here, this histogram has a special name: the *bootstrap distribution of the sample mean*. Furthermore, recall it is an approximation to the *sampling distribution* of the sample mean, a concept you saw in Chapter \@ref(sampling) on sampling. This distribution allows us to study the effect of sampling variation on our estimates of the true population mean, in this case the true mean year for *all* US pennies. However, unlike in Chapter \@ref(sampling) where we took multiple samples (something one would never do in practice), bootstrap distributions are constructed by taking multiple resamples from a *single* sample: in this case, the 50 original pennies from the bank. 
+
 Congratulations! You've just constructed your first bootstrap distribution! In the next section, you'll see how to use this bootstrap distribution to construct *confidence intervals*.
 
 
 ## Measuring uncertainty with confidence intervals {#ci-build-up}
 
-Let's start this section with an analogy involving fishing. Say you are trying to catch a fish. On the one hand, you could use a spear, while on the other you could use a net. Using the net will probably allow you to catch more fish! 
+Let's start this section with an analogy involving fishing. Say you are trying to catch a fish. On the one hand, you could use a spear, while on the other you could use a net. Using the net will probably allow you to catch more fish!
 
 Now think back to our pennies exercise where you are trying to estimate the true population mean year $\mu$ of *all* US pennies. \index{confidence interval!analogy to fishing} Think of the value of $\mu$ as a fish.
 
@@ -382,252 +350,227 @@ On the one hand, we could use the appropriate *point estimate/sample statistic* 
 
 What would "fishing with a net" correspond to? Look at the bootstrap distribution in Figure \@ref(fig:one-thousand-sample-means) once more. Between which two years would you say that "most" sample means lie?  While this question is somewhat subjective, saying that most sample means lie between 1992 and 2000 would not be unreasonable. Think of this interval as the "net."
 
-What we've just illustrated is the concept of a *confidence interval*, which we'll abbreviate with "CI" throughout this book. As opposed to a point estimate/sample statistic that estimates the value of an unknown population parameter with a single value, a *confidence interval* \index{confidence interval} gives what can be interpreted as a range of plausible values. Going back to our analogy, point estimates/sample statistics can be thought of as spears, whereas confidence intervals can be thought of as nets. 
+What we've just illustrated is the concept of a *confidence interval*, which we'll abbreviate with "CI" throughout this book. As opposed to a point estimate/sample statistic that estimates the value of an unknown population parameter with a single value, a *confidence interval* \index{confidence interval} gives what can be interpreted as a range of plausible values. Going back to our analogy, point estimates/sample statistics can be thought of as spears, whereas confidence intervals can be thought of as nets.
 
-<!--
-Point estimate           |  Confidence interval
-:-------------------------:|:-------------------------:
-![](images/shutterstock/shutterstock_149730074_cropped.jpg){ height=2.5in } |  ![](images/shutterstock/shutterstock_176684936.jpg){ height=2.5in }
--->
 
 ```{r, echo=FALSE, fig.align='center', fig.cap="Analogy of difference between point estimates and confidence intervals."}
 knitr::include_graphics("07-one-parameter/images/point_estimate_vs_conf_int.png")
 ```
 
-Our proposed interval of 1992 to 2000 was constructed by eye and was thus somewhat subjective. We now introduce two methods for constructing such intervals in a more exact fashion: the *percentile method* and the *standard error method*.
-
-Both methods for confidence interval construction share some commonalities. First, they are both constructed from a bootstrap distribution, as you constructed in Subsection \@ref(bootstrap-1000-replicates) and visualized in Figure \@ref(fig:one-thousand-sample-means).
+Our proposed interval of 1992 to 2000 was constructed by eye and was thus somewhat subjective. We now introduce two methods for constructing such intervals in a more exact fashion: the *lm method* and the *quantile method*.
 
 Second, they both require you to specify the \index{confidence interval!confidence level} *confidence level*. Commonly used confidence levels include 90%, 95%, and 99%.  All other things being equal, higher confidence levels correspond to wider confidence intervals, and lower confidence levels correspond to narrower confidence intervals. In this book, we'll be mostly using 95% and hence constructing "95% confidence intervals for $\mu$" for our pennies activity.
 
+```{r, echo = FALSE}
+# Maybe another Preceptor table here with the 90% or 95% confidence interval in
+# the last row. Specify that maybe I would answer the question now that if you
+# gave me a random penny in 2019, I would be 95% confident its year is somewhere
+# between x and x. Change the value for year in the second add_row code line to
+# add that confidence interval however you think it best fits in.
 
-### Percentile method {#percentile-method}
-
-```{r, echo=FALSE}
-# Can also use conf_int() and get_confidence_interval() instead of get_ci(),
-# as they are aliases that work the exact same way.
-library(infer)
-percentile_ci <- virtual_resampled_means %>% 
-  rename(stat = mean_year) %>% 
-  get_ci(level = 0.95, type = "percentile")
+pennies_sample %>%
+  slice(1:7, 50) %>%
+  mutate(ID = as.character(ID),
+         year = as.character(year)) %>%
+  add_row(ID = "...", year = "...", .after  = 7) %>%
+  add_row(ID = "X", year = "1995") %>%
+  gt() %>%
+  cols_label(ID = md("**Penny ID**"),
+             year = "Year") %>%
+  tab_style(cell_borders(sides = "right"),
+            location = cells_body(columns = vars(ID))) %>%
+  tab_style(cell_text(weight = "bold"),
+            location = cells_body(columns = vars(ID))) %>%
+  cols_align(align = "center", columns = TRUE)
 ```
 
-One method to construct a confidence interval is to use the middle 95% of values of the bootstrap distribution. We can do this by computing the 2.5th and 97.5th percentiles, which are `r percentile_ci[["2.5%"]]` and `r percentile_ci[["97.5%"]]`, respectively. This is known as the *percentile method* for constructing confidence intervals. You can get these values using the `quantile()` function on the `mean_year` column of `virtual_resampled_means`:
+## Confidence Intervals using lm and quantile
+
+Let's now compute the confidence interval for our mean year of pennies in 2019. One way to extract the confidence interval is through using the `lm` method. `lm` means linear model and is generally used in regression modeling; however,`lm` can also used to find the confidence interval for a mean. The catch, though, is that we can only use `lm` to calculate the confidence interval for a mean only! This means that we cannot use `lm` to calculate the condfience interval for a statistic like the median or 75th percentile. 
+
+First, let's type `lm(year ~ 1, data = pennies_sample)` in our code chunk. This alone will get the mean of our dataset for pennies_sample
 
 ```{r}
-virtual_resampled_means %>%
-  pull(mean_year) %>%
-  quantile(c(0.025, 0.975))
+set.seed(9)
+  lm(year ~ 1, data = pennies_sample)
+
 ```
 
-Let's mark these percentiles on the bootstrap distribution with vertical lines in Figure \@ref(fig:percentile-method). About 95% of the `mean_year` variable values in `virtual_resampled_means` fall between `r percentile_ci[["2.5%"]]` and `r percentile_ci[["97.5%"]]`, with 2.5% to the left of the leftmost line and 2.5% to the right of the rightmost line. 
-
-(ref:perc-method) Percentile method 95% confidence interval. Interval endpoints marked by vertical lines.
-
-```{r, echo=FALSE, message=FALSE, fig.cap='(ref:perc-method)', fig.height=3.4}
-ggplot(virtual_resampled_means, aes(x = mean_year)) +
-  geom_histogram(binwidth = 1, color = "white", boundary = 1988) +
-  labs(x = "Resample sample mean") +
-  scale_x_continuous(breaks = seq(1988, 2006, 2)) +
-  geom_vline(xintercept = percentile_ci[[1, 1]], size = 1) +
-  geom_vline(xintercept = percentile_ci[[1, 2]], size = 1)
-```
-
-
-### Standard error method {#se-method}
-
-```{r, echo=FALSE}
-# Can also use get_confidence_interval() instead of get_ci(),
-# as it is an alias that works the exact same way.
-standard_error_ci <- virtual_resampled_means %>% 
-  rename(stat = mean_year) %>% 
-  get_ci(type = "se", point_estimate = x_bar)
-
-# bootstrap SE value as scalar
-bootstrap_se <- virtual_resampled_means %>% 
-  summarize(se = sd(mean_year)) %>% 
-  pull(se)
-```
-
-If a numerical variable follows a normal distribution, or, in other words, the histogram of this variable is bell-shaped, then roughly 95% of values fall between $\pm$ 1.96 standard deviations of the mean. Given that our bootstrap distribution based on 1,000 resamples with replacement in Figure \@ref(fig:one-thousand-sample-means) is normally shaped, let's use this fact about normal distributions to construct a confidence interval in a different way.
-
-First, recall the bootstrap distribution has a mean equal to `r mean_of_means`. This value almost coincides exactly with the value of the sample mean $\overline{x}$ of our original 50 pennies of `r x_bar %>% pull(mean_year) %>% round(2)`. Second, let's compute the standard deviation of the bootstrap distribution using the values of `mean_year` in the `virtual_resampled_means` data frame:
-
+So we see that the mean of pennies_sample is 1995. Now let's add the line `tidy(conf,int = TRUE)` to our code. `tidy` is from the `rsample` package and this particular function can get the 95% confidence interval for our mean if we set the argument, `conf.int = TRUE`, in our `tidy` function.
 ```{r}
-virtual_resampled_means %>% 
-  summarize(SE = sd(mean_year))
-```
-
-What is this value? Recall that the bootstrap distribution is an approximation to the sampling distribution. Recall also that the standard deviation of a sampling distribution has a special name: the *standard error*. Putting these two facts together, we can say that `r bootstrap_se %>% round(5)` is an approximation of the standard error of $\overline{x}$.  
-
-Thus, using our 95% rule of thumb about normal distributions, we can use the following formula to determine the lower and upper endpoints of a 95% confidence interval for $\mu$:
-
-$$
-\begin{aligned}
-\overline{x} \pm 1.96 \cdot SE &= (\overline{x} - 1.96 \cdot SE, \overline{x} + 1.96 \cdot SE)\\
-&= (`r x_bar %>% pull(mean_year) %>% round(2)` - 1.96 \cdot `r bootstrap_se %>% round(2)`, `r x_bar %>% pull(mean_year) %>% round(2)` + 1.96 \cdot `r bootstrap_se %>% round(2)`)\\
-&= (1991.15, 1999.73)
-\end{aligned}
-$$
-
-Let's now add the SE method confidence interval with dashed lines in Figure \@ref(fig:percentile-and-se-method).
-
-(ref:both-methods) Comparing two 95% confidence interval methods.
-
-```{r, echo=FALSE, message=FALSE, fig.cap='(ref:both-methods)', fig.height=5.2}
-both_CI <- bind_rows(
-  percentile_ci %>% gather(endpoint, value) %>% mutate(type = "percentile"),
-  standard_error_ci %>% gather(endpoint, value) %>% mutate(type = "SE")
-)
-ggplot(virtual_resampled_means, aes(x = mean_year)) +
-  geom_histogram(binwidth = 1, color = "white", boundary = 1988) +
-  labs(x = "sample mean", title = "Percentile method CI (solid lines), SE method CI (dashed lines)") +
-  scale_x_continuous(breaks = seq(1988, 2006, 2)) +
-  geom_vline(xintercept = percentile_ci[[1, 1]], size = 1) +
-  geom_vline(xintercept = percentile_ci[[1, 2]], size = 1) + 
-  geom_vline(xintercept = standard_error_ci[[1, 1]], linetype = "dashed", size = 1) +
-  geom_vline(xintercept = standard_error_ci[[1, 2]], linetype = "dashed", size = 1)
-```
-
-We see that both methods produce nearly identical 95% confidence intervals for $\mu$ with the percentile method yielding $(`r round(percentile_ci[["2.5%"]], 2)`, `r round(percentile_ci[["97.5%"]], 2)`)$ while the standard error method produces $(`r round(standard_error_ci[["lower"]], 2)`, `r round(standard_error_ci[["upper"]],2)`)$. Thus, the standard error method can be a good quick way to construct confidence intervals when you already have an estimate of the standard error and don't want to go through the steps to obtain a confidence interval by the percentile method.  It is particularly handy since $1.96 \approx 2$, and thus it is easy to calculate in one's head.  However, recall that we can only use the standard error rule when the bootstrap distribution is roughly normally shaped. If you have an unusually shaped distribution, it is better to use the percentile method.
-
-### Interpreting confidence intervals {#one-prop-ci}
-
-Now that we've shown you how to construct confidence intervals using a sample drawn from a population, let's now focus on how to interpret them. 
-
-The traditional approach is referred to as either "Frequentist" or "Classical." In this interpretation,  95\% of the time that you perform this exercise, the *intervals* constructed will contain the true but unknown population parameter. You are making a claim about how well this approach --- bootstrap resampling --- works if you do it many, many times. You do not know anything about how well it worked this time.
-
-In this book, we use a "Bayesian" interpretation. There is a true, but unknown, average year of minting for all the pennies in the world. In theory, we could find all those pennies and then calculate this number. The Bayesian interpretation of a 95% confidence interval is that we are 95% certain that the true value is within the CI limits. It would be a fair wager to bet, at 19:1 odds, that the true value is outside those limits because there is a 5% chance that it is. 
-
-Note that these are just *interpretations*. The reality of what we did is the same in both cases. The computer code is the same. This Bayesian interpretation of the bootstrap confidence interval is often called a [credible interval](https://en.wikipedia.org/wiki/Credible_interval) in the academic literature. You may find yourself in a statistics class that uses the phrase "confidence interval" to refer only to the [frequentist](https://en.wikipedia.org/wiki/Frequentist_inference) concept.   
-
-Does our percentile-based confidence interval of (`r percentile_ci[["2.5%"]] %>% round(2)`, `r percentile_ci[["97.5%"]] %>% round(2)`) "capture" the true mean year $\mu$ of *all* US pennies? Alas, we'll never know, because we don't know what the true value of $\mu$ is. After all, we're sampling to estimate it!
-
-However, we can answer a different question.  Given that we've observed the 50 pennies that we did, what's the *chance* that the true value falls within (`r percentile_ci[["2.5%"]] %>% round(2)`, `r percentile_ci[["97.5%"]] %>% round(2)`)?  If the answer is 95%, then we can call this a 95% interval.
-
-This is a statement about *probability*.  We thus can think of the mean year of the pennies as a random variable that has its own *probability distribution*.  Of course, we don't know exactly what that distribution is.  The bootstrap resampling procedure, however, generates a distribution of values for the mean.  Since the bootstrap distribution is a good approximation of the *sampling* distribution we learned about in the last chapter (see Subsection \@ref(bootstrap-vs-sampling)), this is a reasonable thing to do. Then, if we take the bootstrap distribution as our "best guess" of the probability distribution of the variable we are interested in, we can guess that the variable has a 95% chance of lying between the 2.5th and 97.5th percentiles of the bootstrap distribution.
-
-<!-- AR: took this language from the regression chapter.  Maybe OK to repeat it
--->
-
-Instead of looking at confidence intervals, a common alternative approach is to conduct *hypothesis tests*, where one hypothesis is called the "null hypothesis" (often that a value, such as a mean, is equal to zero) and the result of the test is either *rejecting* the null hypothesis (so you'd conclude that the mean is not zero) or *failing to reject* the null hypothesis.  The decision whether to reject the null hypothesis is generally made with reference to a *p-value*, a measure of how likely one would be, if the null hypothesis were true, to observe results at least as extreme as the results actually observed.  A *p*-value cutoff, often 0.05, is employed: if the *p*-value is lower, the null hypothesis is rejected, otherwise the hypothesis is not rejected.
-
-We think this is a bad way to make decisions.  Two very similar datasets could produce *p*-values of $p = 0.04$ and $p = 0.06$ for a quantity of interest. If you would make one decision in the former case and a totally different decision in the latter case, then there's something wrong with your decision-making process!  Rather, we think it is more sensible to look at the data, construct models to summarize important features of the data, and make decisions based on those models that take into account the uncertainty in the models' estimates.
-
-<!-- The above is not bad, but we need more, more, more. Every chapter should repeat this and provide examples. Maybe, each chapter, we need a specific example of the stupidity of NHST. (And maybe an actual decision problem.) And then show how a model summary helps us. -->
-
-## Width of confidence intervals {#ci-width}
-
-
-
-
-
-<!-- 
-A good Learning check might be to have the readers calculate confidence intervals when n = 1000, 2000, 2400. To their astonishment (maybe), they'll see that the size of the confidence interval is 0 when they get to 2400. 
--->
-
-<!-- DK: None of the above is bad, but it is all based on the urn. Why not do the same thing for the mean year of pennies? Could be quicker. Maybe with all the analysis combined. Or mayube that is what is about to happen now. -->
-
-## Using `lm()` and `tidy()` as a shortcut
-
-Recall the confidence interval we constructed for the mean year of the pennies using the percentile method:
-
-```{r}
-virtual_resampled_means %>%
-  pull(mean_year) %>%
-  quantile(c(0.025, 0.975))
-```
-
-Is there a way to construct that interval *without* engaging in the bootstrap resampling?  That is, can we approximate this by using the `pennies_sample` tibble directly?
-
-It turns out that we can, using the `lm()` function.  `lm()` stands for `l`inear `m`odel, and we will be using it in the next two chapters.  This function can get the mean of a variable using the following syntax:
-
-```{r}
-lm(year ~ 1, data = pennies_sample)
-```
-
-<!-- DK: Do we explain this later? If so, provide a link here. -->
-
-<!-- TA: Like link to the chapter? -->
-
-Once we learn about regression, we'll learn why this is labeled the "intercept."  The key thing to note right now is that `lm()` takes two main arguments, `formula` and `data`.  The notation `year ~ 1` will get the mean of `year`.
-
-The **broom** package makes it easier to work with `lm()` model objects.  In particular, the function `tidy()` has the option `conf.int = TRUE`, which we can use to get a confidence interval:
-
-```{r}
-library(broom)
-
-lm(year ~ 1, data = pennies_sample) %>%
+set.seed(9)
+  lm(year ~ 1, data = pennies_sample) %>%
   tidy(conf.int = TRUE)
 ```
-
-This presents a lot of columns that we don't care about, so we will `select()` the relevant ones:
+ Great! After running the code, we can clearly see the mean of the of `pennies_sample` as well as other characteristics like the upper and lower levels of our confidence interval. Since we are focused on the confidence interval only, let's just `select(conf.low, estimate, conf.high)`.
 
 ```{r}
+set.seed(9)
+  lm(year ~ 1, data = pennies_sample) %>%
+  tidy(conf.int = TRUE) %>% 
+  select(conf.low, estimate, conf.high)
+```
+
+Now we have our confidence interval for the mean year of pennies from 2019, which is (1991.127, 1999.753). But noticed that we used `pennies_sample` and not `virtual_resamples` for the `lm` method to calculate the confidence interval. 
+
+Let's now calculate the confidence interval by hand using our bootstrap samples, `virtual_resamples`. To do, type the following code below:
+
+```{r}
+quantile(virtual_resamples$year_mean, probs = c(0.025, 0.975))
+```
+
+Whoa! Noticed how we got `r quantile(virtual_resamples$year_mean, probs = c(0.025, 0.975))` as our confidence interval, which is the same as the `lm` method using pennies_sample. What this shows is that we can essentially use two methods to calculate the confidence interval for the mean: the `lm` method using the original data set and the quantile method using our bootstrap samples! However, if we want to find the confidence interval for any statistic, not including the mean, we have to use the quantile method using our bootstrap samples!
+
+## EDA for `nhanes`
+
+`r margin_note("Run ?nhanes to get more information about the data from nhanes")`
+Let’s perform an exploratory data analysis (EDA) of the nhanes data set from the **PPBDS.data** package. The nhanes data is the data from National Health and Nutrition Examination Survey conduced by the Centers for Disease Control and Prevention and is about children and adults in America. 
+
+Let’s first load the libraries we will need in this chapter and look at the nhanes data.
+
+```{r, message=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, tidy = FALSE, cache.extra = packageVersion('tufte'))
+
+library(PPBDS.data)
+library(tidyverse)
 library(broom)
-lm(year ~ 1, data = pennies_sample) %>%
-  tidy(conf.int = TRUE) %>%
-  select(estimate, conf.low, conf.high)
+library(rsample)
+library(skimr)
+library(gt)
+library(tidyverse)
+library(tufte)
+
 ```
 
-<!-- DK: Do we need more discussion here? In what sense is this approximation "close enough?" -->
-<!-- TA: Is it because there were many bootstrap CI but only one is used with lm? -->
+```{r}
+glimpse(nhanes)
+```
 
+`glimpse()` is a really cool function to use to get a peek at your data. It basically allows your data to be viewed running across rows. `glimpse` gives you a sense of what your data is supposed to look like. Based on the glimpse of nhanes, we see that nhanes has data on a diverse array of things like physical attributes, education, and sleep. 
 
-These are not identical to our bootstrap confidence interval estimates, but they are close enough.  Thus, if you are interested in constructing a confidence interval for a mean, you can use `lm()` and `tidy()` as a shortcut. `tidy()` also has an argument, `conf.level`, which allows us to specify the confidence level. By default, it is 0.95.
+In our examination of nhanes, however, let's restrict the nhanes data to a subset as demonstrated below. 
 
-## Income from trains using Bootstrap
+```{r}
+ch7 <- nhanes %>% 
+  select(gender, height, year)
+```
 
-In addition to using `lm()`, we can also use bootsrapping to extract confidence intervals. Bootstrapping is a significant tool used in statistics. Bootstrapping repeatedly draws samples from a data set and derives standard errors and confidence intervals for any statistic. While using `lm()` can produce confidence intervals for the mean of a data set or the coefficient in a regression, bootstrapping can produce confidence intervals for any statistics, such as median, 3rd highest value, etc. 
+Furthermore, it is always smart to look at random samples of our data set.
 
-To use bootstrapping, we will need the **tidyverse** and **rsample** packages. The **rsample** package gives us commands to use for bootstrapping. For the purpose of this example, let's try to find the confidence interval for the mean income in our trains dataset from Chapter 3. 
+```{r}
+ch7 %>% 
+  sample_n(5)
+```
+
+Notice how there is a decimal in our ch7 data. this is because `height` is in `<dbl>` and not `<int>`. Explain more!
+
+```{r}
+ch7 %>%
+  glimpse()
+```
+
+Be on the lookout if anything looks suspicious to you. Are there any NA's in your data set? What types of data are the columns, i.e. why is year characterized as integer instead of double? Was most of the data conducted in 2009? Are there more females than males? There will clearly be more questions to answer, but it is important that you ask these types of questions and notice anything suspicious. A good data scientist will always look thoroughly at the data. 
+
+```{r}
+ch7 %>% 
+  skim()
+```
+
+Interesting! Noticed how `skim` told us that are 353 missing values of height in our subset of data even though we could not find that out so easily using glimpse. Thus, it's always good to use both `skim` and `glimpse` to get a gyst of what our data entails. 
+
+Since we are dealing with NA's then, let's filter out the NA's using `drop_na`. This we will remove out the rows that have NA's in them.
+
+```{r}
+ch7 <- nhanes %>% 
+  select(gender, height, year) %>%
+  drop_na()
+```
+
+Plot your data.
 
 ```{r}
 
-library(tidyverse)
-library(rsample)
-library(PPBDS.data)
-
-train_samples <- bootstraps(trains, times = 1000)
-
-derive_mean_income <- function(splits) {
- x <- analysis(splits)
- return(mean(x$income))
-}
-
-train_samples$mean_income <- map_dbl(train_samples$splits, derive_mean_income)
-quantile(train_samples$mean_income, probs = c(.025, .975))
+ch7 %>%
+  ggplot(aes(x = height, color = gender)) + 
+  geom_density() + 
+  labs(x = "Height",
+       title = "Height by Gender in Nhanes Dataset")
 
 ```
+It looks like most of the data is here, and that's because they are mostly adults but there are some children. Adults are obvs going to be taller. 
 
-To find the confidence interval for the mean income in our train dataset, we first create our bootstrap samples using `bootstraps()`, where the times argument represents the number of bootstrap samples you want. Bootstrap samples are stored in a tibble and each bootstrap sample is nested in a split column. We then create a function for the statistic we are looking at; in this case, we want to focus on the mean income. Once we create our function, we can apply our statistic, the mean income, to each of our bootstrap samples by using map_dbl. Finally, we use quantile to extract our confidence intervals. 
 
 
-If we want to find a different statistic like the median income, we can essentially do the same thing but edit the function to derive the median income. 
+
+## Using Bootstraps with `nhanes`
+
+We have shown you how to use bootstrap sampling to create confidence intervals for an unknown parameter for which you have created. In other words, we use bootstrap sampling to create our posterior distribution for the average year of pennies in the US duing 2009. But we have not yet demonstrated that the bootstrap "works." the purpose of this section is to provide that demonstration. 
+
+As we can see that gender and height appears to be related, let's filter our data set to just males and the year 2009 in order to see how we can estimate certain statistics of our further subsetted data set using bootstrap samples. In this example, let's try to estimate the mean 90th percentile of male height in the year 2009. Obviously, we already know what these statistics are since we can easily calculate them by hand. However, the purpose of this example is to show that we can estimate the mean and 90th percentile pretty accurately from our bootstrap samples we will soon create. This section of chapter 7 will essentially show the validity of bootstrap samples. For now, let's focus on subsetting our data even more. 
 
 ```{r}
-library(tidyverse)
-library(rsample)
-library(PPBDS.data)
+set.seed(9)
+ch7_male <- nhanes %>%
+  select(height, gender, year) %>%
+  filter(gender == "male", year == 2009) %>% select(height) %>%
+  drop_na()
+```
+By further subsetting our data, we can see that we will only be using one variable. Since we are only estimating a model with one parameter, we can't make use of richer data.
 
-train_samples <- bootstraps(trains, times = 1000)
+```{r}
+ch7_male %>%
+  pull(height) %>%
+  mean()
 
-derive_median_income <- function(splits) {
- x <- analysis(splits)
- return(median(x$income))
-}
-
-train_samples$median_income <- map_dbl(train_samples$splits, derive_median_income)
-quantile(train_samples$median_income, probs = c(.025, .975))
-
+ch7_male %>%
+  pull(height) %>%
+  quantile(c(.90))
 ```
 
+The mean is `r ch7_male %>% pull(height) %>% mean()` and the 90th percentile is `r ch7_male %>% pull(height) %>% quantile(c(.90))`. We are looking at 90th percentile, which is the 237th tallest person. 
 
+We are now going to estimate both of these statistics using bootstrap. Remember how in the `pennies_sample` example, we first used a sample of 50 pennies to create our bootstrap samples. Let's do something very similar. In this case, let's take a sample without replacement of 40 of the 2,370 males in our data and look at their heights in 2009. To do so, we run the following command: 
 
+```{r}
+set.seed(9)
+heights_sample <- sample_n(ch7, 40, replace = FALSE)
+```
+Great! So now we have our sample of 40 male heights in 2009. Now you might wonder how this section of this chapter is different from the section with `pennies_samples`. Well, there are two key differences. First, we know the truth in this case, so we can examine whether or not the bootstrap works. (That is, we pull a sample of 40 and see if the bootstrap confidence interval from that 40 includes the true 75th percentile of the 2,370) Second, note that only the bootstrap will allow us to estimate statistics other than the mean. We can't use the lm() trick we learned about for pennies as we will find the confidence interval for the 75th percentile, which is a statistic that isn't the mean.
 
-Redo but more quickly, estimating mean income.
+Let's thus create our bootstrap samples. We already know how to create bootsrap samples from the `pennies_sample` section. Let's use the same code but obviously create the variables we are interested in, which are `height_mean` and `height_75th`. 
 
-Estimate median income, or 3rd highest income.
+```{r}
+set.seed(9)
+virtual_heights <- heights_sample %>%
+  select(height) %>%
+  bootstraps(times = 1000) %>%
+  mutate(boot = map(splits, ~ analysis(.))) %>%
+  mutate(heights = map(boot, ~ pull(., height))) %>% 
+  mutate(height_mean = map_dbl(heights, ~ mean(.))) %>%
+  mutate(height_75th = map_dbl(heights, ~ quantile(., probs = 0.75))) 
+virtual_heights
+```
+
+<!-- Bootstrap creates posterior distirbution for your estimate of the unknown parametr: the 75th percentile of heights in the 2370 observations from nhanes -->
+
+Cool! We created our bootstrap samples and can see the mean height and 75th percentile of heights for each bootstrap sample. Now that we have our resamples, let's now estimate the mean male height of 2009 and 75th percentile of male height in 2009 using our resamples. We can do the same thing we did in the pennies section by using the `summarize` and `pull` functions. 
+
+```{r}
+set.seed(9)
+mean_of_heightmeans <- virtual_heights %>%
+  select(height_mean) %>%
+  summarize(mean_of_means = mean(height_mean)) %>%
+  pull() %>% 
+  round(2)
+mean_of_height75th <- virtual_heights %>%
+  select(height_75th) %>%
+  summarize(mean_of_75th = mean(height_75th)) %>%
+  pull() %>% 
+  round(2)
+```
+
+Thus, based on our bootstrap samples, the mean male height in 2009 is `r mean_of_heightmeans` and the 75th percentile of male heights in 2009 is `r mean_of_height75th`. It appears that we are very close to the actual estimates, which was 168 cm and 180 cm, respectively.
 
 ## Parameter Uncertainty and Unmodeled Variation
 
@@ -635,55 +578,10 @@ Although, we have used bootstrap to predict what we think the mean or a paramete
 
 Furthermore, it is important that we understand what a residual is. The residual in data science is the error that results. In simple terms, it is the observed value minus the predicted value. So, for example, let's say that the actual mean income is 140,000 but the predicted mean income we got was 130,000. That means the residual in our estimation is 10,000. 
 
-But the reason why residuals are so important is that they help explain why we can't make perfect predictions, especially for an individual. In our experiments, there is a lot of unmodeled variation, or residual variation. Residual variance refers to the variance of residuals, and occurs because randomness in our data is inherently intrinsic. There will be randomness in our data even if we have full knowldge of our data. This thus implies that we cannot really make fully accurate predictions of the future; we can only make probabilistic predictions. It is essentially difficult to control for residual variation, and predictions we get from methods like bootstrapping should not be taken as the final concensus. 
+But the reason why residuals are so important is that they help explain why we can't make perfect predictions, especially for an individual. In our experiments, there is a lot of unmodeled variation, or residual variation. Residual variance refers to the variance of residuals, and occurs because randomness in our data is inherently intrinsic. There will be randomness in our data even if we have full knowledge of our data. This thus implies that we cannot really make fully accurate predictions of the future; we can only make probabilistic predictions. It is essentially difficult to control for residual variation, and predictions we get from methods like bootstrapping should not be taken as the final consensus. 
 
 I might need to talk more about unmodeled variation here.
-
-
-## Case study: Looking at 2018 Qscore data
-
-
-```{r}
-
-qscoresdata <- qscores %>%
-  filter(term == "2018F") %>%
-  select(course_name, department, rating)
-
-set.seed(9)
-sampleqscore <- sample_n(qscoresdata, 50, replace = FALSE)
-
-qscoreboot <- bootstraps(sampleqscore, times = 10)
-
-derive_mean_rating <- function(splits) {
- x <- analysis(splits)
- return(mean(x$rating))
-}
-
-qscoreboot$mean_rating <- map_dbl(qscoreboot$splits, derive_mean_rating)
-quantile(qscoreboot$mean_rating, probs = c(.025, .975))
-
-```
-
-<!-- TA: Is this you want it done with bootstraps? Am a little confused how the directions ask to make bootstraps from one sample -->
-
-
-```{r}
-set.seed(9)
-
-qscoresamples <- rep_sample_n(qscores, 50, replace = TRUE, reps = 1000)
-qscorebootstraps <- bootstraps(qscoresamples, times = 1000)
-
-derive_mean_rating <- function(splits) {
- x <- analysis(splits)
- return(mean(x$rating))
-}
-
-qscorebootstraps$mean_rating <- map_dbl(qscorebootstraps$splits, derive_mean_rating)
-quantile(qscorebootstraps$mean_rating, probs = c(.025, .975))
-```
-
-<!-- TA: Based on the directions, it seems that i need to use rep_sample_n but Im confused how we are then going to apply bootstraps function to those samples.  -->
-
+reference chapter 5: even if something is fari, we still cant make accurate predictions, only probabilistic predictions.
 
 
 

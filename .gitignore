@@ -5,9 +5,16 @@
 
 
 *.Rproj
+
+# This is where RStudio builds the book. Files are transfered to output_dir
+# once the build is complete.
+
 _bookdown_files
 
-_book_temp.Rmd
+# When a compile fails, this file is left in the workspace. We never want
+# to commit/push it.
+
+book_temp.Rmd
 
 # Command to get rid of these files if they sneak on:  find . -name '.DS_Store' -type f -delete
 
@@ -36,6 +43,10 @@ junk/*
 **/*log
 **/*tex
 **/rsconnect
+
+# Never check in caches. This file name is set in common.R
+
+cache-directory
 
 # No matter what happens above, everything in docs/ must be checked in
 
