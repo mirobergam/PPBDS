@@ -46,6 +46,7 @@ output_yaml:
 ## Preamble 
 <!-- MB: Change name from preamble? -->
 
+
 Many questions have binary answers. These questions can be answered by any pair of two answers (such as yes/no). Two examples of these questions include: 
   a. Are students with below average grades more likely to binge drink?
   b. Is exposure to a particular chemical associated with a cancer diagnosis?
@@ -107,7 +108,6 @@ cces_ch12 %>%
     ideology = md("Ideology"),
     approval = md("Approval of President")) %>%
   tab_source_note(md("A random sample of 5 out of the 60,000 voters"))
-
 ```
 
 Now that we’ve looked at the raw values in `cces_ch12` and have a sense of the data, let’s compute summary statistics. Let’s use the `skim()` function from the `skimr` package.
@@ -206,11 +206,7 @@ cces_ch12 %>%
 
 <!-- MB: just need to talk about this to finish EDA. Holding off until we figure out why there are literally no 3s-->
 
-<!--   ^^^^ NEW WORK    vvvv OLD WORK  -->
-
 ## Logistic regression
-
-Now that we know our dataset a little better, let's begin our first way of modelling binary/discrete data: logistic regressions. 
 
 ### What is logistic regression?
 
@@ -241,7 +237,43 @@ ggplot(dat, aes(x = x)) +
 ```
 
 <!-- DK: How does the math work here? log(p/1-p) seems, to me, to map 0,1 to 0,infinity. -->
-<!-- MB: Should we just get rid of this math? -->
+<!-- MB: I also need to do more research to understand this -->
+
+The mathematical function $log\left(\frac{p}{1 - p}\right)$ is called the *logit function* and it transforms variables from the space $(0, 1)$ (like probabilities) to $(-\infty, \infty)$.  The inverse of that function, the *standard logistic function*, is $\frac{1}{1 + e^{-x}}$ and transforms variables from the space $(-\infty, \infty)$ to $(0, 1)$.  From that latter function's name we get the terminology of *logistic regression*.
+
+## Logistic regression
+
+### What is logistic regression?
+
+Now that we know our dataset a little better, let's begin our first way of modelling binary/discrete data: logistic regressions. 
+
+Figure \@ref(fig:OLSlogistic) illustrates a data set with a binary (0 or 1) response ($Y$) and a single continuous predictor ($X$).  The blue line is a linear regression to model the probability of a success ($Y=1$) for a given value of $X$. With a binary response, the linear regression has an obvious problem: it can produce predicted probabilities below 0 and above 1. Probabilities can only range from 0 up to and including 1 as these represent a 0% and 100% chance of an event happening, respectively.
+
+The red curve is the *logistic regression* curve.  Note that its characteristic "S" shape always produces predicted probabilities between 0 and 1.  Here is the formula for a logistic regression:
+
+Where $p$ is the probability of a "yes" or "success" for a given set of predictors $X$.
+
+<!-- Revisit nomenclature after chapter 5 -->
+
+```{r, OLSlogistic, fig.align="center", out.width="60%", fig.cap='Linear vs. logistic regression models for binary response data.', echo=FALSE, warning=FALSE, message=FALSE}
+
+set.seed(0)
+dat <- tibble(x=runif(200, -5, 10),
+                  p=exp(-2+1*x)/(1+exp(-2+1*x)),
+                  y=rbinom(200, 1, p),
+                  logit=log(p/(1-p)))
+
+ggplot(dat, aes(x = x)) +
+  geom_point(aes(y = y)) +
+  geom_smooth(aes(y = y, color = "blue"), method = "lm", se=FALSE) +
+  geom_line(aes(y = p, color = "red")) +
+  scale_color_manual(name = 'Regression model', 
+         values = c('blue', 'red'), 
+         labels = c('Linear', 'Logistic'), guide = 'legend') +
+  theme_minimal()
+```
+
+<!-- DK: How does the math work here? log(p/1-p) seems, to me, to map 0,1 to 0,infinity. -->
 
 The mathematical function $log\left(\frac{p}{1 - p}\right)$ is called the *logit function* and it transforms variables from the space $(0, 1)$ (like probabilities) to $(-\infty, \infty)$.  The inverse of that function, the *standard logistic function*, is $\frac{1}{1 + e^{-x}}$ and transforms variables from the space $(-\infty, \infty)$ to $(0, 1)$.  From that latter function's name we get the terminology of *logistic regression*.
 
@@ -313,6 +345,7 @@ We can then fill in the $b_1$ term to calculate the probabilities of all races:
 - Mixed: $\frac{1}{1 + e^{-(-1.06 + 0.071)}} = 0.271$
 - Other: $\frac{1}{1 + e^{-(-1.06 + 1.3)}} = 0.559$
 
+<!--   ^^^^ NEW WORK    vvvv OLD WORK  -->
 
 
 Note that you could also estimate this value through the so-called **"divide by 4" rule**: $-0.249 / 4 \approx 0.062$.  We'll discuss this further when we talk about interpreting the coefficiences of continuous predictors in logistic regression models.
