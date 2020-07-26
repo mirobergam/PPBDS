@@ -45,6 +45,9 @@ output_yaml:
 
 # Discrete Response {#discrete-response}
 
+## Preamble 
+<!-- Change name from preamble -->
+
 Many questions have binary answers. These questions can be answered by any pair of two answers (such as yes/no). Two examples of these questions include: 
   a. Are students with below average grades more likely to binge drink?
   b. Is exposure to a particular chemical associated with a cancer diagnosis?
@@ -55,32 +58,64 @@ All of the new models touched upon in this chapter speak to the wider discussion
 
 In this chapter, we will look at three common techniques of **classification** of binary data.  First, we will consider logistic regression, which is similar conceptually to the linear regression models we considered in Chapters \@ref(pitfalls) and \@ref(continuous-response).  Second, we will consider classification and regression trees (CART).  Third, we will discuss random forests.
 
-<!-- Deal with the ref() thing.  -->
-
-<!-- Only include this section if it uses new/unique packages -->
-
-<!-- tidymodels everywhere -->
-
-### Needed packages {-}
-
-Start with the **tidyverse** as usual. 
-
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(broom)
 library(skimr)
-library(fivethirtyeight)
-```
-
-```{r, message=FALSE, warning=FALSE, echo=FALSE}
-# Packages needed internally, but not in text:
+library(PPBDS.data)
 library(knitr)
 library(kableExtra)
 library(gridExtra)
 library(gt)
 ```
+
+## Exploratory Data Analysis (EDA)
+
+Before we start modelling, let's perform some exploratory analysis on the dataset we'll be working with, cces. Cces stands for the Cooperative Congressional Election Study, a study regarding the approval rating of individual voters to their sitting president. We will tweak the data by only looking at observations recorded in the year 2018 so that all the responses are about the same president.
+
+```{r}
+cces_ch12 <- cces %>%
+  filter(year == 2018)
+```
+
+Let's first look at the raw data values by either looking at `cces_ch12` using RStudio's spreadsheet viewer or by using the `glimpse()` function from the **dplyr** package:
+
+```{r}
+glimpse(cces_ch12)
+```
+
+From this, we can gather that there are 16 variables. Notably, there are 60,000 observations even after filtering only for the year 2018. 
+
+Let's also display a random sample of 5 rows of the 60,000 rows. We will be displaying these 5 random observations using a gt() table. Before that, though, we will select the variables that are currently of interest to us. 
+
+```{r, eval = FALSE}
+cces_ch12 <- cces_ch12 %>%
+  select(state, age, gender, race, education, ideology, approval)
+
+cces_ch12 %>% 
+  sample_n(size = 5)
+```
+
+```{r}
+cces_ch12 %>%
+  sample_n(5) %>%
+  gt() %>%
+  cols_label(
+    state = md("State"),
+    age = md("Age"),
+    gender = md("Gender"),
+    race = md("Race"),
+    education = md("Education"),
+    ideology = md("Ideology"),
+    approval = md("Approval of President")) %>%
+  tab_source_note(md("A random sample of 5 out of the 60,000 voters"))
+
+```
+
    
 ## Logistic regression
+
+<!--   ^^^^ NEW WORK    vvvv OLD WORK  -->
 
 ### What is logistic regression?
 
