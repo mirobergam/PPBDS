@@ -256,7 +256,7 @@ cces_ch12 <- cces_ch12 %>%
     approval == 5 ~ 1))
 ```
 
-<!-- MB: Jumping straight to multiple categories here rather than just a binary one. But then where do we introduce plogis? -->
+<!-- MB: Jumping straight to multiple categories here rather than just a binary one. -->
 
 We'll start by modeling our new binary `approval_num` with the categorical variable `race`.  As we'll see, the syntax for running a logistic regression in R is very similar to that for running a linear regression.  In fact, we'll follow the same basic steps:
 
@@ -296,6 +296,7 @@ p = \frac{1}{1 + e^{-(\beta_0+\beta_1X)}}
 \]
 
 We can first use this formula to fill $b_0$ with the intercept (representing Asians) and omit the $b_1$ as we are solving for the probability of an Asian American approving of the President.
+
 
 \[
 p_{pres\_approve} = \frac{1}{1 + e^{-(-1.06)}} = 0.257
@@ -347,6 +348,8 @@ p_{dem\_win} = \frac{1}{1 + e^{-(-1.43 + 0.023 \times year)}}
 For example, the predicted probability of a 90-year-old approving of the President is 65.4% while the predicted probability of a 19-year-old approving of the President is 27%.
 
 Note that since this is not a linear function, a one-unit change in `year` will be associated with various one-unit changes in `year`, depending on what `year` you are starting from.  Recall the figure we used to start the chapter:
+
+A one-unit change in $X$ thus is associated with a one-unit change in $log\left(\frac{p}{1 - p}\right)$, where $p$ is the predicted probability of success. It is hard to understand intuitively what this means. We can directly calculate all the possible values of $p$ this model by using the *standard logistic function*:
 
 ```{r, echo = FALSE, message = FALSE}
 ggplot(dat, aes(x = x)) +
