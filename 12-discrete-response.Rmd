@@ -210,41 +210,6 @@ cces_ch12 %>%
 
 ### What is logistic regression?
 
-Figure \@ref(fig:OLSlogistic) illustrates a data set with a binary (0 or 1) response ($Y$) and a single continuous predictor ($X$).  The blue line is a linear regression to model the probability of a success ($Y=1$) for a given value of $X$. With a binary response, the linear regression has an obvious problem: it can produce predicted probabilities below 0 and above 1. Probabilities can only range from 0 up to and including 1 as these represent a 0% and 100% chance of an event happening, respectively.
-
-The red curve is the *logistic regression* curve.  Note that its characteristic "S" shape always produces predicted probabilities between 0 and 1.  Here is the formula for a logistic regression:
-
-Where $p$ is the probability of a "yes" or "success" for a given set of predictors $X$.
-
-<!-- Revisit nomenclature after chapter 5 -->
-
-```{r, OLSlogistic, fig.align="center", out.width="60%", fig.cap='Linear vs. logistic regression models for binary response data.', echo=FALSE, warning=FALSE, message=FALSE}
-
-set.seed(0)
-dat <- tibble(x=runif(200, -5, 10),
-                  p=exp(-2+1*x)/(1+exp(-2+1*x)),
-                  y=rbinom(200, 1, p),
-                  logit=log(p/(1-p)))
-
-ggplot(dat, aes(x = x)) +
-  geom_point(aes(y = y)) +
-  geom_smooth(aes(y = y, color = "blue"), method = "lm", se=FALSE) +
-  geom_line(aes(y = p, color = "red")) +
-  scale_color_manual(name = 'Regression model', 
-         values = c('blue', 'red'), 
-         labels = c('Linear', 'Logistic'), guide = 'legend') +
-  theme_minimal()
-```
-
-<!-- DK: How does the math work here? log(p/1-p) seems, to me, to map 0,1 to 0,infinity. -->
-<!-- MB: I also need to do more research to understand this -->
-
-The mathematical function $log\left(\frac{p}{1 - p}\right)$ is called the *logit function* and it transforms variables from the space $(0, 1)$ (like probabilities) to $(-\infty, \infty)$.  The inverse of that function, the *standard logistic function*, is $\frac{1}{1 + e^{-x}}$ and transforms variables from the space $(-\infty, \infty)$ to $(0, 1)$.  From that latter function's name we get the terminology of *logistic regression*.
-
-## Logistic regression
-
-### What is logistic regression?
-
 Now that we know our dataset a little better, let's begin our first way of modelling binary/discrete data: logistic regressions. 
 
 Figure \@ref(fig:OLSlogistic) illustrates a data set with a binary (0 or 1) response ($Y$) and a single continuous predictor ($X$).  The blue line is a linear regression to model the probability of a success ($Y=1$) for a given value of $X$. With a binary response, the linear regression has an obvious problem: it can produce predicted probabilities below 0 and above 1. Probabilities can only range from 0 up to and including 1 as these represent a 0% and 100% chance of an event happening, respectively.
@@ -345,8 +310,161 @@ We can then fill in the $b_1$ term to calculate the probabilities of all races:
 - Mixed: $\frac{1}{1 + e^{-(-1.06 + 0.071)}} = 0.271$
 - Other: $\frac{1}{1 + e^{-(-1.06 + 1.3)}} = 0.559$
 
+<!-- Observed fitted values / residuals in here--> 
+
+### One numerical explanatory variable
+
+We'll now predict `approval_num` with a single numerical explanatory variable, `age`. 
+
+1. We first "fit" the logistic regression model using the `glm(y ~ x, family, data)` function and save it in `age_model`.
+2. We get the regression table by applying the `tidy()` function from the **broom** package to `age_model`.  We'll print the `term`, `estimate`, `conf.low`, and `conf.high` columns.
+
+```{r, eval=FALSE}
+age_model <- glm(approval_num ~ age, family = binomial, data = cces_ch12)
+age_model %>%
+  tidy(conf.int = TRUE) %>%
+  select(term, estimate, conf.low, conf.high)
+```
+
+```{r, echo=FALSE}
+
+tidy(age_model,
+     conf.int = TRUE) %>%
+  select(term, estimate, conf.low, conf.high) %>%
+  gt() %>%
+  tab_source_note(md("Logistical Regression Table"))
+
+```
+
+How do we interpret the coefficients in this model?  Since the `age` coefficient is positive, that means that each additional year of age is associated with a higher approval of the President in 2018. 
+
+If we wanted to learn the predicted probabilities for any given value of `age`, we can plug in our values of `age` into the standard logistic function, like so:
+
+\[
+p_{dem\_win} = \frac{1}{1 + e^{-(-1.43 + 0.023 \times year)}} 
+\]
+
+For example, the predicted probability of a 90-year-old approving of the President is 65.4% while the predicted probability of a 19-year-old approving of the President is 27%.
+
+Note that since this is not a linear function, a one-unit change in `year` will be associated with various one-unit changes in `year`, depending on what `year` you are starting from.  Recall the figure we used to start the chapter:
+
+```{r, echo = FALSE, message = FALSE}
+ggplot(dat, aes(x = x)) +
+  geom_point(aes(y = y)) +
+  geom_smooth(aes(y = y, color = "blue"), method = "lm", se=FALSE) +
+  geom_line(aes(y = p, color = "red")) +
+  scale_color_manual(name = 'Regression model', 
+         values = c('blue', 'red'), 
+         labels = c('Linear', 'Logistic'), guide = 'legend') +
+  theme_minimal()
+```
+
+A linear regression line (in blue) has a constant slope, which means that no matter what $x$ you start with, the effect of going from $x$ to $x + 1$ on $y$ is the same number.  
+
+However, take a look at the logistic regression curve (in red).  The value of the slope for very high or very low values of $x$ is smaller (approaching 0 as $x$ tends to negative or positive infinity), while the slope in the middle of the curve is highest.  The steepest part of the curve corresponds to that part of the curve where the predicted probability equals 0.5.  That is, the effect of a one-unit change in $x$ is the highest when the predicted probability for that $x$ is close to 0.5 and smallest when the predicted probability for that $x$ is close to 0 or 1.
+
+You can always use R to calculate the predicted probabilities for any value of $x$ and thus calculate the effect of moving from a particular $x$ to $x + 1$.  But this can get complicated.  In particular, once you start employing logistic regression with multiple predictors, the effect of a one-unit change in a predictor $x$ depends not only on $x$, but on the values of all the other predictors in your model!  You can always plug in all the coefficients and values of your predictors into the logistic function to calculate predicted probabilities, but if you don't do that, how can you interpret the coefficients?
+
+Here is where we can use the *divide by 4 rule* that we discussed before.  A logistic regression coefficient divided by 4 is the effect of that variable at the steepest part of the logistic regression curve, which, as we saw, corresponds to where the predicted probability is 0.5.
+
+Therefore, you can divide a logistic regression coefficient by 4 to get an upper bound on the effect a one-unit change in that predictor will have on the predicted probability of your outcome.  In this case, the approximation tells us that each additional year is associated with about a $-0.004$ decrease in the predicted probability of a Democratic victory.  Since the predicted probability of a Democratic victory in this model never strays far from 0.5, this is a pretty good approximation.^[Indeed, it is almost identical to the coefficient you would obtain in a linear regression--try it out!]
+
+While `race_model` and `age_model` both tell us something interesting, we could learn more with an *interaction model* that includes both of our predictors.
+
+### One numerical and one categorical explanatory variable
+
+We'll now predict `approval_num` with two variables, `race` and `age`, as well as the interaction between the two.
+
+1. We first "fit" the logistic regression model using the `glm(y ~ x1 * x2, family, data)` function and save it in `interact_model`.
+2. We get the regression table by applying the `tidy()` function from the **broom** package to `interact_model`.  We'll print the `term`, `estimate`, `conf.low`, and `conf.high` columns.
+
+```{r, eval=FALSE}
+interact_model <- glm(approval_num ~ race * age, family = binomial, data = cces_ch12)
+interact_model %>%
+  tidy(conf.int = TRUE) %>%
+  select(term, estimate, conf.low, conf.high)
+```
+
+```{r, echo=FALSE}
+tidy(interact_model,
+     conf.int = TRUE) %>%
+  select(term, estimate, conf.low, conf.high) %>%
+  gt() %>%
+  tab_source_note(md("Logistical Regression Table"))
+```
+
+
 <!--   ^^^^ NEW WORK    vvvv OLD WORK  -->
 
+Now we can see how the effect of `age` varies by `race`.  While the passage of time is associated with higher presidential approval in , `year` is associated with declining Democratic fortunes in the Midwest (`year`) and the South (`regionSouth:year`).
+
+Looking at predicted probabilities can also put this model in perspective.  Let's use `augment()` to generate the predictions.  Remember that `type.predict = "response"` and `type.residuals = "pearson"` put the fitted values and the residuals on the probability scale.
+
+```{r, eval=FALSE}
+regression_points <- house_interact_model %>%
+  augment(se_fit = TRUE,
+          type.predict = "response",
+          type.residuals = "pearson") %>%
+  mutate(conf.low = .fitted - 2 * .se.fit,
+         conf.high = .fitted + 2 * .se.fit) %>%
+  select(dem_win, region, .fitted, conf.low, conf.high, .resid)
+regression_points
+```
+
+```{r, echo=FALSE}
+regression_points <- augment(house_interact_model,
+                             se_fit = TRUE,
+                             type.predict = "response",
+                             type.residuals = "pearson") %>%
+  mutate(conf.low = .fitted - 2 * .se.fit,
+         conf.high = .fitted + 2 * .se.fit) %>%
+  select(dem_win, region, .fitted, conf.low, conf.high, .resid)
+regression_points %>%
+  slice(1:10) %>%
+  knitr::kable(
+    digits = 3,
+    caption = "Regression points (First 10 out of 4,201 district-years)",
+    booktabs = TRUE,
+    linesep = ""
+  ) %>%
+  kable_styling(font_size = ifelse(knitr:::is_latex_output(), 10, 16),
+                latex_options = c("hold_position"))
+```
+
+We can also use `augment` to make predictions for years that aren't in our data.  What would our model predict for the 2020 elections?  We use the `newdata` argument in `augment()` to make these predictions.
+
+```{r}
+house_interact_model %>%
+  augment(newdata = tibble(year = rep(2020, 4),
+                           region = c("Midwest", "Northeast", "South", "West")),
+          se_fit = TRUE,
+          type.predict = "response") %>%
+  mutate(conf.low = .fitted - 2 * .se.fit,
+         conf.high = .fitted + 2 * .se.fit)
+```
+
+These can easily be plotted using `ggplot()`:
+
+```{r}
+house_interact_model %>%
+  augment(newdata = tibble(year = rep(2020, 4),
+                           region = c("Midwest", "Northeast", "South", "West")),
+          se_fit = TRUE,
+          type.predict = "response") %>%
+  mutate(conf.low = .fitted - 2 * .se.fit,
+         conf.high = .fitted + 2 * .se.fit) %>%
+  ggplot(aes(y = .fitted,
+             ymin = conf.low,
+             ymax = conf.high,
+             x = region)) +
+  geom_point() +
+  geom_errorbar() +
+  labs(y = "Predicted probability of a Democratic victory (2020)",
+       x = "") +
+  theme_classic()
+```
+
+<!-------------------------------------------------------------------> 
 
 Note that you could also estimate this value through the so-called **"divide by 4" rule**: $-0.249 / 4 \approx 0.062$.  We'll discuss this further when we talk about interpreting the coefficiences of continuous predictors in logistic regression models.
 
@@ -552,156 +670,10 @@ regression_points %>%
 
 Now, the `.resid` value is the difference between the actual outcome (`dem_win`) and the predicted probability.
 
-### One numerical explanatory variable
-
-We'll now predict `dem_win` with a single numerical explanatory variable, `year`. 
-
-1. We first "fit" the logistic regression model using the `glm(y ~ x, family, data)` function and save it in `house_year_model`.
-1. We get the regression table by applying the `tidy()` function from the **broom** package to `house_year_model`.  We'll print the `term`, `estimate`, `conf.low`, and `conf.high` columns.
-
-```{r, eval=FALSE}
-house_year_model <- glm(dem_win ~ year, family = binomial, data = house_ch12)
-house_year_model %>%
-  tidy(conf.int = TRUE) %>%
-  select(term, estimate, conf.low, conf.high)
-```
-
-```{r, echo=FALSE}
-
-house_year_model <- glm(dem_win ~ year, family = binomial, data = house_ch12)
-
-tidy(house_year_model,
-     conf.int = TRUE) %>%
-  select(term, estimate, conf.low, conf.high) %>%
-  gt() %>%
-  tab_source_note(md("Logistical Regression Table"))
-
-```
-
-How do we interpret the coefficients in this model?  Since the `year` coefficient is negative, that means that each additional year is associated with a reduction in the chances of a Democratic victory. 
-
-If we wanted to learn the predicted probabilities for any given value of `year`, we can plug in our values of `year` into the standard logistic function, like so:
-
-\[
-p_{dem\_win} = \frac{1}{1 + e^{-(34.487 - 0.017 \times year)}} 
-\]
-
-Note that since this is not a linear function, a one-unit change in `year` will be associated with various one-unit changes in `dem_win`, depending on what `year` you are starting from.  Recall the figure we used to start the chapter:
-
-```{r, echo = FALSE, message = FALSE}
-ggplot(dat, aes(x = x)) +
-  geom_point(aes(y = y)) +
-  geom_smooth(aes(y = y, color = "blue"), method = "lm", se=FALSE) +
-  geom_line(aes(y = p, color = "red")) +
-  scale_color_manual(name = 'Regression model', 
-         values = c('blue', 'red'), 
-         labels = c('Linear', 'Logistic'), guide = 'legend') +
-  theme_minimal()
-```
-
-A linear regression line (in blue) has a constant slope, which means that no matter what $x$ you start with, the effect of going from $x$ to $x + 1$ on $y$ is the same number.  
-
-However, take a look at the logistic regression curve (in red).  The value of the slope for very high or very low values of $x$ is smaller (approaching 0 as $x$ tends to negative or positive infinity), while the slope in the middle of the curve is highest.  The steepest part of the curve corresponds to that part of the curve where the predicted probability equals 0.5.  That is, the effect of a one-unit change in $x$ is the highest when the predicted probability for that $x$ is close to 0.5 and smallest when the predicted probability for that $x$ is close to 0 or 1.
-
-You can always use R to calculate the predicted probabilities for any value of $x$ and thus calculate the effect of moving from a particular $x$ to $x + 1$.  But this can get complicated.  In particular, once you start employing logistic regression with multiple predictors, the effect of a one-unit change in a predictor $x$ depends not only on $x$, but on the values of all the other predictors in your model!  You can always plug in all the coefficients and values of your predictors into the logistic function to calculate predicted probabilities, but if you don't do that, how can you interpret the coefficients?
-
-Here is where we can use the *divide by 4 rule* that we discussed before.  A logistic regression coefficient divided by 4 is the effect of that variable at the steepest part of the logistic regression curve, which, as we saw, corresponds to where the predicted probability is 0.5.
-
-Therefore, you can divide a logistic regression coefficient by 4 to get an upper bound on the effect a one-unit change in that predictor will have on the predicted probability of your outcome.  In this case, the approximation tells us that each additional year is associated with about a $-0.004$ decrease in the predicted probability of a Democratic victory.  Since the predicted probability of a Democratic victory in this model never strays far from 0.5, this is a pretty good approximation.^[Indeed, it is almost identical to the coefficient you would obtain in a linear regression--try it out!]
-
-While `house_region_model` and `house_year_model` both tell us something interesting, we could learn more with an *interaction model* that includes both of our predictors.
-
-### One numerical and one categorical explanatory variable
-
-We'll now predict `dem_win` with a two variable, `region` and `year`, as well as the interaction between the two 
-
-1. We first "fit" the logistic regression model using the `glm(y ~ x1 * x2, family, data)` function and save it in `house_interact_model`.
-1. We get the regression table by applying the `tidy()` function from the **broom** package to `house_interact_model`.  We'll print the `term`, `estimate`, `conf.low`, and `conf.high` columns.
-
-```{r, eval=FALSE}
-house_interact_model <- glm(dem_win ~ region * year, family = binomial data = house_ch12)
-house_interact_model %>%
-  tidy(conf.int = TRUE) %>%
-  select(term, estimate, conf.low, conf.high)
-```
-
-```{r, echo=FALSE}
-house_interact_model <- glm(dem_win ~ region * year, family = binomial, data = house_ch12)
-tidy(house_interact_model,
-     conf.int = TRUE) %>%
-  select(term, estimate, conf.low, conf.high) %>%
-  gt() %>%
-  tab_source_note(md("Logistical Regression Table"))
-```
-
-Now we can see how the effect of `year` varies by `region`.  While the passage of time is associated with more Democratic victories in the Northeast and the West, `year` is associated with declining Democratic fortunes in the Midwest (`year`) and the South (`regionSouth:year`).
-
-Looking at predicted probabilities can also put this model in perspective.  Let's use `augment()` to generate the predictions.  Remember that `type.predict = "response"` and `type.residuals = "pearson"` put the fitted values and the residuals on the probability scale.
-
-```{r, eval=FALSE}
-regression_points <- house_interact_model %>%
-  augment(se_fit = TRUE,
-          type.predict = "response",
-          type.residuals = "pearson") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
-  select(dem_win, region, .fitted, conf.low, conf.high, .resid)
-regression_points
-```
-```{r, echo=FALSE}
-regression_points <- augment(house_interact_model,
-                             se_fit = TRUE,
-                             type.predict = "response",
-                             type.residuals = "pearson") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
-  select(dem_win, region, .fitted, conf.low, conf.high, .resid)
-regression_points %>%
-  slice(1:10) %>%
-  knitr::kable(
-    digits = 3,
-    caption = "Regression points (First 10 out of 4,201 district-years)",
-    booktabs = TRUE,
-    linesep = ""
-  ) %>%
-  kable_styling(font_size = ifelse(knitr:::is_latex_output(), 10, 16),
-                latex_options = c("hold_position"))
-```
-
-We can also use `augment` to make predictions for years that aren't in our data.  What would our model predict for the 2020 elections?  We use the `newdata` argument in `augment()` to make these predictions.
-
-```{r}
-house_interact_model %>%
-  augment(newdata = tibble(year = rep(2020, 4),
-                           region = c("Midwest", "Northeast", "South", "West")),
-          se_fit = TRUE,
-          type.predict = "response") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit)
-```
-
-These can easily be plotted using `ggplot()`:
-
-```{r}
-house_interact_model %>%
-  augment(newdata = tibble(year = rep(2020, 4),
-                           region = c("Midwest", "Northeast", "South", "West")),
-          se_fit = TRUE,
-          type.predict = "response") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
-  ggplot(aes(y = .fitted,
-             ymin = conf.low,
-             ymax = conf.high,
-             x = region)) +
-  geom_point() +
-  geom_errorbar() +
-  labs(y = "Predicted probability of a Democratic victory (2020)",
-       x = "") +
-  theme_classic()
-```
-
 <!-- Here is a great place to discuss unknown unknowns --> 
+
+<!-- Where numeric used to be --> 
+<!-- Where numeric and categorical used to be --> 
 
 ### Fitting many models using `map()`
 
