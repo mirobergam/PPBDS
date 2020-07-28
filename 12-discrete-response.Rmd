@@ -451,15 +451,13 @@ ggplot(dat, aes(x = x)) +
   theme_minimal()
 ```
 
-A linear regression line (in blue) has a constant slope, which means that no matter what $x$ you start with, the effect of going from $x$ to $x + 1$ on $y$ is the same number.  
-
-However, take a look at the logistic regression curve (in red).  The value of the slope for very high or very low values of $x$ is smaller (approaching 0 as $x$ tends to negative or positive infinity), while the slope in the middle of the curve is highest.  The steepest part of the curve corresponds to that part of the curve where the predicted probability equals 0.5.  That is, the effect of a one-unit change in $x$ is the highest when the predicted probability for that $x$ is close to 0.5 and smallest when the predicted probability for that $x$ is close to 0 or 1.
+A linear regression line (in blue) has a constant slope, which means that no matter what $x$ you start with, the effect of going from $x$ to $x + 1$ on $y$ is the same number.  However, take a look at the logistic regression curve (in red).  The value of the slope for very high or very low values of $x$ is smaller (approaching 0 as $x$ tends to negative or positive infinity), while the slope in the middle of the curve is highest.  The steepest part of the curve corresponds to that part of the curve where the predicted probability equals 0.5.  That is, the effect of a one-unit change in $x$ is the highest when the predicted probability for that $x$ is close to 0.5 and smallest when the predicted probability for that $x$ is close to 0 or 1.
 
 You can always use R to calculate the predicted probabilities for any value of $x$ and thus calculate the effect of moving from a particular $x$ to $x + 1$.  But this can get complicated.  In particular, once you start employing logistic regression with multiple predictors, the effect of a one-unit change in a predictor $x$ depends not only on $x$, but on the values of all the other predictors in your model!  You can always plug in all the coefficients and values of your predictors into the logistic function to calculate predicted probabilities, but if you don't do that, how can you interpret the coefficients?
 
-Here is where we can use the *divide by 4 rule* that we discussed before.  A logistic regression coefficient divided by 4 is the effect of that variable at the steepest part of the logistic regression curve, which, as we saw, corresponds to where the predicted probability is 0.5.
+Here is where we can use the *divide by 4 rule* that we discussed before.  A logistic regression coefficient divided by 4 is the effect of that variable at the steepest part of the logistic regression curve, which, as we just saw, corresponds to where the predicted probability is 0.5.
 
-Therefore, you can divide a logistic regression coefficient by 4 to get an upper bound on the effect a one-unit change in that predictor will have on the predicted probability of your outcome.  In this case, the approximation tells us that each additional year is associated with about a $-0.004$ decrease in the predicted probability of a Democratic victory.  Since the predicted probability of a Democratic victory in this model never strays far from 0.5, this is a pretty good approximation.^[Indeed, it is almost identical to the coefficient you would obtain in a linear regression--try it out!]
+Therefore, you can divide a logistic regression coefficient by 4 to get an upper bound on the effect a one-unit change in that predictor will have on the predicted probability of your outcome.  In this case, the approximation tells us that each additional year of age is associated with about a $0.023 / 4 = 0.005$ increase in the predicted probability of a voter approving of the President.
 
 While `race_model` and `age_model` both tell us something interesting, we could learn more with an *interaction model* that includes both of our predictors.
 
@@ -467,24 +465,116 @@ While `race_model` and `age_model` both tell us something interesting, we could 
 
 We'll now predict `approval` with two variables, `race` and `age`, as well as the interaction between the two.
 
-1. We first "fit" the logistic regression model using the `glm(y ~ x1 * x2, family, data)` function and save it in `interact_model`.
-2. We get the regression table by applying the `tidy()` function from the **broom** package to `interact_model`.  We'll print the `term`, `estimate`, `conf.low`, and `conf.high` columns.
+This time, we'll do it slightly differently. Rather than using `glm()` like we did in the last two examples, we'll instead be using tools from a package called **tidymodels**. Rather than having to use a different function each time we construct a model (choosing between lm(), glm(), and other modelling function), **tidymodels** streamlines the synthax for any model we want to construct.
+
+```{r, message = FALSE}
+library(tidymodels)
+```
+
+**tidymodels** includes many packages, but we'll start by showing how to use **parsnip** to fit a logistic regression. 
+
+First, in the **tidymodels** workflow, we have to save the *model specification*.  We do that using two functions: `logistic_reg()` and `set_engine()`.
+
+```{r}
+logistic_mod <- logistic_reg() %>%
+  set_engine("glm")
+```
+
+`logistic_reg()` says that we want to fit a logistic regression, and `set_engine("glm")` specifies that we want to do it using `glm()`.  Behind the scenes, **parsnip** uses many other packages to fit its models, but by unifying the syntax, it means that you don't have to memorize how a lot of different functions work.
+
+Note that our new object, `logistic_mod`, doesn't contain our data or a formula.  In order actually to fit our model, we need to feed `logistic_mod` to a function called `fit()`.  `fit()` is the general purpose function in **parsnip** for fitting any model specification.  It takes as its first argument the model specification, but otherwise it operates similarly to `lm()` and `glm()`. We have to wrap `approval` in `factor()`, because `fit()` is more careful than `glm()` in requiring that classification models actually have categorical outcomes.
+
+
+```{r}
+logistic_fit <- fit(logistic_mod,
+                    factor(approval) ~ race * age,
+                    data = cces_ch12)
+```
+
+One we have fit the model, how can we use it?  The `glm` object is still stored in `logistic_fit$fit`, so we can access that and use `tidy()`, just like we did before:
+
+```{r}
+logistic_fit$fit %>%
+  tidy(conf.int = TRUE) %>%
+  select(term, estimate, conf.low, conf.high) %>%
+  gt()
+```
+
+As you can see, this generates the same results as when we used `glm()` directly. Now we can see how the effect of `age` varies by `race`. Looking at predicted probabilities of these numbers can put this model in perspective.  Let's use `augment()` to generate the predictions.  Remember that `type.predict = "response"` and `type.residuals = "response"` put the fitted values and the residuals on the probability scale.
 
 ```{r, eval=FALSE}
-interact_model <- glm(approval ~ race * age, family = binomial, data = cces_ch12)
-interact_model %>%
+
+interact_model <- logistic_fit$fit %>%
   tidy(conf.int = TRUE) %>%
   select(term, estimate, conf.low, conf.high)
+
+regression_points <- house_interact_model %>%
+  augment(type.predict = "response",
+          type.residuals = "response") %>%
+  mutate(conf.low = .fitted - 2 * .se.fit,
+         conf.high = .fitted + 2 * .se.fit) %>%
+  select(dem_win, region, .fitted, conf.low, conf.high, .resid)
+regression_points
+
 ```
 
 ```{r, echo=FALSE}
-interact_model <- glm(approval ~ race * age, family = binomial, data = cces_ch12)
-tidy(interact_model,
-     conf.int = TRUE) %>%
-  select(term, estimate, conf.low, conf.high) %>%
-  gt() %>%
-  tab_source_note(md("Logistical Regression Table"))
+
+regression_points <- augment(house_interact_model,
+                             type.predict = "response",
+                             type.residuals = "response") %>%
+  mutate(conf.low = .fitted - 2 * .se.fit,
+         conf.high = .fitted + 2 * .se.fit) %>%
+  select(dem_win, region, .fitted, conf.low, conf.high, .resid)
+regression_points %>%
+  slice(1:10) %>%
+  knitr::kable(
+    digits = 3,
+    caption = "Regression points (First 10 out of 4,201 district-years)",
+    booktabs = TRUE,
+    linesep = ""
+  ) %>%
+  kable_styling(font_size = ifelse(knitr:::is_latex_output(), 10, 16),
+                latex_options = c("hold_position"))
+
 ```
+
+We can also use `augment` to make predictions for years that aren't in our data.  What would our model predict for the 2020 elections?  We use the `newdata` argument in `augment()` to make these predictions.
+
+```{r}
+house_interact_model %>%
+  augment(newdata = tibble(year = rep(2020, 4),
+                           region = c("Midwest", "Northeast", "South", "West")),
+          type.predict = "response") %>%
+  mutate(conf.low = .fitted - 2 * .se.fit,
+         conf.high = .fitted + 2 * .se.fit)
+```
+
+These can easily be plotted using `ggplot()`:
+
+```{r}
+house_interact_model %>%
+  augment(newdata = tibble(year = rep(2020, 4),
+                           region = c("Midwest", "Northeast", "South", "West")),
+          type.predict = "response") %>%
+  mutate(conf.low = .fitted - 2 * .se.fit,
+         conf.high = .fitted + 2 * .se.fit) %>%
+  ggplot(aes(y = .fitted,
+             ymin = conf.low,
+             ymax = conf.high,
+             x = region)) +
+  geom_point() +
+  geom_errorbar() +
+  labs(y = "Predicted probability of a Democratic victory (2020)",
+       x = "") +
+  theme_classic()
+```
+
+<!-- Here is a great place to discuss unknown unknowns --> 
+
+
+
+
 
 
 <!--   ^^^^ NEW WORK    vvvv OLD WORK  -->
