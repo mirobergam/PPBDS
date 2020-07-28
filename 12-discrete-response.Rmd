@@ -41,6 +41,9 @@ output_yaml:
 <!-- * Do we have time to do a model which predicts a category with more than 0/1 possible values? I am not sure. If we were going to, we would want to pick something that is not an ordered category, I think. In this data, ony race would meet that criteria. Let's revisit this later. -->
 
 
+<!-- MB: Using augment() for future predictions in this chapter? Works poorly with example -->
+
+
 # Discrete Response {#discrete-response}
 
 
@@ -508,12 +511,12 @@ interact_model <- logistic_fit$fit %>%
   tidy(conf.int = TRUE) %>%
   select(term, estimate, conf.low, conf.high)
 
-regression_points <- house_interact_model %>%
+regression_points <- interact_model %>%
   augment(type.predict = "response",
           type.residuals = "response") %>%
   mutate(conf.low = .fitted - 2 * .se.fit,
          conf.high = .fitted + 2 * .se.fit) %>%
-  select(dem_win, region, .fitted, conf.low, conf.high, .resid)
+  select(approval, race, age, .fitted, conf.low, conf.high, .resid)
 regression_points
 
 ```
@@ -525,56 +528,18 @@ regression_points <- augment(house_interact_model,
                              type.residuals = "response") %>%
   mutate(conf.low = .fitted - 2 * .se.fit,
          conf.high = .fitted + 2 * .se.fit) %>%
-  select(dem_win, region, .fitted, conf.low, conf.high, .resid)
+  select(approval, race, age, .fitted, conf.low, conf.high, .resid)
 regression_points %>%
   slice(1:10) %>%
   knitr::kable(
     digits = 3,
-    caption = "Regression points (First 10 out of 4,201 district-years)",
+    caption = "Regression points (First 10 out of 60,000 voters)",
     booktabs = TRUE,
     linesep = ""
   ) %>%
-  kable_styling(font_size = ifelse(knitr:::is_latex_output(), 10, 16),
-                latex_options = c("hold_position"))
+  gt()
 
 ```
-
-We can also use `augment` to make predictions for years that aren't in our data.  What would our model predict for the 2020 elections?  We use the `newdata` argument in `augment()` to make these predictions.
-
-```{r}
-house_interact_model %>%
-  augment(newdata = tibble(year = rep(2020, 4),
-                           region = c("Midwest", "Northeast", "South", "West")),
-          type.predict = "response") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit)
-```
-
-These can easily be plotted using `ggplot()`:
-
-```{r}
-house_interact_model %>%
-  augment(newdata = tibble(year = rep(2020, 4),
-                           region = c("Midwest", "Northeast", "South", "West")),
-          type.predict = "response") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
-  ggplot(aes(y = .fitted,
-             ymin = conf.low,
-             ymax = conf.high,
-             x = region)) +
-  geom_point() +
-  geom_errorbar() +
-  labs(y = "Predicted probability of a Democratic victory (2020)",
-       x = "") +
-  theme_classic()
-```
-
-<!-- Here is a great place to discuss unknown unknowns --> 
-
-
-
-
 
 
 <!--   ^^^^ NEW WORK    vvvv OLD WORK  -->
