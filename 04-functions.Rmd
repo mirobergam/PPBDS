@@ -5,24 +5,39 @@ output_yaml:
 
 # Functions
 
-<!-- 1. rnorm(1) + runif(1) Done.-->
+<!-- 1. Functions are cool. Not teaching you to write one yet though! An especially cool type of function is map function. Play with map functions. Oh! What happens when a map function causes a list column to appear. Oh no! -->
 
-<!-- 2. use some arguments mean of rnorm. Done-->
+<!-- 2. Reminder about lists. How we work with lists. And how we work with list columns. -->
 
-<!-- 3.check those arguments. sd must be positive Done-->
+<!-- 3) But we are sadly limited! We can only use built in functions! Sad! What happens when we want to . . . Answer write our own functions. Focus on functions which work with random numbers. Functions which work with lists. Functions which can return a vector whose length depends on a size argument. -->
 
-<!-- 4. pass in the number of each that you want. gets to dimensionality. you might require on one n variable. Done-->
+<!-- Recall that dgm <- function(size, obj, new_data){} -->
 
-<!-- 5. data generating mechanism. make their own posterior_linpred and posterior_predict. Done-->
+<!-- No `with()` -->
 
-<!-- 6. What are you returning? Can send back a vector, which can work well if called by mutate. But could also tend back a tibble, which (if you require a tibble to be sent in) would allow for pipes. Done-->
+<!-- Start with functions are cool. Remind them about lists. Show some simple functions that take a list. add_one_and_one <- function(){ -->
+<!--   1 +1 -->
+<!-- } -->
 
-<!-- 7. Eventually, you are building predict, but with variation. -->
+<!-- add_six_to_something <- function(x){ -->
+<!--   x + 6 -->
+<!-- } -->
 
+<!-- add_x_to_y <- function(x, y){ -->
+<!--   x + y -->
+<!-- } -->
 
-  
+<!-- Some functions which take a list as an argument. Occasion to remind the reader what lists are and how to deal with them. -->
 
+<!-- first_in_list <- function(x){ -->
 
+<!-- } -->
+
+<!-- add_list <- function(x){ -->
+
+<!-- } -->
+
+<!-- Introduce map functions first. -->
 
 <!-- 0. Add 30 list-column and mapping questions, generally with each set of questions grouped into a mini two or three question series. -->
 
@@ -70,13 +85,7 @@ Sys.Date
 Sys.Date()
 ```
 
-Every R function has three parts:
-
-* A body of code
-* A set of formal arguments
-* An environment (where the function will look up the values of the objects within it)
-
-There are plenty of built-in functions in R, such as the ones mentioned baove. You can also create your own custom functions, which may look something like this:
+There are plenty of built-in functions in R, such as the ones mentioned above. You can also create your own custom functions, which may look something like this:
 
 ```{r eval=FALSE}
 my_function <- function(x) x + 1
@@ -111,11 +120,7 @@ We are now going to learn about [**list columns**](https://r4ds.had.co.nz/many-m
 
 ### What are list columns?
 
-<!-- DK: maybe start with "What are lists?" The chapter from R4DS with the pepper shaker pictures is excellent. -->
-
-First, we need to know: What are lists? Imagine a `jar` full of 10 individually wrapped candies, with a number on each wrapper representing its candy number.^[This example is directly inspired by R for Data Science's pepper shaker example, found [here](https://r4ds.had.co.nz/vectors.html)] In order to obtain the `jar` with the first individually wrapped candy inside, you would need `jar[1]`. Similarly, `jar[2]` will return the jar with only the second individually wrapped candy inside. Whenever you are "reaching" into the jar to grab one certain candy, that is called indexing. In R, you can use square brackets to index through lists.
-
-What if you wanted the second individually wrapped candy, but without the jar? Then you would need `jar[[2]]`. And lastly, in order to obtain the second candy itself without its wrapped, you would need `jar[[2]][[1]]`, where the second set of square brackets, or the second *index*, "reaches" inside the jar and the wrapper to extract the candy. This unwrapped and extracted candy is called a list *element*.
+Recall our previous discussion on lists.
 
 Now that we understand what a list is, what is a list-column? A list column is a column of your data which is a [list](https://adv-r.hadley.nz/vectors-chap.html#lists) rather than an atomic vector. Atomic vectors are familiar to us: each element of the vector has one value, and thus if an atomic vector is a column in your dataset, each observation gets a single value.  Lists, however, can contain vectors as elements. The best way to understand this is by creating a list column yourself and inspecting the results.  `str()` is a helpful function for looking at the contents of a tibble with list columns:
 
@@ -314,7 +319,7 @@ Later on, we will practice using map functions to create list columns with custo
 
 <!-- EC: I still like the basic introducton to building a function, so I replaced gapminder with `kenya`. Thoughts? -->
 
-Let's examine the `kenya` dataset from `PPBDS.data`. Make sure to load the library. What if we were interested in taking the difference between the highest poverty rate and the lowest poverty rate? First, develop some working code for interactive use, using a representative input. Use the `poverty` variable. Built-in R functions that will be useful: `min()`, `max()`, `range()`.
+Let's examine the `kenya` dataset from `PPBDS.data`. What if we were interested in taking the difference between the highest poverty rate and the lowest poverty rate? First, develop some working code for interactive use, using a representative input. Use the `poverty` variable. Built-in R functions that will be useful: `min()`, `max()`, `range()`.
 
 ```{r}
 # Get to know the functions mentioned above
@@ -472,18 +477,20 @@ mmm2 <- function(x) {
 mmm2(kenya)
 ```
 
+```{marginfigure}
+**Non-programming uses for assertions**
+
+Another good use of this pattern is to leave checks behind in data analytical scripts. If we were loading from file (vs. a stable data package), we might want to formalize our expectations about the number of rows and columns, the names and flavors of the variables, etc. This would alert us if the data suddenly changed, which can be a useful wake-up call in scripts that you re-run *ad nauseam* on auto-pilot or non-interactively.
+```
+
 In addition to a gratuitous apology, the error also contains two more pieces of helpful info:
-  
+
 * *Which* function threw the error.
 * Hints on how to fix things: expected class of input vs actual class.
 
 If it is easy to do so, we highly recommend this template: "you gave me THIS, but I need THAT".
 
 The tidyverse style guide has a very useful [chapter on how to construct error messages](https://style.tidyverse.org/error-messages.html).
-
-#### Sidebar: non-programming uses for assertions
-
-Another good use of this pattern is to leave checks behind in data analytical scripts. If we were loading from file (vs. a stable data package), we might want to formalize our expectations about the number of rows and columns, the names and flavors of the variables, etc. This would alert us if the data suddenly changed, which can be a useful wake-up call in scripts that you re-run *ad nauseam* on auto-pilot or non-interactively.
 
 ### Wrap-up and what's next?
 
@@ -813,7 +820,7 @@ quantile_diff <- function(x, probs = c(0, 1), na.rm = TRUE, ...) {
 }
 ```
 
-The practical significance of the `type =` argument is virtually nonexistent, so we can't demo with the Gapminder data. Thanks to [\@wrathematics][twitter-wrathematics], here's a small example where we can (barely) detect a difference due to `type`.
+Thanks to [\@wrathematics][twitter-wrathematics], here's a small example where we can (barely) detect a difference due to `type`.
 
 ```{r}
 set.seed(1234)
@@ -840,8 +847,9 @@ The [ellipsis package](https://ellipsis.r-lib.org) provides tools that help pack
 
 ## List-columns and `map_*` functions with custom and anonymous functions
 
-### Anonymous functions using `map_*` functions
+### Using `map_*` functions with anonymous functions
 
+We can create functions that do operations "on the fly" without bothering to give them a name. These nameless functions are called [anonymous functions.](https://coolbutuseless.github.io/2019/03/13/anonymous-functions-in-r-part-1/)
 There are two ways to create anonymous functions.  The first one, using base R, uses `function()` to create a function within `map_dbl()`.  
 
 ```{r}
@@ -882,7 +890,9 @@ weather %>%
   mutate(temps_C = map(temps_F, ~ (. - 32) * 5/9))
 ```
 
-### Custom functions using `map_*` functions
+
+
+### Using `map_*` functions with custom functions
 
 Let’s practice `map_*` functions and list columns! We will give step by step instructions; we recommend that you follow along so that you understand how each part works.  We will introduce writing anonymous functions in this section. We'll also be introducing some important conditional functions (`ifelse()`, `any()`, `all()`, and `case_when()`). 
 
