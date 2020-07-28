@@ -505,6 +505,9 @@ logistic_fit$fit %>%
 
 As you can see, this generates the same results as when we used `glm()` directly. Now we can see how the effect of `age` varies by `race`. Looking at predicted probabilities of these numbers can put this model in perspective.  Let's use `augment()` to generate the predictions.  Remember that `type.predict = "response"` and `type.residuals = "response"` put the fitted values and the residuals on the probability scale.
 
+
+<!-- MB: Why is it only showing the race model and not the age model??-->
+
 ```{r, eval=FALSE}
 
 interact_model <- logistic_fit$fit %>%
@@ -541,5 +544,122 @@ regression_points %>%
 
 ```
 
+## Classification and regression trees (CART)
+
+```{r, echo=FALSE}
+img_path <- "images"
+```
+
+### What is CART?
+
+We have learned how to fit models for binary responses using logistic regression.  However, logistic regression is just one of many methods we can use to model binary responses.  CART is another approach, which we'll learn about in this section.  In the next section, we'll learn about random forests.
+
+<!-- Validity/model fitting the world. bias/variance  overfitting/underfitting. goal of the model -->
+
+A **tree** is basically a flow chart of yes or no questions. The general idea of the methods we are describing is to define an algorithm that uses data to create these trees with predictions at the ends, referred to as _nodes_. Decision trees predict an outcome variable $Y$ by *partitioning* the predictors.
+
+Decision trees like this are often used in practice. For example, to decide on a person's risk of poor outcome after having a heart attack, doctors use the following:
+
+```{r, echo=FALSE, out.width="50%"}
+# source https://www.researchgate.net/profile/Douglas_Walton/publication/228297479/figure/fig1/AS:301828123185152@1448972840090/Decision-Tree-for-Heart-Attack-Victim-adapted-from-Gigerenzer-et-al-1999-4.png
+knitr::include_graphics(file.path(img_path,"Decision-Tree-for-Heart-Attack-Victim-adapted-from-Gigerenzer-et-al-1999-4.png"))
+```
+
+(Source: Walton 2010 Informal Logic, Vol. 30, No. 2, pp. 159-184^[https://papers.ssrn.com/sol3/Delivery.cfm/SSRN_ID1759289_code1486039.pdf?abstractid=1759289&mirid=1&type=2].)
+
+Here, the binary outcome is whether a patient is "High Risk" or "Low Risk."  We have three predictors: minimum systolic blood pressure over the initial 24-hour period, age, and presence of sinus tachycardia.  The tree presents a series of yes or no questions that allow us to use the predictors to classify a patient's risk level.
+
+**Classification trees**, or decision trees, are used in prediction problems where the outcome is categorical.  (When the outcome is numerical, they are called **regression trees**; hence the acronym **CART**, standing for Classification and Regression Trees.)  The general idea here is to build a decision tree and, at the end of each _node_, obtain a predictor $\hat{y}$. A mathematical way to describe this is to say that we are partitioning the *predictor space* into $J$ non-overlapping regions, $R_1, R_2, \ldots, R_J$, and then for any predictor $x$ that falls within region $R_j$, we estimate $f(x)$ with the class that is the most common among the data within the partition for which the associated predictor $x_i$ is also in $R_j$.
+
+But how do we decide on which partitions to make  ($R_1, R_2, \ldots, R_J$) and how do we choose $J$, the total number of partitions? Here is where the algorithm gets a bit complicated.
+
+Classification trees create partitions recursively. We start the algorithm with one partition, the entire predictor space (i.e., every observation is classified as 0 or 1). But after the first step we will have two partitions. After the second step we will split one of these partitions into two and will have three partitions, then four, then five, and so on. (We will describe how we decide when to stop later.)
+
+Once we select a partition $\mathbf{x}$ to split in order to create the new partitions, we find a predictor $j$ and value $s$ that define two new partitions, which we will call $R_1(j,s)$ and $R_2(j,s)$, that split our observations in the current partition by asking if $x_j$ is bigger than $s$ (or if $x_j$ falls into a particular category $s$, if the predictor $j$ is categorical):
+
+$$
+R_1(j,s) = \{\mathbf{x} \mid x_j < s\} \mbox{  and  } R_2(j,s) = \{\mathbf{x} \mid x_j \geq s\}
+$$
+
+Now, after we define the new partitions $R_1$ and $R_2$, and we decide to stop the partitioning process, we compute predictors by taking the most common category of all the observations $y$ for which the associated $\mathbf{x}$ is in $R_1$ and $R_2$. We refer to these two as $\hat{y}_{R_1}$ and $\hat{y}_{R_2}$ respectively. 
+
+But how do we pick the predictor $j$ and the value $s$? One of the more popular ways for categorical data is the _Gini Index_.
+
+In a perfect scenario, the outcomes in each of our partitions are all of the same category since this will permit perfect accuracy. The _Gini Index_ is going to be 0 in this scenario, and become larger the more we deviate from this scenario. To define the Gini Index, we define $\hat{p}_{j,k}$ as the proportion of observations in partition $j$ that are of class $k$. The Gini Index is defined as 
+
+$$
+\mbox{Gini}(j) = \sum_{k=1}^K \hat{p}_{j,k}(1-\hat{p}_{j,k})
+$$
+
+If you study the formula carefully you will see that it is in fact 0 in the perfect scenario described above, since $\hat{p}_{j,k}(1-\hat{p}_{j,k}) = 0$ for all $k$.
+
+Once we are done partitioning the predictor space into regions, in each region a prediction is made using the observations in that region. 
+
+But when do we stop partitioning?  Every time we split and define two new partitions, the Gini Index improves. This is because with more partitions, our model has more flexibility to adapt to our data.  However, our model may therefore perform worse when exposed to new data (this problem is called *overfitting*). This connects to our discussion of validity and models, as the conditions used to create the model will be too specific to accurately extrapolate to new data points. To avoid this, the algorithm sets a minimum for how much the Gini Index must improve for another partition to be added. This parameter is referred to as the _complexity parameter_ ($c_p$). The measure of fit must improve by a factor of $c_p$ for the new partition to be added. Large values of $c_p$ will therefore force the algorithm to stop earlier which results in fewer nodes.
+
+<!-- MB: Use overfitting to discuss validity/model fitting the world-->
+
+Classification trees have certain advantages that make them very useful. They are highly interpretable, even more so than linear models. They are easy to visualize (if small enough).  Finally, they can model human decision processes. However, in terms of accuracy, they are rarely the best performing method since they are not very flexible. Random forests, explained in the next section, improve on some of the shortcomings of classification trees.
+
+### One categorical explanatory variable
+
+To create classification trees, we'll use the `decision_tree()` model specification and the `"rpart"` engine.  The syntax is very similar to when we used `logistic_reg()`.  Note that our binary response variable has to be a factor, just like with `logistic_reg()`. 
+
+```{r}
+tree_mod <- decision_tree() %>%
+  set_engine("rpart",
+             model = TRUE) %>%
+  set_mode("classification")
+```
+
+(Note that we added the argument `model = TRUE` to `set_engine()`.  This saves the model frame, which we will need to avoid a warning when we plot the trees later.)
+
+The function `set_mode()` wasn't necessary when we did logistic regression.  Here it clarifies that we want a *classification* tree rather than a *regression* tree.
+
+Now that we have the object `tree_mod`, we can use `fit()` in the **parsnip** package.  We'll start by predicting `approval` with `region`:
+
+```{r}
+race_tree <- fit(tree_mod,
+                         factor(approval) ~ race, 
+                         data = cces_ch12)
+```
+
+See how when using **tidymodels**, this is exactly the same as how we would fit a logistic regression, but with our model specification saved in `tree_mod` rather than the model specification we saved in `logistic_fit`.
+
+What was the result of our tree?
+
+```{r}
+
+### One categorical explanatory variable
+
+To create classification trees, we'll use the `decision_tree()` model specification and the `"rpart"` engine.  The syntax is very similar to when we used `logistic_reg()`.  Note that our binary response variable has to be a factor, just like with `logistic_reg()`. 
+
+```{r}
+tree_mod <- decision_tree() %>%
+  set_engine("rpart",
+             model = TRUE) %>%
+  set_mode("classification")
+```
+
+(Note that we added the argument `model = TRUE` to `set_engine()`.  This saves the model frame, which we will need to avoid a warning when we plot the trees later.)
+
+The function `set_mode()` wasn't necessary when we did logistic regression.  Here it clarifies that we want a *classification* tree rather than a *regression* tree.
+
+Now that we have the object `tree_mod`, we can use `fit()` in the **parsnip** package.  We'll start by predicting `dem_win` with `region`:
+
+```{r}
+house_region_tree <- fit(tree_mod,
+                         factor(dem_win) ~ region, 
+                         data = house_ch12)
+```
+
+See how when using **tidymodels**, this is exactly the same as how we would fit a logistic regression, but with our model specification saved in `tree_mod` rather than the model specification we saved in `logistic_fit`.
+
+What was the result of our tree?
+
+```{r}
+house_region_tree
+```
+```
 
 <!--   ^^^^ NEW WORK    vvvv OLD WORK  -->
