@@ -322,19 +322,20 @@ We have previously defined the following three concepts for a linear regression:
 
 We obtained these values and other values using the `augment()` function from the **broom** package. Recall too that we used the `.se.fit` column to construct confidence intervals.  We'll see here how we can apply these same concepts to logistic regression.
 
+<!-- MB: .se.fit into cooksd???-->
 ```{r, eval=FALSE}
 regression_points <- race_model %>%
   augment() %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
+  mutate(conf.low = .fitted - 2 * .cooksd,
+         conf.high = .fitted + 2 * .cooksd) %>%
   select(approval, race, .fitted, conf.low, conf.high, .resid)
 regression_points
 ```
 
 ```{r, echo=FALSE}
 regression_points <- augment(race_model) %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
+  mutate(conf.low = .fitted - 2 * .cooksd,
+         conf.high = .fitted + 2 * .cooksd) %>%
   select(approval, race,  .fitted, conf.low, conf.high, .resid)
 regression_points %>%
   slice(1:10) %>%
@@ -347,8 +348,8 @@ The syntax is the same, but the interpretation has to change, since the `.fitted
 ```{r, eval=FALSE}
 regression_points <- race_model %>%
   augment(type.predict = "response") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
+  mutate(conf.low = .fitted - 2 * .cooksd,
+         conf.high = .fitted + 2 * .cooksd) %>%
   select(approval, race, .fitted, conf.low, conf.high, .resid)
 regression_points
 ```
@@ -356,8 +357,8 @@ regression_points
 ```{r, echo=FALSE}
 regression_points <- augment(race_model,
                              type.predict = "response") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
+  mutate(conf.low = .fitted - 2 * .cooksd,
+         conf.high = .fitted + 2 * .cooksd) %>%
   select(approval, race, .fitted, conf.low, conf.high, .resid)
 regression_points %>%
   slice(1:10) %>%
@@ -378,14 +379,16 @@ where $Y_i$ is the actual outcome and $p_i$ is the predicted probability from th
 
 The sum of the individual deviance residuals is referred to as the **deviance** or **residual deviance**. The deviance is used to assess the model. As the name suggests, a model with a small deviance is preferred.
 
-However, you can also have `augment()` report residuals as differences between the observed outcome and the predicted probabilities by using `type.residuals = "response"`:
+However, you can also have `augment()` report residuals as differences between the observed outcome and the predicted probabilities by using `type.residuals = "deviance"`:
+
+<!-- type.residuals from response to deviance -->
 
 ```{r, eval=FALSE}
 regression_points <- race_model %>%
   augment(type.predict = "response",
-          type.residuals = "response") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
+          type.residuals = "deviance") %>%
+  mutate(conf.low = .fitted - 2 * .cooksd,
+         conf.high = .fitted + 2 * .cooksd) %>%
   select(approval, race, .fitted, conf.low, conf.high, .resid)
 regression_points
 ```
@@ -393,9 +396,9 @@ regression_points
 ```{r, echo=FALSE}
 regression_points <- augment(race_model,
                              type.predict = "response",
-                             type.residuals = "response") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
+                             type.residuals = "deviance") %>%
+  mutate(conf.low = .fitted - 2 * .cooksd,
+         conf.high = .fitted + 2 * .cooksd) %>%
   select(approval, race, .fitted, conf.low, conf.high, .resid)
 regression_points %>%
   slice(1:10) %>%
@@ -503,10 +506,10 @@ logistic_fit$fit %>%
   gt()
 ```
 
-As you can see, this generates the same results as when we used `glm()` directly. Now we can see how the effect of `age` varies by `race`. Looking at predicted probabilities of these numbers can put this model in perspective.  Let's use `augment()` to generate the predictions.  Remember that `type.predict = "response"` and `type.residuals = "response"` put the fitted values and the residuals on the probability scale.
+As you can see, this generates the same results as when we used `glm()` directly. Now we can see how the effect of `age` varies by `race`. Looking at predicted probabilities of these numbers can put this model in perspective.  Let's use `augment()` to generate the predictions.  Remember that `type.predict = "response"` and `type.residuals = "deviance"` put the fitted values and the residuals on the probability scale.
 
 
-<!-- MB: Why is it only showing the race model and not the age model??-->
+<!-- MB: This doesn't work, yoou need to find a way to do it in tidymodels. It is a dataframe not a model -->
 
 ```{r, eval=FALSE}
 
@@ -514,33 +517,33 @@ interact_model <- logistic_fit$fit %>%
   tidy(conf.int = TRUE) %>%
   select(term, estimate, conf.low, conf.high)
 
-regression_points <- interact_model %>%
-  augment(type.predict = "response",
-          type.residuals = "response") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
-  select(approval, race, age, .fitted, conf.low, conf.high, .resid)
-regression_points
+# regression_points <- interact_model %>%
+#   augment(type.predict = "response",
+#           type.residuals = "deviance") %>%
+#   mutate(conf.low = .fitted - 2 * .cooksd,
+#          conf.high = .fitted + 2 * .cooksd) %>%
+#   select(approval, race, age, .fitted, conf.low, conf.high, .resid)
+# regression_points
 
 ```
 
 ```{r, echo=FALSE}
-
-regression_points <- augment(house_interact_model,
-                             type.predict = "response",
-                             type.residuals = "response") %>%
-  mutate(conf.low = .fitted - 2 * .se.fit,
-         conf.high = .fitted + 2 * .se.fit) %>%
-  select(approval, race, age, .fitted, conf.low, conf.high, .resid)
-regression_points %>%
-  slice(1:10) %>%
-  knitr::kable(
-    digits = 3,
-    caption = "Regression points (First 10 out of 60,000 voters)",
-    booktabs = TRUE,
-    linesep = ""
-  ) %>%
-  gt()
+# 
+# regression_points <- augment(interact_model,
+#                              type.predict = "response",
+#                              type.residuals = "deviance") %>%
+#   mutate(conf.low = .fitted - 2 * .cooksd,
+#          conf.high = .fitted + 2 * .cooksd) %>%
+#   select(approval, race, age, .fitted, conf.low, conf.high, .resid)
+# regression_points %>%
+#   slice(1:10) %>%
+#   knitr::kable(
+#     digits = 3,
+#     caption = "Regression points (First 10 out of 60,000 voters)",
+#     booktabs = TRUE,
+#     linesep = ""
+#   ) %>%
+#   gt()
 
 ```
 
@@ -562,7 +565,7 @@ Decision trees like this are often used in practice. For example, to decide on a
 
 ```{r, echo=FALSE, out.width="50%"}
 # source https://www.researchgate.net/profile/Douglas_Walton/publication/228297479/figure/fig1/AS:301828123185152@1448972840090/Decision-Tree-for-Heart-Attack-Victim-adapted-from-Gigerenzer-et-al-1999-4.png
-knitr::include_graphics(file.path(img_path,"Decision-Tree-for-Heart-Attack-Victim-adapted-from-Gigerenzer-et-al-1999-4.png"))
+#knitr::include_graphics(file.path(img_path,"Decision-Tree-for-Heart-Attack-Victim-adapted-from-Gigerenzer-et-al-1999-4.png"))
 ```
 
 (Source: Walton 2010 Informal Logic, Vol. 30, No. 2, pp. 159-184^[https://papers.ssrn.com/sol3/Delivery.cfm/SSRN_ID1759289_code1486039.pdf?abstractid=1759289&mirid=1&type=2].)
@@ -650,54 +653,6 @@ prp_ch13 <- function(x, ...) prp(x, extra = 6, varlen = 0, faclen = 0, ...)
 race_tree$fit %>%
   prp_ch13()
 ```
-
-How do we interpret this tree?  Here we have two partitions, based on whether an observation is in the Midwest or South or not in the Midwest or South (i.e., in the Northeast or West).  If an observation is in the Midwest or South, the tree classifies the observation as a 0, a Democratic loss. The "0.49" means that 49% of the observations in this node were Democratic wins. If an observation is not in the Midwest or South, the algorithm classifies the observation as a 1, a Democratic win; 60% of the observations in this node were Democratic wins.
-
-As you can see, the algorithm is very simple when you have one categorical explanatory variable: it just classifies every observation based on the most common response per category.  Take a look at the following table:
-
-```{r, echo = FALSE}
-house_ch12 %>%
-  group_by(region) %>%
-  summarize(dem_win = mean(dem_win) * 100) %>%
-  kable(digits = 1,
-        col.names = c("Region", "Democratic Win Percentage"))
-```
-
-The two partitions just divide the observations by region into a) those regions where Democrats won a majority of the elections in the data and b) those where they lost a majority of the elections.
-
-### One numerical explanatory variable
-
-Once we have created our model specification `tree_mod`, it is easy to use it to fit new models with different formulae and data.  We can use the same approach to create a classification tree predicting `dem_win` with `year`:
-
-```{r}
-house_year_tree <- fit(tree_mod,
-                       factor(dem_win) ~ year,
-                       data = house_ch12)
-
-house_year_tree$fit %>%
-  prp_ch13()
-```
-
-Now, the algorithm creates cutpoints in the `year` variable in order to classify observations.  This tree will classify observations before 1993 (the 1992 election cycle or earlier, since House elections only occur in even-numbered years) or between 2005 and 2009 (the 2006 and 2008 cycles) as Democratic victories and all other observations as Democratic losses.
-
-Eagle-eyed observers will notice that this is simply classifying every year based on whether the Democrats won a majority in that year, with one exception --- observations in 2018 are predicted to be Democratic losses.  Why is that?  Recall that the algorithm uses a *complexity parameter*, $c_p$, to avoid overfitting.  The default value of $c_p$ in `rpart()` (the engine we are using) is 0.01; setting it to 0 allows one to see the maximum number of partitions that the algorithm will do.
-
-How can we change $c_p$?  We don't need to create an entirely new model specification.  Rather, we can use the `update()` function to change $c_p$ while leaving everything else about `tree_mod` the same.  All we need to do is specify the parameter we want to change, which here is called `cost_complexity`:
-
-```{r}
-house_year_tree_0 <- fit(update(tree_mod, cost_complexity = 0),
-                         factor(dem_win) ~ year,
-                         data = house_ch12)
-```
-
-We can then look at the new tree and see what changed:
-
-```{r}
-house_year_tree_0$fit %>%
-  prp_ch13()
-```
-
-Now there is an additional partition that classifies observations where `year` $\geq 2017$ as 1.
 
 
 <!--   ^^^^ NEW WORK    vvvv OLD WORK  -->
