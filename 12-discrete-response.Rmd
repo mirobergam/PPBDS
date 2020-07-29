@@ -735,6 +735,83 @@ We can see that in this case, the accuracy improves as we add more trees until a
 
 Random forests often perform better than other methods. However, a disadvantage of random forests is that we lose interpretability---we don't get anything like the coefficients from a logistic regression or the single tree from CART.
 
+## Machine Learning
 
+<!-- MB: insert whole section INTRO -->
+For this chapter, we'll consider x possible models.  We have some intuitions about what should be in a useful model for presidential approval.  First, since the effect of all the predictors likely vary based on whether the president is a Democrat or Republican, all predictors should be interacted with `pres_gop`.  Also, party identification is likely a large predictor of presidential approval, and thus should be included.  But what about the other variables?  Let's consider the following combinations:
 
-<!--   ^^^^ NEW WORK    vvvv OLD WORK  -->
+1. `race` alone
+2. `race` and `age`
+3. `state` plus demographic variables (`race`, `female`, `educ`, and `age`)
+4. Same as above, but with all two-way interactions between the demographic variables
+
+Of course, these are a small subset of the possible models we could consider, either with the variables we have selected or with the larger set of all the variables in the `cces`.  But we'll use these as examples for the machine learning techniques in this chapter; if you'd like, you can use the methods we learn here to test additional models.
+
+Let's save these as `formula` objects in R, so we can easily access them later.  We'll start with the simplest model we'll consider, as `basic_form`:
+
+```{r}
+basic_form <- formula(approval ~ age * ideology)
+```
+
+Next, we can use `update()` to create the more complicated formulas.  `update()` takes as its first argument a formula and as its second argument the additions you want to make.  To keep all the predictors from the first formula and add more, you will start with `~ . + ` and then add more predictors, like so:
+
+```{r}
+ideo_form <- update(basic_form,
+                    ~ age * ideology)
+
+demo_form <- update(basic_form,
+                    ~ . + race * gender + 
+                      age * gender  + 
+                      education * gender + 
+                      state * gender)
+
+demo_interact_form <- update(basic_form,
+                             ~ . + race * education * gender + 
+                               gender * age * race)
+```
+
+Since the last model is the same as `demo_interact_form` but with `ideo5 * pres_gop` added, we'll use `update(demo_interact_form)` rather than `update(basic_form)` here:
+
+```{r}
+full_form <- update(demo_interact_form,
+                    ~ . + ideo5 * pres_gop)
+```
+
+Now we have five `formula` objects we can use to fit models.
+
+So we can access them easily, we'll save them in a tibble and give them easy-to-remember names:
+
+```{r}
+cces_formulas <- tibble(formula = c(basic_form,
+                                    ideo_form,
+                                    demo_form,
+                                    demo_interact_form,
+                                    full_form),
+                       group = c("Basic model",
+                                 "Ideology model",
+                                 "Demographic model",
+                                 "Demographic interaction model",
+                                 "Full model"))
+```
+
+## **parsnip**: build the model
+
+This step is really three, using only the [**parsnip** package](https://tidymodels.github.io/parsnip/). In this setp, we can choose the *model*, the *engine* to run the model in R, and, for some models, the *mode*.  Here, our model will be linear regression, the engine `lm`, and the mode "regression" (the only possible mode for a linear regression).
+
+```{r}
+lm_spec <- 
+  
+  # Pick model
+  
+  linear_reg() %>%
+  
+  # Set engine
+  
+  set_engine("lm") %>%
+  
+  # Set mode
+  
+  set_mode("regression") 
+
+lm_spec
+```
