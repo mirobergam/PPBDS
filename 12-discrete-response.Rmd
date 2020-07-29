@@ -56,17 +56,18 @@ library(PPBDS.data)
 ```
 
 
-Before we start modeling, let's perform some exploratory analysis on the dataset we'll be working with, cces. Cces stands for the Cooperative Congressional Election Study, a study regarding the approval rating of individual voters to their sitting president. Each row captures one voter, some of their demographic information, and how highly they approve (or disaprprove) of the president. We will tweak the data by only looking at observations recorded in the year 2018 so that all the responses are about the same president.
+Before we start modeling, let's perform some exploratory analysis on the dataset we'll be working with, cces. Cces stands for the Cooperative Congressional Election Study, a study regarding the approval rating of individual voters to their sitting president. Each row captures one voter, some of their demographic information, and how highly they approve (or disaprprove) of the president. Let's first look at the raw data values by either looking at `cces` using RStudio's spreadsheet viewer or by using the `glimpse()` function from the **dplyr** package:
 
 ```{r}
-cces_ch12 <- cces %>%
-  filter(year == 2018)
+glimpse(cces)
 ```
 
-Let's first look at the raw data values by either looking at `cces_ch12` using RStudio's spreadsheet viewer or by using the `glimpse()` function from the **dplyr** package:
+We will tweak the data by only looking at observations recorded in the year 2018 so that all the responses are about the same president. We will also drop all NA values in the dataset.
 
 ```{r}
-glimpse(cces_ch12)
+ch12 <- cces %>%
+  filter(year == 2018) %>%
+  drop_na()
 ```
 
 From this, we can gather that there are 16 variables. Notably, there are 60,000 observations even after filtering only for the year 2018. 
@@ -74,15 +75,15 @@ From this, we can gather that there are 16 variables. Notably, there are 60,000 
 Let's also display a random sample of 5 rows of the 60,000 rows. We will be displaying these 5 random observations using a gt() table. Before that, though, we will select the variables that are currently of interest to us. 
 
 ```{r, eval = FALSE}
-cces_ch12 <- cces_ch12 %>%
+ch12 <- ch12 %>%
   select(state, age, gender, race, education, ideology, approval)
 
-cces_ch12 %>% 
+ch12 %>% 
   sample_n(size = 5)
 ```
 
-```{r}
-cces_ch12 %>%
+```{r, echo = FALSE}
+ch12 %>%
   sample_n(5) %>%
   gt() %>%
   cols_label(
@@ -96,10 +97,22 @@ cces_ch12 %>%
   tab_source_note(md("A random sample of 5 out of the 60,000 voters"))
 ```
 
-Now that we’ve looked at the raw values in `cces_ch12` and have a sense of the data, let’s compute summary statistics. Let’s use the `skim()` function from the `skimr` package.
+Now that we’ve looked at the raw values in `ch12`, let's make another tweak to the data. Because this chapter will be dealing with logistic regressions, we want to convert the numeric `approval` variable into a binary variable. `approval` is a numeric variable from 1-5 with 5 representing the highest approval of the president. In order to do this, we have to turn approval into a binary variable. 1-2 will be coded to 0 to signify disapproval and 3-5 will be coded to 1 for approval.
 
 ```{r}
-cces_ch12 %>% 
+ch12 <- ch12 %>%
+  mutate(approval = case_when(
+    approval == 1 ~ 0,
+    approval == 2 ~ 0,
+    approval == 3 ~ 1,
+    approval == 4 ~ 1,
+    approval == 5 ~ 1))
+```
+
+Now, let’s compute summary statistics. Let’s use the `skim()` function from the `skimr` package.
+
+```{r}
+ch12 %>% 
   skim()
 ```
 
@@ -107,11 +120,10 @@ You'll notice that we are missing data for our ideology and approval variables. 
 
 To complete our exploratory data analysis, let's create some data visualizations. 
 
-The primary response variable left in our dataset is `approval`, a numeric variable from 1-5 with 5 representing the highest approval of the president. So, let's start by looking at the overall distribution of `approval`.
+The primary response variable left in our dataset is `approval`, a (newly) binary variable with 0 representing disapproval of the President and 1 representing approval. So, let's start by looking at the overall distribution of `approval`.
 
 ```{r}
-cces_ch12 %>%
-  filter(is.na(approval) == FALSE) %>% #Removing NA observations
+ch12 %>%
   ggplot(aes(x = approval)) +
   geom_bar(fill = "red") + 
   labs(y = "Count",
@@ -119,12 +131,11 @@ cces_ch12 %>%
        title = "Presidential Approval in 2018") 
 ```
 
-According to this graph, the approval of the president in 2018 is very polarized: the peaks are at 1 and 5 and no one reported with a neutral 3. There seems to be more disapproval overall.
+According to this graph, there are roughly 10,000 more voters who disapprove of Trump.
 To make things more interesting, let's facet this approval variable by gender and then race.
 
 ```{r}
-cces_ch12 %>%
-  filter(is.na(approval) == FALSE) %>%
+ch12 %>%
   ggplot(aes(x = approval, fill = gender)) +
   geom_bar() + 
   labs(y = "Count",
@@ -134,11 +145,10 @@ cces_ch12 %>%
   theme(legend.position = "none")
 ```
 
-The bimodal, polarized distribution holds across both genders. However, it seems that females have more higher rates of disapproval (more 1s and 2s). 
+It seems that females have higher rates of disapproval. 
 
 ```{r}
-cces_ch12 %>%
-  filter(is.na(approval) == FALSE) %>%
+ch12 %>%
   ggplot(aes(x = approval, fill = race)) +
   geom_bar() + 
   labs(y = "Count",
@@ -149,33 +159,19 @@ cces_ch12 %>%
   scale_y_log10()
 ```
 
-Note the log10 scale on the y-axis; this was done so that we can see clearly the distribution for races that have very few observations compared to white individuals. We can see here that the bimodel distribution is present across all races, with slight variations from race to race. 
+Note the log10 scale on the y-axis; this was done so that we can see clearly the distribution for races that have very few observations compared to white individuals. We can see that slight the disapproving majority is present across most races.
 
-Now, let's take a look at our ideology variable. `ideology` has values "Very Liberal", "Liberal", "Moderate", "Conservative", "Very Conservative", and "Not Sure". We will make a barplot to get a sense of the distribution.
-
-```{r}
-cces_ch12 %>%
-  filter(is.na(ideology) == FALSE) %>%
-  ggplot(aes(x = ideology)) + 
-  geom_bar(fill = "blue") + 
-  labs(y = "Ideology",
-       title = "Ideology in CCES 2018")
-```
-
-There is a unimodal disitribution in ideology, with most respondents being moderate. This is interesting, considering how polarized the presidential approval was before. Let's create a jitterplot between `ideology` and `approval` to look into this more. 
+Now, let's use our ideology variable. `ideology` has values "Very Liberal", "Liberal", "Moderate", "Conservative", "Very Conservative", and "Not Sure". Let's create a jitterplot with `approval` to see hoow approval varied across political affiliations.
 
 ```{r}
-cces_ch12 %>%
-  filter(is.na(ideology) == FALSE) %>%
-  filter(is.na(approval) == FALSE) %>%
+ch12 %>%
   ggplot(aes(x = ideology, y = approval)) + 
   geom_jitter() + 
   labs(y = "Presidential Approval",
        x = "Ideology",
        title = "Presidential Approval by Ideology")
 ```
-
-<!-- MB: just need to talk about this to finish EDA. Holding off until we figure out why there are literally no 3s-->
+As one would expect, approval is denser for conservative and very conservative voters while disapproval is denser for liberal and very liberal voters. 
 
 ## Logistic regression
 
@@ -215,21 +211,7 @@ The mathematical function $log\left(\frac{p}{1 - p}\right)$ is called the *logit
 
 ### One categorical explanatory variable
 
-Let's start our modeling by predicting `approval` with a single categorical explanatory variable. However, there's one problem: approval is not a binary variable and, therefore, this wouldn't be a logistic regression. In order to make this a logistic regression, we have to turn approval into a binary variable. 1-2 will be coded to 0 to signify disapproval and 3-5 will be coded to 1 for approval.
-
-```{r}
-cces_ch12 <- cces_ch12 %>%
-  mutate(approval = case_when(
-    approval == 1 ~ 0,
-    approval == 2 ~ 0,
-    approval == 3 ~ 1,
-    approval == 4 ~ 1,
-    approval == 5 ~ 1))
-```
-
-<!-- MB: Jumping straight to multiple categories here rather than just a binary one. Should I do one for gender? -->
-
-We'll start by modeling our new binary `approval` with the categorical variable `race`.  As we'll see, the syntax for running a logistic regression in R is very similar to that for running a linear regression.  In fact, we'll follow the same basic steps:
+Let's start our modeling by predicting `approval` with a single categorical explanatory variable. We'll start by modeling our new binary `approval` with the categorical variable `race`.  As we'll see, the syntax for running a logistic regression in R is very similar to that for running a linear regression.  In fact, we'll follow the same basic steps:
 
 1. We first "fit" the logistic regression model using the `glm(y ~ x, family, data)` function and save it in `race_model`.
 2. We get the regression table by applying the `tidy()` function from the **broom** package to `race_model`.  We'll print the `term`, `estimate`, `conf.low`, and `conf.high` columns.
@@ -239,14 +221,14 @@ Note that the key difference is that instead of using `lm()`, we are now using `
 Next, let's fit a model and `tidy()` it:
 
 ```{r, eval=FALSE}
-race_model <- glm(approval ~ race, family = binomial, data = cces_ch12)
+race_model <- glm(approval ~ race, family = binomial, data = ch12)
 race_model %>%
   tidy(conf.int = TRUE) %>%
   select(term, estimate, conf.low, conf.high)
 ```
 
 ```{r, echo=FALSE}
-race_model <- glm(approval ~ race, family = binomial, data = cces_ch12)
+race_model <- glm(approval ~ race, family = binomial, data = ch12)
 tidy(race_model) %>%
   select(term, estimate) %>%
   gt()
@@ -389,14 +371,14 @@ We'll now predict `approval` with a single numerical explanatory variable, `age`
 2. We get the regression table by applying the `tidy()` function from the **broom** package to `age_model`.  We'll print the `term`, `estimate`, `conf.low`, and `conf.high` columns.
 
 ```{r, eval=FALSE}
-age_model <- glm(approval ~ age, family = binomial, data = cces_ch12)
+age_model <- glm(approval ~ age, family = binomial, data = ch12)
 age_model %>%
   tidy(conf.int = TRUE) %>%
   select(term, estimate, conf.low, conf.high)
 ```
 
 ```{r, echo=FALSE}
-age_model <- glm(approval ~ age, family = binomial, data = cces_ch12)
+age_model <- glm(approval ~ age, family = binomial, data = ch12)
 tidy(age_model,
      conf.int = TRUE) %>%
   select(term, estimate, conf.low, conf.high) %>%
@@ -466,7 +448,7 @@ Note that our new object, `logistic_mod`, doesn't contain our data or a formula.
 ```{r}
 logistic_fit <- fit(logistic_mod,
                     factor(approval) ~ race * age,
-                    data = cces_ch12)
+                    data = ch12)
 ```
 
 One we have fit the model, how can we use it?  The `glm` object is still stored in `logistic_fit$fit`, so we can access that and use `tidy()`, just like we did before:
@@ -598,7 +580,7 @@ Now that we have the object `tree_mod`, we can use `fit()` in the **parsnip** pa
 ```{r}
 race_tree <- fit(tree_mod,
                          factor(approval) ~ race, 
-                         data = cces_ch12)
+                         data = ch12)
 ```
 
 See how when using **tidymodels**, this is exactly the same as how we would fit a logistic regression, but with our model specification saved in `tree_mod` rather than the model specification we saved in `logistic_fit`.
@@ -636,7 +618,7 @@ Now that we have the object `tree_mod`, we can use `fit()` in the **parsnip** pa
 ```{r}
 race_tree <- fit(tree_mod,
                  factor(approval) ~ ideology,
-                 data = cces_ch12)
+                 data = ch12)
 ```
 
 See how when using **tidymodels**, this is exactly the same as how we would fit a logistic regression, but with our model specification saved in `tree_mod` rather than the model specification we saved in `logistic_fit`.
@@ -671,9 +653,8 @@ The decimal numbers mean that 21% of observations in the first node approved of 
 The algorithm is very simple when you have one categorical explanatory variable. It just classifies every observation based on the most common response per category. Take a look at the following table:
 
 ```{r}
-cces_ch12 %>%
+ch12 %>%
   select(ideology, approval) %>%
-  drop_na() %>% #MB: Drop NAs at the beginning to avoid this
   group_by(ideology) %>%
   summarise(average_approval = sum(approval)/n()) %>%
   gt()
@@ -687,7 +668,7 @@ Once we have created our model specification `tree_mod`, it is easy to use it to
 ```{r}
 age_tree <- fit(tree_mod,
                 factor(approval) ~ age,
-                data = cces_ch12)
+                data = ch12)
 
 age_tree$fit %>%
   prp_ch12()
@@ -735,7 +716,7 @@ forest_mod <- rand_forest() %>%
 
 approval_forest <- fit(forest_mod,
                     factor(approval) ~ state + gender + age,
-                    data = cces_ch12)
+                    data = ch12)
 
 approval_forest
 ```
