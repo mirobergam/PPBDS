@@ -710,25 +710,25 @@ We will demonstrate by fitting a random forest to the House elections data, pred
 ```{r, message=FALSE, warning=FALSE}
 library(tidymodels)
 library(parsnip)
-forest_mod <- rand_forest() %>%
-  set_engine("randomForest") %>%
-  set_mode("classification")
+#forest_mod <- rand_forest() %>%
+#  set_engine("randomForest") %>%
+#  set_mode("classification")
 
-approval_forest <- fit(forest_mod,
-                    factor(approval) ~ state + gender + age,
-                    data = ch12)
+#approval_forest <- fit(forest_mod,
+#                    factor(approval) ~ state + gender + age,
+#                    data = ch12)
 
-approval_forest
+#approval_forest
 ```
 
 We see under "OOB estimate of error rate" that this model has an error rate of 36% (or, looking at it the other way, an accuracy of 64%). We can see how the error rate of our algorithm changes as we add trees by looking at `house_forest$fit$err.rate[, "OOB"]`.  By default, `randomForest()` (the engine we specified) grows 500 trees.
 
 ```{r}
-tibble(`Error rate` = house_forest$fit$err.rate[, "OOB"],
-       Trees = 1:500) %>%
-  ggplot(aes(x = Trees, y = `Error rate`)) +
-  geom_line() +
-  theme_classic()
+#tibble(`Error rate` = house_forest$fit$err.rate[, "OOB"],
+#       Trees = 1:500) %>%
+#  ggplot(aes(x = Trees, y = `Error rate`)) +
+#  geom_line() +
+#  theme_classic()
 ```
 
 We can see that in this case, the accuracy improves as we add more trees until about 300 trees where accuracy stabilizes.
@@ -773,8 +773,8 @@ demo_interact_form <- update(basic_form,
 Since the last model is the same as `demo_interact_form` but with `ideo5 * pres_gop` added, we'll use `update(demo_interact_form)` rather than `update(basic_form)` here:
 
 ```{r}
-full_form <- update(demo_interact_form,
-                    ~ . + ideo5 * pres_gop)
+#full_form <- update(demo_interact_form,
+#                    ~ . + ideo5 * pres_gop)
 ```
 
 Now we have five `formula` objects we can use to fit models.
@@ -782,16 +782,16 @@ Now we have five `formula` objects we can use to fit models.
 So we can access them easily, we'll save them in a tibble and give them easy-to-remember names:
 
 ```{r}
-cces_formulas <- tibble(formula = c(basic_form,
-                                    ideo_form,
-                                    demo_form,
-                                    demo_interact_form,
-                                    full_form),
-                       group = c("Basic model",
-                                 "Ideology model",
-                                 "Demographic model",
-                                 "Demographic interaction model",
-                                 "Full model"))
+#cces_formulas <- tibble(formula = c(basic_form,
+#                                    ideo_form,
+#                                    demo_form,
+#                                    demo_interact_form,
+#                                    full_form),
+#                       group = c("Basic model",
+#                                 "Ideology model",
+#                                 "Demographic model",
+#                                 "Demographic interaction model",
+#                                 "Full model"))
 ```
 
 ## **parsnip**: build the model
