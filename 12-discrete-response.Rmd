@@ -623,16 +623,34 @@ So how do we get different decision trees from a single training set? For this, 
 
 We will demonstrate by fitting a random forest to the House elections data, predicting `approval` with `ideology`, `age`, and `gender`.  We will use the `rand_forest()` function to create our model specification, setting the engine to `"randomForest"` and the mode to `"classification"`.
 
+<!-- MB: Lot of new code in here, need to rewrite chapter to fit
+http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/#evaluate-the-model-on-the-test-set
+-->
+ 
 ```{r, message=FALSE, warning=FALSE}
+
 library(parsnip)
 library(randomForest)
-forest_mod <- rand_forest() %>%
-  set_engine("randomForest") %>%
-  set_mode("classification")
 
-approval_forest <- fit(forest_mod,
-                    factor(approval) ~ race + gender + age,
-                    data = ch12)
+#forest_mod <- rand_forest() %>%
+#  set_engine("randomForest") %>%
+#  set_mode("classification")
+#approval_forest <- fit(forest_mod,
+#                    factor(approval) ~ race + gender + age,
+#                    data = ch12)
+
+approval_split <- initial_split(ch12, 
+                                prop = 3/4)
+
+approval_train <- training(approval_split)
+approval_test <- testing(approval_split)
+
+approval_cv <- vfold_cv(approval_train)
+
+approval_forest <- 
+  rand_forest() %>%
+  set_engine("randomForest") %>%
+  set_mode("classification") 
 
 approval_forest
 
@@ -650,6 +668,55 @@ tibble(`Error rate` = approval_forest$fit$err.rate[, "OOB"],
 
 We can see that in this case, the accuracy improves as we add more trees until about 50 trees where accuracy stabilizes. Random forests often perform better than other methods. However, a disadvantage of random forests is that we lose interpretability---we don't get anything like the coefficients from a logistic regression or the single tree from CART.
 
+```{r}
+
+approval_recipe <- 
+  recipe(approval ~ age + gender + race, 
+         data = ch12) %>%
+  step_normalize(all_numeric()) %>%
+  step_knnimpute(all_predictors())
+
+approval_workflow <- workflow() %>%
+  # add the recipe
+  add_recipe(approval_recipe) %>%
+  # add the model
+  add_model(approval_forest)
+
+```
+
+```{r}
+
+approval_fit <- approval_workflow %>%
+  # fit on the training set and evaluate on test set
+  last_fit(approval_split)
+
+test_performance <- approval_fit %>% collect_metrics()
+
+test_performance
+
+```
+
+```{r}
+
+test_predictions <- approval_fit %>% collect_predictions()
+test_predictions
+
+```
+```{r}
+test_predictions %>% 
+  conf_mat(truth = approval, estimate = .pred_class)
+```
+```{r}
+test_predictions %>%
+  ggplot() +
+  geom_density(aes(x = .pred_1, fill = approval), 
+               alpha = 0.5)
+```
+
+```{r}
+final_model <- fit(approval_workflow, ch12)
+```
+
 Let's use our forest to make some predictions. We'll be passing in the same observations as with the CART example: a 54-year-old Asian voter, a 41-year-old Black voter, a 56-year-old White voter, and a 70-year-old Native American voter. However, our forest also includes a gender variable. We'll make the first and third observations female.
 
 ```{r}
@@ -658,11 +725,12 @@ newdata <- tibble(race = c("Asian", "Black", "White", "Native American"),
                   age = c(54, 41, 56, 70),
                   gender = c("Female", "Male", "Female", "Male"))
 
-predict(approval_forest, new_data = newdata) 
+predict(final_model, new_data = newdata) 
 
 ```
 
 Our forest predicted that the first three voters would disaprove of the President and that our final voter would approve. These predictions differ from our CART predictions most likely because of the added variable: gender. Because females disapproved of the President at higher rates, the third voter was predicted to disapprove instead.
+
 
 
 
