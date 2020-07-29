@@ -636,9 +636,7 @@ tibble(`Error rate` = approval_forest$fit$err.rate[, "OOB"],
 ```
 
 ```{r}
-library(rpart.plot)
-approval_forest$fit %>%
-  prp_ch12()
+temp <- randomForest(approval ~ gender + ideology + age, data = ch12, na.action = na.omit, importance = TRUE, ntree = 250)
 ```
 
 
