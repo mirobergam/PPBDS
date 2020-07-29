@@ -582,7 +582,20 @@ approval_tree$fit %>%
 
 So, how do we interpret this tree? We are given two partitions; the first is for race. The observations that identify as any of the named races are classified as disapproving of the President, denoted by the 0 on that node. All other racial identities proceed to the next partition. If these people are younger than 42, they are also classified as disapproving of the president. Voters 42 and older are classsified as approving of the President. 
 
-The decimal numbers within each box identify how many observations in that node approved of the President. This means that only 20% of observations in the first node approved of the President, 37% in the second node, and 54% in the third node. 
+The decimal numbers within each box identify how many observations in that node approved of the President. This means that only 20% of observations in the first node approved of the President, 37% in the second node, and 54% in the third node.
+
+Let's now use our tree to make some predictions. When used on trees, the `predict()` function takes in the tree object and new observations containing the explanatory variables. In this case, we'll be passing in a 54-year-old Asian voter, a 41-year-old Black voter, a 56-year-old White voter, and a 70-year-old Native American voter.
+
+```{r}
+
+newdata <- tibble(race = c("Asian", "Black", "White", "Native American"),
+                  age = c(54, 41, 56, 70))
+
+predict(approval_tree, new_data = newdata) 
+
+```
+
+As you can see, the tree predicted that our first two new voters would disapprove of the President while our second two would approve based on their age and race.
 
 ## Random forests
 
@@ -618,7 +631,7 @@ forest_mod <- rand_forest() %>%
   set_mode("classification")
 
 approval_forest <- fit(forest_mod,
-                    factor(approval) ~ ideology + gender + age,
+                    factor(approval) ~ race + gender + age,
                     data = ch12)
 
 approval_forest
@@ -635,14 +648,23 @@ tibble(`Error rate` = approval_forest$fit$err.rate[, "OOB"],
   theme_classic()
 ```
 
+We can see that in this case, the accuracy improves as we add more trees until about 50 trees where accuracy stabilizes. Random forests often perform better than other methods. However, a disadvantage of random forests is that we lose interpretability---we don't get anything like the coefficients from a logistic regression or the single tree from CART.
+
+Let's use our forest to make some predictions. We'll be passing in the same observations as with the CART example: a 54-year-old Asian voter, a 41-year-old Black voter, a 56-year-old White voter, and a 70-year-old Native American voter. However, our forest also includes a gender variable. We'll make the first and third observations female.
+
 ```{r}
-temp <- randomForest(approval ~ gender + ideology + age, data = ch12, na.action = na.omit, importance = TRUE, ntree = 250)
+
+newdata <- tibble(race = c("Asian", "Black", "White", "Native American"),
+                  age = c(54, 41, 56, 70),
+                  gender = c("Female", "Male", "Female", "Male"))
+
+predict(approval_forest, new_data = newdata) 
+
 ```
 
+Our forest predicted that the first three voters would disaprove of the President and that our final voter would approve. These predictions differ from our CART predictions most likely because of the added variable: gender. Because females disapproved of the President at higher rates, the third voter was predicted to disapprove instead.
 
-We can see that in this case, the accuracy improves as we add more trees until about 50 trees where accuracy stabilizes.
 
-Random forests often perform better than other methods. However, a disadvantage of random forests is that we lose interpretability---we don't get anything like the coefficients from a logistic regression or the single tree from CART.
 
 ## Machine Learning
 
