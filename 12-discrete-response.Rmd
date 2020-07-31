@@ -771,32 +771,6 @@ fit_resamples(approval_forest,
 
 ```
 
-
-Discussion of CV results: the rmse values for both models `stan_model` and `lm_model` are both high, with a lower R-squared. This means that our model is not doing well at mapping the predictor variables to the outcome variable. Recall that there are seven different predictor variables; one of them being `state`, which has fifty different levels. 
-
-What if we created a bunch of different models that used different permutations of predictor variables? For example, ones that would potentially exclude `state`.
-
-First, let's create a basic formula that only takes in `age`.
-
-```{r}
-basic_form <- formula(ideology ~ age)
-```
-
-Next, we can use `update()` to create the more complicated formulas.  `update()` takes as its first argument a formula and as its second argument the additions you want to make.  To keep all the predictors from the first formula and add more, you will start with `~ . + ` and then add more predictors, like so:
-
-```{r}
-age_gender_form <- update(basic_form,
-                    ~ . + gender)
-
-demo_form <- update(age_gender_form,
-                    ~ . + race + income)
-
-demo_interact_form <- update(basic_form,
-                             ~ . + race * educ * pres_gop + 
-                               female * age * pres_gop)
-```
-
-
 ### Prediction
 
 Let's use our final forest model to make some predictions. We'll be passing in the same observations as with the CART example: a 54-year-old Asian voter, a 41-year-old Black voter, a 56-year-old White voter, and a 70-year-old Native American voter. However, our forest also includes a gender variable. We'll make the first and third observations female.
