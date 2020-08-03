@@ -3,67 +3,58 @@ output_yaml:
   - _output.yml
 ---
 
+<!-- 0) Remove downloads of random Google docs. Either delete table or use the contents to make your own gt table.  DK: Done. -->
+
+<!-- 1) Mention variable types: factor, character, numeric, date. No need to show how to make them. But must understand them. Plots are ordered alphabetically if it is a character and by levels if it is a factor. Dates appear differently in plots. reorder() is useful. Cover this at start of advanced plotting. -->
+
+<!-- 2) Purpose of Advanced plotting is to show the tools for making the plots that appear in socviz.co, chapters 3 and 4.  -->
+
+<!-- DK: Next meeting: -->
+
+<!-- 1) Other geoms we should add. What about geom_bin2d and geom_density2d? These would be useful in chapter 5 when we look at the joint densities. -->
+
+
 # Visualization
 
-```{r setup, include=FALSE}
-library(gapminder)
-library(nycflights13)
-library(gt)
-```
 
-<!-- Need to make the start of the chapter fun! And the first 10 or so tutorial questions. Don't want to turn off students immediately. -->
-
-<!-- 1) Preamble. 
-a) Read the Shopping Week chapter to get set up. 
-b) Make sure we have all of our packages (tidyverse, PPBDS.data)
-c) Let's make some visualizations! 
--->
-
-## Introduction
-
-### Prerequisites
-
-This chapter assumes that you're all set up with R, RStudio, and the `PPBDS.data` package. 
-
-This chapter focuses on `ggplot2`, one of the core members of the **tidyverse**. To access the datasets, help pages, and functions that we will use in this chapter, load the tidyverse by running this code:
+This chapter focuses on **ggplot2**, one of the core packages in the **tidyverse**. To access the datasets, help pages, and functions that we will use in this chapter, load the tidyverse by running this code:
 
 ```{r} 
 library(tidyverse)
 ```
 
-That one line of code loads the core tidyverse; packages which you will use in almost every data analysis. It also tells you which functions from the tidyverse conflict with functions in base R (or from other packages you might have loaded).
+That one line of code loads all the packages associated with the **tidyverse**, packages which you will use in almost every data analysis. It also tells you which functions from the tidyverse conflict with functions in base R (or from other packages you might have loaded). (In the future, we will hide these and other messages because they are ugly.)
 
 If you run this code and get the error message “there is no package called ‘tidyverse’”, you’ll need to first install it, then run library() once again.
 
-```{r eval = FALSE}
+```{r eval=FALSE}
 install.packages("tidyverse")
-library(tidyverse)
 ```
-
-You only need to install a package once, but you need to reload it every time you start a new session.
-
-If we need to be explicit about where a function (or dataset) comes from, we’ll use the special form package::function(). For example, ggplot2::ggplot() tells you explicitly that we’re using the ggplot() function from the ggplot2 package.
-
-### Let's Make Some Visualizations!
-
-Now that you're all set up, let's create our first data visualization in R using the `iris` dataset! This famous iris data set gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris (setosa, versicolor, and virginica). You can learn more about the dataset by running `?iris` to access the dataset's help page.
+Recall, we only need to install a package once. We need to load it every time we use it. We will also use two other packages in this chapter:  **gapminder** and **nycflights13**.
 
 ```{r}
-ggplot(data = iris, mapping = aes(x = Petal.Length, fill = Species)) + geom_histogram(binwidth = 0.1)
+library(gapminder)
+library(nycflights13)
 ```
 
-Wow! Just by running one line of code you created a nice visualization to compare the measured petal lengths for each of the 3 species of iris! You'll learn more about what this line of code means and how to write others like it throughout the chapter, but for now, let's learn more about coding in R.
+These packages contain datasets which we will use when creating visualizations. You may need to install these packages if you have not already.
 
-## A Beginner's Guide to Analyzing Data in R
+If we need to be explicit about where a function (or dataset) comes from, we’ll use the special form package::function(). For example, `ggplot2::ggplot()` tells you explicitly that we’re using the `ggplot()` function from the **ggplot2** package.
 
-<!-- 2) Let's Analyze Data in R!
-a) Tips on learning to code (?)
-b) Basic programming concepts and terminology
-c) Errors, warnings, and messages
-d) Examine a dataset
-e) View(), glimpse(), $
-f) Identification and measurement variables
--->
+<!-- DK: Can't we make a better graphic to get people excited? How many students even know what an iris is? -->
+
+Now that you're all set up, let's create our first data visualization in R using the `iris` dataset! This famous iris data set gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris (setosa, versicolor, and virginica). You can learn more about the dataset by running `?iris` to access the help page.
+
+```{r}
+ggplot(data = iris, 
+       mapping = aes(x = Petal.Length, fill = Species)) +
+  geom_histogram(binwidth = 0.1) +
+  labs(title = "Petal Length Among Three Species of Iris")
+```
+
+Wow! Just by running a few lines of code you created a nice visualization to compare the measured petal lengths for each of the 3 species of iris! You'll learn more about what this line of code means and how to write others like it throughout the chapter, but for now, let's learn more about coding in R.
+
+## Getting Started
 
 ### How do I code in R?
 
@@ -75,7 +66,7 @@ If you are new to the world of coding, R, and RStudio and feel you could benefit
 
 While it is not required to be a seasoned coder/computer programmer to use R, there is still a set of basic programming concepts that new R users need to understand. 
 
-### Tips on learning to code
+### Tips
 
 Learning to code/program is quite similar to learning a foreign language. It can be daunting and frustrating at first. Such frustrations are common and it is normal to feel discouraged as you learn. However, just as with learning a foreign language, if you put in the effort and are not afraid to make mistakes, anybody can learn and improve. 
 
@@ -86,7 +77,7 @@ Here are a few useful tips to keep in mind as you learn to program:
 * **The best way to learn to code is by doing**: Rather than learning to code for its own sake, we find that learning to code goes much smoother when you have a goal in mind or when you are working on a particular project, like analyzing data that you are interested in and that is important to you. 
 * **Practice is key**:  Just as the only method to improve your foreign language skills is through lots of practice and speaking, the only method to improving your coding skills is through lots of practice. Write R code every day.
 
-### Basic programming concepts and terminology
+### Basic programming
 
 We now introduce some basic programming concepts and terminology. Instead of asking you to memorize all these concepts and terminology right now, we'll guide you so that you'll "learn by doing." To help you learn, we will always use a different font to distinguish regular text from `computer_code`. The best way to master these topics is, in our opinions, through [deliberate practice](https://jamesclear.com/deliberate-practice-theory) with R and lots of repetition.
 
@@ -95,16 +86,16 @@ We now introduce some basic programming concepts and terminology. Instead of ask
 * *Objects*: where values are saved in R. We'll show you how to *assign* values to objects and how to display the contents of objects. 
 * *Data types*: integers, doubles/numerics, logicals, and characters. Integers are values like -1, 0, 2, 4092. Doubles or numerics are a larger set of values containing both the integers but also fractions and decimal values like -24.932 and 0.8. Logicals are either `TRUE` or `FALSE` while characters are text such as "cabbage", "Hamilton", "The Wire is the greatest TV show ever", and "This ramen is delicious." Note that characters are often denoted with the quotation marks around them.
 * *Vectors*: a series of values. These are created using the `c()` function, where `c()` stands for "combine" or "concatenate." For example, `c(6, 11, 13, 31, 90, 92)` creates a six element series of positive integer values.
-* *Factors*: *categorical data* are commonly represented in R as factors. Categorical data can also be represented as *strings*. We'll study this difference as we progress through the book.
+* *Factors*: *categorical data* are commonly represented in R as factors. Categorical data can also be represented as *strings*. We will go into detail about these and other variable types in Chapter 2.
 * *Data frames*: rectangular spreadsheets. They are representations of datasets in R where the rows correspond to *observations* and the columns correspond to *variables* that describe the observations. Modern data frames are called *tibbles*.  
 * *Boolean algebra*: `TRUE/FALSE` statements and mathematical operators such as `<` (less than), `<=` (less than or equal), and `!=` (not equal to). For example, `4 + 2 >= 3` will return `TRUE`, but `3 + 5 <= 1` will return `FALSE`. Testing for inclusion with the `%in%` operator. For example, `"B" %in% c("A", "B")` returns `TRUE` while `"C" %in% c("A", "B")` returns `FALSE`. We test for equality in R using `==` (and not `=`, which is typically used for assignment). For example, `2 + 1 == 3` compares `2 + 1` to `3` and is correct R code, while `2 + 1 = 3` will return an error. 
 * *Logical operators*: `&` representing "and" as well as `|` representing "or." For example, `(2 + 1 == 3) & (2 + 1 == 4)` returns `FALSE` since both clauses are not `TRUE` (only the first clause is `TRUE`). On the other hand, `(2 + 1 == 3) | (2 + 1 == 4)` returns `TRUE` since at least one of the two clauses is `TRUE`. 
 * *Functions*, also called *commands*: perform tasks in R. They take in inputs called *arguments* and return outputs. You can either manually specify a function's arguments or use the function's *default values*. For example, the function `seq()` in R generates a sequence of numbers. If you just run `seq()` it will return the value 1. That doesn't seem very useful! This is because the default arguments are set as `seq(from = 1, to = 1)`. Thus, if you don't pass in different values for `from` and `to` to change this behavior, R just assumes all you want is the number 1. You can change the argument values by updating the values after the `=` sign. If we try out `seq(from = 2, to = 5)` we get the result `2 3 4 5`, as we would expect. 
-* *Help files*: provide documentation for various functions and datasets. You can bring up help files by adding a `?` before the name of a function or data frame and then run this in the console. You will then be presented with a page showing the corresponding documentation if it exists.  
+* *Help files*: provide documentation for various functions and datasets. You can bring up help files by adding a `?` before the name of a function or data frame and then run this in the console. You will then be presented with a page showing the corresponding documentation.  
 
 ### Errors, warnings, and messages
 
-One thing that intimidates new R and RStudio users is how it reports *errors*, *warnings*, and *messages*. R reports errors, warnings, and messages in a glaring red font, which makes it seem like it is scolding you. However, seeing red text in the console is not always bad.
+R reports errors, warnings, and messages in a glaring red font, which makes it seem like it is scolding you. However, seeing red text in the console is not always bad.
 
 R will show red text in the console pane in three different situations:
 
@@ -118,7 +109,7 @@ Remember, when you see red text in the console, *don't panic*. It doesn't necess
 * If the text starts with "Warning", figure out if it's something to worry about. For instance, if you get a warning about missing values in a scatterplot and you know there are missing values, you're fine. If that's surprising, look at your data and see what's missing. <span style="color:gold">Think of warnings as a yellow traffic light: everything is working fine, but watch out/pay attention.</span>
 * Otherwise, the text is just a message. Read it, wave back at R, and thank it for talking to you. <span style="color:green">Think of messages as a green traffic light: everything is working fine and keep on going!</span>
 
-### Examine the `trains` data frame
+### Examining `trains`
 
 Let's put everything we've learned so far into practice and start exploring some real data! Data comes to us in a variety of formats, from pictures to text to numbers.  Throughout this book, we'll focus on datasets that are saved in "spreadsheet"-type format. This is probably the most common way data are collected and saved in many fields. These "spreadsheet"-type datasets are called _data frames_ in R. We'll focus on working with data saved as data frames throughout this book. Again, "tibble" is the more modern term for "data frame," but we will use both interchangeably.
 
@@ -126,7 +117,7 @@ Let's put everything we've learned so far into practice and start exploring some
 See ["Causal effect of intergroup contact on attitudes," by Ryan D. Enos, Proceedings of the National Academy of Sciences, Mar 2014, 111 (10)](https://scholar.harvard.edu/files/renos/files/enostrains.pdf) for background and details on the `trains` dataset.
 ```
 
-We'll begin by exploring the `trains` data frame in the `PPBDS.data` package and get an idea of its structure. This dataset includes data for attitudes toward immigration-related policies, both before and after an experiment which randomly exposed a treated group to Spanish-speakers on a Boston commuter train platform. Individuals with a treatment value of "Treated" were exposed to two Spanish-speakers on their regular commute. "Control" individuals were not.
+We'll begin by exploring the `trains` data frame in the `PPBDS.data` package and get an idea of its structure. This dataset includes data for attitudes toward immigration-related policies, both before and after an experiment which randomly exposed commuters to Spanish-speakers on a Boston train platform. Individuals with a treatment value of "Treated" were exposed to two Spanish-speakers on their regular commute. "Control" individuals were not.
 
 Run the following code in your console, either by typing it or by cutting-and-pasting it. It displays the contents of the `trains` data frame in your console. Note that depending on the size of your monitor, the output may vary slightly. 
 
@@ -137,21 +128,21 @@ trains
 
 Let's unpack this output:
 
-* `A tibble: 115 x 8`: A `tibble` is a specific kind of data frame in R. This particular data frame has
-    + `115` rows corresponding to different *observations*. Here, each observation is a person.
-    + `8` columns corresponding to 8 *variables* describing each observation.
+* `A tibble: 115 x 8`: A `tibble` is a specific kind of data frame in R. This particular data frame has `115` rows corresponding to different *observations*. Here, each observation is a person. The tibble also has `8` columns corresponding to 8 *variables* describing each observation.
 * `gender`, `liberal`, `party`, `age`, `income`, `att_start`, `treatment`, and `att_end` are the different variables of this dataset. 
-* `... with 105 more rows:` indicating to us that 105 more rows of data could not fit in this screen. R is only showing the first 10 rows, since that is all that you probably want to see at first.
+* We see, dy default, the top 10 rows, but these ten are followed `... with 105 more rows`, indicating to us that 105 more rows of data could not fit in this screen. R is only showing the first 10 rows, since that is all that you probably want to see at first. You can see more (or fewer) rows with the `print()` command, i.e.,
 
-Unfortunately, this output does not allow us to explore the data very well, but it does give a nice preview. Let's look at some different ways to explore data frames.
+```{r}
+print(trains, n = 15)
+```
 
 ### Exploring data frames
 
-There are many ways to get a feel for the data contained in a data frame such as `trains`. We present two functions that take as their "argument" (their input) the data frame in question. We also include a fourth method for exploring one particular column of a data frame:
+There are many ways to get a feel for the data contained in a data frame such as `trains`. We present two functions that take as their "argument" (their input) the data frame in question. We also include a third method for exploring one particular column of a data frame:
 
 1. Using the `View()` function, which brings up RStudio's built-in data viewer.
-2. Using the `glimpse()` function, which is included in the **dplyr** package.
-3. Using the `$` "extraction operator," which is used to view a single variable/column in a data frame.
+1. Using the `glimpse()` function, which is included in the **dplyr** package.
+1. Using the `$` "extraction operator," which is used to view a single variable/column in a data frame.
 
 **1. `View()`**:
 
@@ -161,11 +152,11 @@ By running `View(trains)`, we can explore the different *variables* listed in th
 
 Note that if you look in the leftmost column of the `View(trains)` output, you will see a column of numbers. These are the row numbers of the dataset. If you glance across a row with the same number, say row 5, you can get an idea of what each row is representing. This will allow you to identify what object is being described in a given row by taking note of the values of the columns in that specific row. This is often called the *observational unit*. The observational unit in this example is an individual participating in the experiment on the Boston commuter train platform.
 
-You can identify the observational unit by determining what "thing" is being measured or described by each of the variables. We'll talk more about observational units in a later section on *identification* and *measurement* variables.
+You can identify the observational unit by determining what "thing" is being measured or described by each of the variables. 
 
 **2. `glimpse()`**:
 
-The second way we'll cover to explore a data frame is using the `glimpse()` function included in the **dplyr** package. Thus, you can only use the `glimpse()` function after you've loaded the **dplyr** package by running `library(dplyr)`. This function provides us with an alternative perspective for exploring a data frame than the `View()` function:
+The second way we'll cover to explore a data frame is using the `glimpse()` which provides us with an alternative perspective for exploring a data frame than the `View()` function:
 
 ```{r}
 glimpse(trains)
@@ -174,9 +165,6 @@ glimpse(trains)
 Observe that `glimpse()` will give you the first few entries of each variable in a row after the variable name.  In addition, the *data type* of the variable is given immediately after each variable's name inside `< >`. Here, `dbl` refers to "double", which is computer coding terminology for quantitative/numerical variables. While not a data type in `trains`, `int` refers to "integer" and is another data type that also represents quantitative/numerical variables. "Doubles" take up twice the size to store on a computer compared to integers. 
 
 In contrast, `chr` refers to "character", which is computer terminology for text data. In most forms, text data, such as the `gender` or `party` of a person, are categorical variables. The `liberal` variable is another data type: `lgl`. These types of variables represent logical data (True/False). Finally, the `trains` dataset also includes the data type `fct`. `fct` refers to "factor" and describes a variable that is nominal, or in this case the `treatment` variable.
-
-<!-- Might be useful resources, commenting this out for future reference -->
-<!-- These types of variables represent date and time combinations. However, we won't work with dates and times in this book; we leave this topic for other data science books like [*Introduction to Data Science* by Tiffany-Anne Timbers, Melissa Lee, and Trevor Campbell](https://ubc-dsci.github.io/introduction-to-datascience/) or [*R for Data Science*](https://r4ds.had.co.nz/dates-and-times.html) [@rds2016].  -->
 
 **3. `$` operator**
 
@@ -188,31 +176,11 @@ trains$age
 
 We used the `$` operator to extract only the `age` variable and return it as a vector. We'll only be occasionally exploring data frames using the `$` operator, instead favoring the `View()` and `glimpse()` functions.
 
-### Identification and measurement variables
 
-There is a subtle difference between the kinds of variables that you will encounter in data frames. There are *identification variables* and *measurement variables*. For example, let's explore the `qscores` data frame also in the `PPBDS.data` package by showing the output of `glimpse(qscores)`:
 
-```{r}
-glimpse(qscores)
-```
+## Basic Plots
 
-The variables `name` and `number` are what we will call *identification variables*, variables that uniquely identify each observational unit. Sometimes a single variable might not be enough to uniquely identify each observational unit: combinations of variables might be needed. In this case, the identification variables uniquely identify Harvard courses. Such variables are mainly used in practice to uniquely identify each row in a data frame. `number` gives the unique course number provided by Harvard for that course, while the `name` variable gives the longer official name of the course. The remaining variables (`department`, `term`, `enrollment`, `hours`, `rating`, `instructor`) are often called *measurement* or *characteristic* variables: variables that describe properties of each observational unit. For example, `rating` describes the numeric variable representing average of students' rating of course (1 to 5 scale).
-
-<!-- 3) Creating data visualizations using ggplot2
-a) (Intro) The grammar of graphics and summary of geoms
-b) Scatterplots
-c) Linegraphs
-d) Histograms
-e) Boxplots
-f) Barplots
-g) Customizing a plot with more layers (labels, themes, legends, scales, positions
-   faceting, coordinate systems, statistical transformations, adjusting axes limits,
-   adding text to plot)
--->
-
-## Creating data visualizations using ggplot2
-
-### Components of a graphic and the grammar of graphics
+### Grammar of graphics
 
 ```{marginfigure}
 **ggplot2** is rooted in the data visualization theory known as _the grammar of graphics_ developed by Leland Wilkinson. Similarly to a linguistic grammar, "the grammar of graphics" defines a set of rules for constructing *statistical graphics* by combining different types of *layers*. This grammar has been implemented in a variety of data visualization software platforms like R, but also [Plotly](https://plot.ly/) and [Tableau](https://www.tableau.com/).
@@ -245,24 +213,23 @@ These three components are specified in the `ggplot()` function included in the 
 
 After we've specified these components, we then add *layers* to the plot using the `+` sign. The most essential layer to add to a plot is the layer that specifies which type of `geom`etric object we want the plot to involve: points, lines, bars, and others. Other layers we can add to a plot include the plot title, axes labels, visual themes for the plots, and facets.
 
+<!-- DK: Is the variable renaming a good idea? Why not show them ugly data as it is ugly? -->
+
 ```{r, echo=FALSE}
 gapminder_2007 <- gapminder %>% 
   filter(year == 2007) %>% 
   select(-year) %>% 
-  rename(
-    Country = country,
-    Continent = continent,
-    `Life Expectancy` = lifeExp,
-    `Population` = pop,
-    `GDP per Capita` = gdpPercap
-  )
+  rename(Country = country,
+         Continent = continent,
+         `Life Expectancy` = lifeExp,
+         `Population` = pop,
+         `GDP per Capita` = gdpPercap)
 ```
 
 In February 2006, a Swedish physician and data advocate named Hans Rosling gave a TED talk titled ["The best stats you've ever seen"](https://www.ted.com/talks/hans_rosling_shows_the_best_stats_you_ve_ever_seen) where he presented global economic, health, and development data from the website [gapminder.org](http://www.gapminder.org/tools/#_locale_id=en;&chart-type=bubbles). For example, for data on `r nrow(gapminder_2007)` countries in 2007, let's consider only a few countries in the following table as a peak into the data.
 
-```{r, echo=FALSE}
-gapminder_2007 %>% 
-  head(3)
+```{r}
+print(gapminder_2007, n = 3)
 ```
 
 Each row in this table corresponds to a country in 2007. For each row, we have 5 columns:
@@ -279,12 +246,12 @@ Now consider the following scatterplot, which plots this for all `r nrow(gapmind
 Note that R will deal with large numbers using scientific notation.  So in the legend for "Population", 1.25e+09 is 1.25 $\times$ 10^9^ = 1,250,000,000 = 1.25 billion. 
 -->
 
-```{r, echo=FALSE, fig.align = "center"}
+```{r, echo=FALSE}
 ggplot(data = gapminder_2007, 
-                         mapping = aes(x = `GDP per Capita`, 
-                                       y = `Life Expectancy`, 
-                                       size = Population, 
-                                       color = Continent)) +
+       mapping = aes(x = `GDP per Capita`, 
+                     y = `Life Expectancy`, 
+                     size = Population, 
+                     color = Continent)) +
   geom_point() +
   labs(x = "GDP per capita", y = "Life expectancy", 
        caption = "Life expectancy over GDP per capita in 2007.") +
@@ -300,47 +267,11 @@ Let's view this plot through the grammar of graphics:
 
 We'll see shortly that `data` corresponds to the particular data frame where our data is saved and that "data variables" correspond to particular columns in the data frame. Furthermore, the type of `geom`etric object considered in this plot are points. That being said, while in this example we are considering points, graphics are not limited to just points. We can also use lines, bars, and other geometric objects.
 
-Let's summarize the three essential components of a graphic:
+Let's take a tour of some of the more useful geoms.
 
-```{r echo=FALSE}
-tibble(
-  `data variable` = c("GDP per Capita", "Life Expectancy", "Population", "Continent"),
-  aes = c("x", "y", "size", "color"),
-  geom = c("point", "point", "point", "point")
-)
-```
 
-This table summarizes the differences among the `geom`s, or visual marks that represent data points, covered in this chapter. Using them, you'll be able to visualize the distributions and relationships of variables contained in a wide array of datasets. This will be even more the case as we start to map more variables to more of each `geom`etric object's `aes`thetic attribute options, further unlocking the awesome power of the **ggplot2** package.
+### `geom_point()`
 
-::: {.fullwidth}
-```{r echo=FALSE, message=FALSE, fig.align="center"}
-# The following Google Doc is published to CSV and loaded using read_csv():
-# https://docs.google.com/spreadsheets/d/1vzqlFiT6qm5wzy_L_0nL7EWAd6jiUZmLSCFhDhztDSg/edit#gid=0
-
-if(!file.exists("01-visualization/data/summary_table_ch2.rds")){
-  summary_table_ch3 <-
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRGaUW6EMIGPhg2V7CahoSdVi_JCcESFRYV5tov6bjcwOcn7DZDzfpZgrvjfFG6PV57gcJYIrwl_Q2c/pub?gid=0&single=true&output=csv" %>% 
-    read_csv(na = "")
-  summary_table_ch3$Notes[2] <- "Used when there is a sequential order to x-variable, e.g., time"
-  write_rds(summary_table_ch3, "01-visualization/data/summary_table_ch2.rds")
-} else {
-  summary_table_ch2 <- read_rds("01-visualization/data/summary_table_ch2.rds")  %>% 
-    rename(` ` = `X1`)
-}
-
-summary_table_ch2 %>%
-  
-  # Weird tick marks show up in PDF:
-  mutate(`Geometric object` = str_replace_all(`Geometric object`, "`", "")) %>%
-  
-  gt() %>%
-    tab_header("Summary of Five Named Graphs")
-```
-:::
-
-### Scatterplots
-
-<!-- ::: {.fullwidth} -->
 *Scatterplots*, also called *bivariate plots*, allow you to visualize the *relationship* between two numerical variables. Specifically, we will visualize the relationship between the following two numerical variables in the `flights` data frame included in the `nycflights13` package:
 
 1. `dep_delay`: departure delay on the horizontal "x" axis and
@@ -354,11 +285,7 @@ alaska_flights <- flights %>%
 ```
 
 For now, we suggest you don't worry if you don't fully understand this code. We'll see later that this code uses the **dplyr** package for data wrangling to achieve our goal: it takes the `flights` data frame and `filter`s it to only return the rows where `carrier` is equal to `"AS"`, Alaska Airlines' carrier code. Testing for equality is specified with `==` and not `=`. Convince yourself that this code achieves what it is supposed to by exploring the resulting data frame by running `View(alaska_flights)`. You'll see that it has 714 rows, consisting of only 714 Alaska Airlines flights. 
-<!-- ::: -->
 
-#### Scatterplots via `geom_point`
-
-<!-- ::: {.fullwidth} -->
 Let's now go over the code that will create the desired scatterplot and break it down piece-by-piece.
 
 ```{r, eval=FALSE}
@@ -391,9 +318,8 @@ ggplot(data = alaska_flights, mapping = aes(x = dep_delay, y = arr_delay))
 ```
 <!-- ::: -->
 
-#### Overplotting
+### `geom_jitter()`
 
-<!-- ::: {.fullwidth} -->
 The large mass of points near (0, 0) in the scatterplot we just plotted can cause some confusion since it is hard to tell the true number of points that are plotted.  This is the result of a phenomenon called *overplotting*.  As one may guess, this corresponds to points being plotted on top of each other over and over again.  When overplotting occurs, it is difficult to know the number of points being plotted. There are two methods to address the issue of overplotting. Either by
 
 1. Adjusting the transparency of the points or
@@ -450,11 +376,9 @@ ggplot(data = alaska_flights, mapping = aes(x = dep_delay, y = arr_delay)) +
 In order to specify how much jitter to add, we adjusted the `width` and `height` arguments to `geom_jitter()`.  This corresponds to how hard you'd like to shake the plot in horizontal x-axis units and vertical y-axis units, respectively. In this case, both axes are in minutes. How much jitter should we add using the `width` and `height` arguments? On the one hand, it is important to add just enough jitter to break any overlap in points, but on the other hand, not so much that we completely alter the original pattern in points.
 
 As can be seen in the resulting plot, in this case jittering doesn't really provide much new insight. In this particular case, it can be argued that changing the transparency of the points by setting `alpha` proved more effective.  When would it be better to use a jittered scatterplot? When would it be better to alter the points' transparency? There is no single right answer that applies to all situations. You need to make a subjective choice and own that choice. At the very least when confronted with overplotting, however, we suggest you make both types of plots and see which one better emphasizes the point you are trying to make. 
-<!-- ::: -->
 
-### Linegraphs
+### `geom_line()`
 
-<!-- ::: {.fullwidth} -->
 Linegraphs show the relationship between two numerical variables when the variable on the x-axis, also called the *explanatory* variable, is of a sequential nature. In other words, there is an inherent ordering to the variable. 
 
 The most common examples of linegraphs have some notion of time on the x-axis: hours, days, weeks, years, etc. Since time is sequential, we connect consecutive observations of the variable on the y-axis with a line. Linegraphs that have some notion of time on the x-axis are also called *time series* plots. Let's illustrate linegraphs using another dataset in the `nycflights13` package: the `weather` data frame. 
@@ -471,9 +395,6 @@ early_january_weather <- weather %>%
 ```
 <!-- ::: -->
 
-#### Linegraphs via `geom_line`
-
-<!-- ::: {.fullwidth} -->
 Let's create a time series plot of the hourly temperatures saved in the `early_january_weather` data frame by using `geom_line()` to create a linegraph, instead of using `geom_point()` like we used previously to create scatterplots:
 
 ```{r fig.align="center"}
@@ -490,11 +411,10 @@ Within the `ggplot()` function call, we specify two of the components of the gra
 1. The `aes`thetic `mapping` by setting `mapping = aes(x = time_hour, y = temp)`. Specifically, the variable `time_hour` maps to the `x` position aesthetic, while the variable `temp` maps to the `y` position aesthetic.
 
 We add a layer to the `ggplot()` function call using the `+` sign. The layer in question specifies the third component of the grammar:  the `geom`etric object in question. In this case, the geometric object is a `line` set by specifying `geom_line()`. 
-<!-- ::: -->
 
-### Histograms
 
-<!-- ::: {.fullwidth} -->
+### `geom_histogram()`
+
 Let's consider the `temp` variable in the `weather` data frame once again, but unlike with the linegraphs, let's say we don't care about its relationship with time, but rather we only care about how the values of `temp` *distribute*. In other words:
 
 1. What are the smallest and largest values?
@@ -535,11 +455,6 @@ Let's focus only on temperatures between 30&deg;F (-1&deg;C) and 60&deg;F (15&de
 1. The bin for the 50-60&deg;F range has a height of around 3500. In other words, around 3500 of the hourly temperature recordings are between 50&deg;F and 60&deg;F.
 
 All nine bins spanning 10&deg;F to 100&deg;F on the x-axis have this interpretation.
-<!-- ::: -->
-
-#### Histograms via `geom_histogram`
-
-<!-- :::{.fullwidth} -->
 
 Let's now present the `ggplot()` code to plot your first histogram! Unlike with scatterplots and linegraphs, there is now only one variable being mapped in `aes()`: the single numerical variable `temp`. The y-aesthetic of a histogram, the count of the observations in each bin, gets computed for you automatically. Furthermore, the geometric object layer is now a `geom_histogram()`. After running the following code to create a histogram of hourly temperatures at three NYC airports, you'll see the histogram as well as warning messages. We'll discuss the warning messages first. 
 
@@ -568,11 +483,7 @@ ggplot(data = weather, mapping = aes(x = temp)) +
 ```
 
 If you're curious, run `colors()` to see all `r colors() %>% length()` possible choice of colors in R!
-<!-- ::: -->
 
-#### Adjusting the bins
-
-<!-- :::{.fullwidth} -->
 Observe in the last histogram we created that in the 50-75&deg;F range there appear to be roughly 8 bins. Thus each bin has width 25 divided by 8, or 3.125&deg;F, which is not a very easily interpretable range to work with. Let's improve this by adjusting the number of bins in our histogram in one of two ways:
 
 1. By adjusting the number of bins via the `bins` argument to `geom_histogram()`. 
@@ -603,11 +514,9 @@ hist_2 <- ggplot(data = weather, mapping = aes(x = temp)) +
   labs(title = "With binwidth = 10 degrees F")
 hist_1 + hist_2
 ```
-<!-- ::: -->
 
-### Boxplots
 
-<!-- ::: {.fullwidth} -->
+### `geom_boxplot()`
 
 ```{r, echo=FALSE}
 n_nov <- weather %>% 
@@ -629,15 +538,14 @@ quartiles <- weather %>%
   quantile(prob = c(0.25, 0.5, 0.75)) %>% 
   round(0)
 five_number_summary <- tibble(
-  temp = c(min_nov, quartiles, max_nov)
-)
+  temp = c(min_nov, quartiles, max_nov))
 ```
 
 While faceted histograms are one type of visualization used to compare the distribution of a numerical variable split by the values of another variable, another type of visualization that achieves this same goal is a *side-by-side boxplot*. A boxplot is constructed from the information provided in the *five-number summary* of a numerical variable.
 
 To keep things simple for now, let's only consider the `r n_nov` hourly temperature recordings for the month of November, each represented as a jittered point. 
 
-```{r echo=FALSE, fig.align="center"}
+```{r echo=FALSE}
 base_plot <- weather %>% 
   filter(month %in% c(11)) %>% 
   ggplot(mapping = aes(x = factor(month), y = temp)) +
@@ -656,7 +564,7 @@ These `r n_nov` observations have the following *five-number summary*:
 
 In the leftmost plot, let's mark these 5 values with dashed horizontal lines on top of the `r n_nov` points. In the middle plot, let's add the *boxplot*. In the rightmost plot, let's remove the points and the dashed horizontal lines for clarity's sake.
 
-```{r echo=FALSE, fig.align="center"}
+```{r echo=FALSE}
 boxplot_1 <- base_plot +
   geom_hline(data = five_number_summary, aes(yintercept=temp), linetype = "dashed") +
   geom_jitter(width = 0.075, height = 0.5, alpha = 0.1)
@@ -678,9 +586,7 @@ What the boxplot does is visually summarize the `r weather %>% filter(month == 1
 1. The middle 50% of points lie within the *interquartile range (IQR)* between the first and third quartile. Thus, the IQR for this example is `r quartiles[3] %>% round(3)` - `r quartiles[1] %>% round(3)` = `r (quartiles[3] - quartiles[1]) %>% round(3)`&deg;F. The interquartile range is a measure of a numerical variable's *spread*.
 
 Furthermore, in the rightmost plot, we see the *whiskers* of the boxplot. The whiskers stick out from either end of the box all the way to the minimum and maximum observed temperatures of `r min_nov`&deg;F and `r max_nov`&deg;F, respectively. However, the whiskers don't always extend to the smallest and largest observed values as they do here. They in fact extend no more than 1.5 $\times$ the interquartile range from either end of the box. In this case of the November temperatures, no more than 1.5 $\times$ `r (quartiles[3] - quartiles[1]) %>% round(3)`&deg;F = `r (1.5*(quartiles[3] - quartiles[1])) %>% round(3)`&deg;F from either end of the box. Any observed values outside this range get marked with points called *outliers*, which we'll see in the next section.
-<!-- ::: -->
 
-#### Boxplots via `geom_boxplot`
 
 Let's now create a side-by-side boxplot of hourly temperatures split by the 12 months as we did previously with the faceted histograms. We do this by mapping the `month` variable to the x-position aesthetic, the `temp` variable to the y-position aesthetic, and by adding a `geom_boxplot()` layer:
 
@@ -707,20 +613,24 @@ The resulting plot shows 12 separate "box and whiskers" plots similar to the rig
 
 It is important to keep in mind that the definition of an outlier is somewhat arbitrary and not absolute. In this case, they are defined by the length of the whiskers, which are no more than $1.5 \times IQR$ units long for each boxplot. Looking at this side-by-side plot we can see, as expected, that summer months (6 through 8) have higher median temperatures as evidenced by the higher solid lines in the middle of the boxes. We can easily compare temperatures across months by drawing imaginary horizontal lines across the plot. Furthermore, the heights of the 12 boxes as quantified by the interquartile ranges are informative too; they tell us about variability, or spread, of temperatures recorded in a given month. 
 
-### Barplots
+### `geom_violin()`
+
+<!-- DK: I think this goes well with geom_boxplot() -->
+
+### `geom_bar()` and `geom_col()`
+
+<!-- DK: Really ought to have separate sections for these two -->
 
 Both histograms and boxplots are tools to visualize the distribution of numerical variables. Another commonly desired task is to visualize the distribution of a categorical variable. This is a simpler task, as we are simply counting different categories within a categorical variable, also known as the *levels* of the categorical variable. Often the best way to visualize these different counts, also known as *frequencies*, is with barplots (also called barcharts).
 
 One complication, however, is how your data is represented. Is the categorical variable of interest "pre-counted" or not? For example, run the following code that manually creates two data frames representing a collection of fruit: 3 apples and 2 oranges.
 
 ```{r}
-fruits <- tibble(
-  fruit = c("apple", "apple", "orange", "apple", "orange")
-)
-fruits_counted <- tibble(
-  fruit = c("apple", "orange"),
-  number = c(3, 2)
-)
+fruits <- tibble(fruit = c("apple", "apple", "orange", 
+                           "apple", "orange"))
+
+fruits_counted <- tibble(fruit = c("apple", "orange"),
+                         number = c(3, 2))
 ```
 
 We see both the `fruits` and `fruits_counted` data frames represent the same collection of fruit. Whereas `fruits` just lists the fruit individually...
@@ -736,8 +646,6 @@ fruits_counted
 ```
 
 Depending on how your categorical data is represented, you'll need to add a different `geom`etric layer type to your `ggplot()` to create a barplot, as we now explore. 
-
-#### Barplots via `geom_bar` or `geom_col`
 
 Let's generate barplots using these two different representations of the same basket of fruit: 3 apples and 2 oranges. Using the `fruits` data frame where all 5 fruits are listed individually in 5 rows, we map the `fruit` variable to the x-position aesthetic and add a `geom_bar()` layer:
 
@@ -760,14 +668,16 @@ Compare these barplots. They are identical because they reflect counts of the sa
 
 Let's now go back to the `flights` data frame in the `nycflights13` package and visualize the distribution of the categorical variable `carrier`. In other words, let's visualize the number of domestic flights out of New York City each airline company flew in 2013. Recall from Subsection \@ref(exploredataframes) when you first explored the `flights` data frame, you saw that each row corresponds to a flight. In other words, the `flights` data frame is more like the `fruits` data frame than the `fruits_counted` data frame because the flights have not been pre-counted by `carrier`. Thus we should use `geom_bar()` instead of `geom_col()` to create a barplot. Much like a `geom_histogram()`, there is only one variable in the `aes()` aesthetic mapping: the variable `carrier` gets mapped to the `x`-position. As a difference though, histograms have bars that touch whereas bar graphs have white space between the bars going from left to right.
 
-(ref:geombar) Number of flights departing NYC in 2013 by airline using geom_bar().
 
-```{r fig.cap='(ref:geombar)'}
+
+```{r fig.cap='Number of flights departing NYC in 2013 by airline using `geom_bar()`.'}
 ggplot(data = flights, mapping = aes(x = carrier)) +
   geom_bar()
 ```
 
 Observe that United Airlines (UA), JetBlue Airways (B6), and ExpressJet Airlines (EV) had the most flights depart NYC in 2013. If you don't know which airlines correspond to which carrier codes, then run `View(airlines)` to see a directory of airlines. For example, B6 is JetBlue Airways. Alternatively, say you had a data frame where the number of flights for each `carrier` was pre-counted.
+
+<!-- DK: We should not be using group_by()/summarize() yet. And, when we do them, we can't set message=FALSE -->
 
 ```{r message=FALSE, echo=FALSE}
 flights_counted <- flights %>% 
@@ -778,7 +688,7 @@ flights_counted <- flights %>%
 In order to create a barplot visualizing the distribution of the categorical variable `carrier` in this case, we would now use `geom_col()` instead of `geom_bar()`, with an additional `y = number` in the aesthetic mapping on top of the `x = carrier`. The resulting barplot would be identical to the previous barplot.
 
 
-#### Must avoid pie charts!
+#### No pie charts!
 
 One of the most common plots used to visualize the distribution of categorical data is the pie chart. While they may seem harmless enough, pie charts actually present a problem in that humans are unable to judge angles well. As Naomi Robbins describes in her book, *Creating More Effective Graphs* [@robbins2013], we overestimate angles greater than 90 degrees and we underestimate angles less than 90 degrees. In other words, it is difficult for us to determine the relative size of one piece of the pie compared to another.  
 
@@ -874,6 +784,8 @@ ggplot(data = flights, mapping = aes(x = carrier, fill = origin)) +
   geom_bar(position = position_dodge(preserve = "single"))
 ```
 
+<!-- DK: Should we do facets here? No! Not yet. That gets saved. -->
+
 Lastly, another type of barplot is a *faceted barplot*. Recall in Section \@ref(facets) we visualized the distribution of hourly temperatures at the 3 NYC airports *split* by month using facets. We apply the same principle to our barplot visualizing the frequency of `carrier` split by `origin`: instead of mapping `origin` to `fill` we include it as the variable to create small multiples of the plot across the levels of `origin`.
 
 ```{r eval=FALSE}
@@ -890,9 +802,19 @@ month_facet_ncol <- ggplot(data = flights, mapping = aes(x = carrier)) +
 month_facet_ncol
 ```
 
-### More Layers
+### `geom_smooth()`
 
-```{r, echo=FALSE, fig.cap="Data Visualization with ggplot2 Cheat Sheet", fig.margin = TRUE}
+<!-- DK: Make sure to cover the se and method arguments, explaining what they mean. -->
+
+### `geom_density()`
+
+<!-- DK: Compare and contrast with geom_histogram. Review some arguments. -->
+
+
+
+## Advanced Plots
+
+```{r, echo=FALSE, fig.cap="Data Visualization with ggplot2 Cheat Sheet"}
 knitr::include_graphics("01-visualization/images/ggplot2-cheatsheet.jpg")
 ```
 
@@ -900,23 +822,10 @@ Generally speaking, the grammar of graphics allows for a high degree of customiz
 
 <!-- Links to relevant readings in Healy.  -->
 
-#### Labels
+### Labels
 - `labs` adds a title, subtitle, caption, label on the x axis, and label on the y axis
 
-#### Themes
-- starting with `theme_minimal()` but going on to cool stuff like fivethirtyeight and TV themes
-
-#### Legends
-
-#### Scales
-- `scales` that both
-    + convert *data units* to *physical units* the computer can display. For example, apply a log-transformation on one of the axes to focus on multiplicative rather than additive changes.
-    + draw a legend and/or axes, which provide an inverse mapping to make it possible to read the original data values from the graph.
-
-#### Positions
-- `position` adjustments for barplots or scatterplots
-
-#### Faceting
+### Faceting
 - `facet`ing breaks up a plot into several plots split by the values of another variable 
 
 Let's briefly introduce a new concept called *faceting*.  Faceting is used when we'd like to split a particular visualization by the values of another variable. This will create multiple copies of the same type of plot with matching x and y axes, but whose content will differ. 
@@ -955,31 +864,36 @@ month_facet_4
 
 Observe in both Figures \@ref(fig:facethistogram) and \@ref(fig:facethistogram2) that as we might expect in the Northern Hemisphere, temperatures tend to be higher in the summer months, while they tend to be lower in the winter. 
 
-#### Coordinate Systems
+
+
+### Legends
+
+### Scales
+- `scales` that both
+    + convert *data units* to *physical units* the computer can display. For example, apply a log-transformation on one of the axes to focus on multiplicative rather than additive changes.
+    + draw a legend and/or axes, which provide an inverse mapping to make it possible to read the original data values from the graph.
+
+### Positions
+- `position` adjustments for barplots or scatterplots
+
+
+
+### Coordinate Systems
 - `coord`inate system for x/y values: typically `cartesian`, but can also be `map` or `polar`.
 
-#### Stats
+### Stats
 - `stat`istical transformations: this includes smoothing, binning values into a histogram, or no transformation at all (known as the `"identity"` transformation).
 
-#### Adjusting Axes Limits
+### Adjusting Axes Limits
 - `xlim` and `ylim`
 
-#### Adding Text to a Plot
+### Adding Text to a Plot
 - `ggtext`
 
+### Themes
+- starting with `theme_minimal()` but going on to cool stuff like fivethirtyeight and TV themes
 
-<!-- 4) Introducing the Tidyverse!
-a) (Intro) Tidyverse, list of functions
-b) the pipe operator: %>%
-c) Pick out specific observations within a data frame: 
-   filter(), select(), slice() and pull(), 
-   and "bracket" operator []
-f) arrange and sort rows
-g) mutate existing variables
-h) group_by() and summarize()
--->
-
-## Introducing the Tidyverse!
+## The Tidyverse
 
 Let's go over some important points about specifying the arguments (i.e., inputs) to functions. Run the following two segments of code:
 
@@ -1006,19 +920,13 @@ Data "in the wild" is never ready for visualization. We can't use all the beauti
 1. `arrange()` its rows. For example, sort the rows of `weather` in ascending or descending order of `temp`.
 1. `group_by()` its rows. In other words, assign different rows to be part of the same *group*. We can then combine `group_by()` with `summarize()` to report summary statistics for each group *separately*. For example, say you don't want a single overall average departure delay `dep_delay` for all three `origin` airports combined, but rather three separate average departure delays, one computed for each of the three `origin` airports.
 1. `mutate()` its existing columns/variables to create new ones. For example, convert hourly temperature recordings from degrees Fahrenheit to degrees Celsius.
-1. `join()` it with another data frame by matching along a "key" variable. In other words, merge these two data frames together.
-1. `tail()`
+
 
 Notice how we used `computer_code` font to describe the actions we want to take on our data frames. This is because the **dplyr** package, one of the packages in the **tidyverse**, has intuitively verb-named functions that are easy to remember. 
 
 There is a further benefit to learning to use the **dplyr** package for data wrangling: its similarity to the database querying language [SQL](https://en.wikipedia.org/wiki/SQL) (pronounced "sequel" or spelled out as "S", "Q", "L"). SQL (which stands for "Structured Query Language") is used to manage large databases quickly and efficiently and is widely used by many institutions with a lot of data. While SQL is a topic left for a book or a course on database management, keep in mind that once you learn **dplyr**, you can learn SQL easily. 
 
-Let's load all the packages needed for this chapter (this assumes you've already installed them). Review the `install.packages()` explanation in chapter 1 of this text if unsure. 
 
-```{r, message=FALSE}
-library(tidyverse)
-library(nycflights13)
-```
 
 ### The pipe operator: `%>%`
 
@@ -1068,9 +976,8 @@ You will almost never write code that looks like this, at least with simple **dp
 
 Keep in mind, there are many more advanced data wrangling functions than just the six listed in the introduction to this chapter; you'll see some examples of these in Section \@ref(other-verbs). However, just with these six verb-named functions you'll be able to perform a broad array of data wrangling tasks for the rest of this book.
 
-### Pick out specific observations within a data frame
 
-#### `filter` rows
+### `filter()` rows
 
 ```{r filter, echo=FALSE, fig.cap="Diagram of filter() rows operation."}
 knitr::include_graphics("01-visualization/images/filter.png")
@@ -1161,7 +1068,7 @@ As a final note, we recommend that `filter()` should often be among the first ve
 
 <!-- EF: Should we include something hear about NA values? -->
 
-#### `select` variables
+### `select` variables
 
 ```{r, echo=FALSE, fig.cap="Diagram of select() columns."}
 knitr::include_graphics("01-visualization/images/select.png")
@@ -1215,9 +1122,9 @@ flights %>% select(ends_with("delay"))
 flights %>% select(contains("time"))
 ```
 
-#### `slice` and `pull` and `[]`
+### `slice()` and `pull()` and `[]`
 
-`slice()` and `pull()` are additional functions that you can use to pick out specific observations within a data frame.
+`slice()` and `pull()` are additional functions that you can use to pick out specific rows or columns within a data frame.
 
 Using `slice()` gives us specific rows from the `flights` tibble:
 
@@ -1248,7 +1155,7 @@ The most common way to subset vectors is to use the "bracket" operator `[]`. Exa
 flights$dep_time[2:5]
 ```
 
-### `arrange` and sort rows
+### `arrange()` rows
 
 One of the most commonly performed data wrangling tasks is to sort a data frame's rows in the alphanumeric order of one of the variables. Unlike `filter()` or `select()`, `arrange()` does not remove any rows or columns from the data frame. Instead, the **dplyr** package's `arrange()` function allows us to sort/reorder a data frame's rows according to the values of the specified variable.
 
@@ -1286,7 +1193,7 @@ flights_dist %>%
 As you can see, character variables will be sorted alphabetically. Using the `desc()` helper function with a character variable, will sort the destinations reverse alphabetically. 
 
 
-### `mutate` existing variables
+### `mutate()` 
 
 ```{r, echo=FALSE, fig.cap="Diagram of mutate() columns."}
 knitr::include_graphics("01-visualization/images/mutate.png")
@@ -1347,16 +1254,16 @@ To close out our discussion on the `mutate()` function to create new variables, 
 
 ```{r}
 flights <- flights %>% 
-  mutate(
-    gain = dep_delay - arr_delay,
-    hours = air_time / 60,
-    gain_per_hour = gain / hours
-  )
+  mutate(gain = dep_delay - arr_delay,
+         hours = air_time / 60,
+         gain_per_hour = gain / hours)
 ```
 
 #### `ifelse()`
 
-### Summarizing Data
+<!-- DK: Something here. Does not need to be long, but shows ifelse() used with mututate. Are there other functions which we should mention here? -->
+
+
 <!-- To get `_` to work in caption title. Found at https://github.com/rstudio/bookdown/issues/209 -->
 (ref:groupby) Diagram of group_by() and summarize().
 
@@ -1364,13 +1271,14 @@ flights <- flights %>%
 knitr::include_graphics("01-visualization/images/group_summary.png")
 ```
 
-#### summarize() function 
+### `summarize()`
 
 The next common task when working with data frames is to compute *summary statistics*. Summary statistics are single numerical values that summarize a large number of values. Commonly known examples of summary statistics include the mean (also called the average) and the median (the middle value). Other examples of summary statistics that might not immediately come to mind include the *sum*, the smallest value also called the *minimum*, the largest value also called the *maximum*, and the *standard deviation*.
 
 Return to a familiar dataset. Let's calculate two summary statistics of the `temp` temperature variable in the `weather` data frame: the mean and standard deviation. To compute these summary statistics, we need the `mean()` and `sd()` *summary functions* in R. Summary functions in R take in many values and return a single value.
 
 Recall the output of the `summary()` function. 
+
 ```{r, echo = FALSE}
 summary(weather)
 ```
@@ -1404,7 +1312,7 @@ Notice how the `na.rm = TRUE` are used as arguments to the `mean()` and `sd()` s
 
 However, one needs to be cautious whenever ignoring missing values as we've just done. There are possible ramifications of blindly sweeping rows with missing values "under the rug." This is in fact why the `na.rm` argument to any summary statistic function in R is set to `FALSE` by default. In other words, R does not ignore rows with missing values by default. R is alerting you to the presence of missing data and you should be mindful of this missingness and any potential causes of this missingness throughout your analysis.
 
-#### Basic statistical terms
+### Basic statistical terms
 
 What are other summary functions we can use inside the `summarize()` verb to compute summary statistics? You can use any function in R that takes many values and returns just one. Here are just a few:
 
@@ -1448,35 +1356,32 @@ The median and the IQR are not influenced by the presence of outliers in the way
 
 Let's return to the `gain` variable from the previous chapter and look at some summary statistics by considering multiple summary functions at once in the same `summarize()` code:
 
-```{r, include=FALSE}
-flights <- flights %>%
-  mutate(gain = arr_delay - dep_delay)
-```
-
 ```{r}
-gain_summary <- flights %>% 
-  summarize(
-    min = min(gain, na.rm = TRUE),
-    q1 = quantile(gain, 0.25, na.rm = TRUE),
-    median = quantile(gain, 0.5, na.rm = TRUE),
-    q3 = quantile(gain, 0.75, na.rm = TRUE),
-    max = max(gain, na.rm = TRUE),
-    mean = mean(gain, na.rm = TRUE),
-    sd = sd(gain, na.rm = TRUE),
-    missing = sum(is.na(gain))
-  )
-gain_summary
+flights %>% 
+  mutate(gain = arr_delay - dep_delay) %>% 
+  summarize(min = min(gain, na.rm = TRUE),
+            q1 = quantile(gain, 0.25, na.rm = TRUE),
+            median = quantile(gain, 0.5, na.rm = TRUE),
+            q3 = quantile(gain, 0.75, na.rm = TRUE),
+            max = max(gain, na.rm = TRUE),
+            mean = mean(gain, na.rm = TRUE),
+            sd = sd(gain, na.rm = TRUE),
+            missing = sum(is.na(gain)))
 ```
 
 We see for example that the average gain is +5 minutes, while the largest is +109 minutes! However, this code would take some time to type out in practice. 
 
 We can also run summary statistics `across()` multiple columns at the same time. To get a better understanding of the `across()` helper function, run `?across` in your console and see what arguments it takes. Suppose we wanted to take the `mean()` of both the `temp` and the `dewp` variables. 
+
 ```{r}
 weather %>%
   summarize(across(c(temp, dewp), mean))
 ```
+
 Again, we encounter `NA` values missing values, and have to set `na.rm = TRUE` as an argument for the `mean()` function. 
+
 <!-- Explain the  ~ and . thoroughly. --> 
+
 ```{r}
 weather %>%
   summarize(across(c(temp, dewp), ~mean(., na.rm = TRUE)))
@@ -1487,24 +1392,22 @@ weather %>%
   summarize(across(where(is.numeric), ~mean(.x, na.rm = TRUE)))
 ```
 
-### group_by() function 
+### `group_by()`
 
 Say instead of a single mean temperature for the whole year, you would like 12 mean temperatures, one for each of the 12 months separately. In other words, we would like to compute the mean temperature split by month. We can do this by "grouping" temperature observations by the values of another variable, in this case by the 12 values of the variable `month`. Run the following code:
 
 ```{r}
-summary_monthly_temp <- weather %>% 
+weather %>% 
   group_by(month) %>% 
   summarize(mean = mean(temp, na.rm = TRUE), 
             std_dev = sd(temp, na.rm = TRUE))
-summary_monthly_temp
 ```
 
 This code is identical to the previous code that created `summary_temp`, but with an extra `group_by(month)` added before the `summarize()`. Grouping the `weather` dataset by `month` and then applying the `summarize()` functions yields a data frame that displays the mean and standard deviation temperature split by the 12 months of the year.
 
 It is important to note that the `group_by()` function doesn't change data frames by itself. Rather it changes the *meta-data*, or data about the data, specifically the grouping structure. It is only after we apply the `summarize()` function that the data frame changes. 
 
-Run this code (do not forget to load its package `nycflights13` in your console if you
-have not already):
+Run this code (do not forget to load its package `nycflights13` in your console if you have not already):
 
 ```{r, eval=TRUE}
 flights
@@ -1547,10 +1450,9 @@ Observe how the `# Groups: origin [3]` meta-data is no longer present.
 You are not limited to grouping by one variable. Say you want to know the number of flights leaving each of the three New York City airports *for each month*. We can also group by a second variable `month` using `group_by(origin, month)`:
 
 ```{r}
-by_origin_monthly <- flights %>% 
+flights %>% 
   group_by(origin, month) %>% 
   summarize(count = n())
-by_origin_monthly
 ```
 
 Observe that there are 36 rows to `by_origin_monthly` because there are 12 months for 3 airports (`EWR`, `JFK`, and `LGA`). 
@@ -1558,47 +1460,21 @@ Observe that there are 36 rows to `by_origin_monthly` because there are 12 month
 Why do we `group_by(origin, month)` and not `group_by(origin)` and then `group_by(month)`? Let's investigate:
 
 ```{r}
-by_origin_monthly_incorrect <- flights %>% 
+flights %>% 
   group_by(origin) %>% 
   group_by(month) %>% 
   summarize(count = n())
-by_origin_monthly_incorrect
 ```
 
 What happened here is that the second `group_by(month)` overwrote the grouping structure meta-data of the earlier `group_by(origin)`, so that in the end we are only grouping by `month`. The lesson here is if you want to `group_by()` two or more variables, you should include all the variables at the same time in the same `group_by()` adding a comma between the variable names.
 
-### Summary table
-
-Let's recap our data wrangling verbs in Table \@ref(tab:wrangle-summary-table). Using these verbs and the pipe `%>%` operator from Section \@ref(piping), you'll be able to write easily legible code to perform almost all the data wrangling and data transformation necessary for the rest of this book. 
-
-<!--EF: Variables in this section needs to be renamed --> 
-
-```{r, echo=FALSE, message=FALSE}
-# The following Google Doc is published to CSV and loaded using read_csv():
-# https://docs.google.com/spreadsheets/d/1nRkXfYMQiTj79c08xQPY0zkoJSpde3NC1w6DRhsWCss/edit#gid=0
-
-# Lots of hacky stuff deleted from here. Get rid of this and the data/ directory?
-
-ch4_scenarios <- read_rds("02-tidyverse/data/ch4_scenarios.rds")
-
-# ch4_scenarios %>% 
-#     kable(
-#       caption = "Summary of data wrangling verbs", 
-#       booktabs = TRUE,
-#       format = "html")
-```
 
 <!-- 5) Advanced Plotting
 a) More about data types
 b) Other cool graphics packages 
    (ggrepel, gghighlights, plotly??)
-c) Importing data?
-...
-
-JSE - what else can I add to this section??
 -->
 
-## Advanced Plotting
 
 ### Data Types
 
@@ -1628,43 +1504,12 @@ Good articles about how the factor fiasco came to be:
 * [stringsAsFactors: An unauthorized biography][bio-strings-as-factors] by Roger Peng
 * [stringsAsFactors = \<sigh\>][blog-strings-as-factors] by Thomas Lumley
 
-### Importing data
-<!-- JSE - should i drop this? added to advanced plotting -->
 
-Up to this point, we've almost entirely used data stored inside of an R package. Say instead you have your own data saved on your computer or somewhere online. How can you analyze this data in R? Spreadsheet data is often saved in one of the following three formats:
-
-First, a *Comma Separated Values* `.csv` file.  You can think of a `.csv` file as a bare-bones spreadsheet where:
-
-* Each line in the file corresponds to one row of data/one observation.
-* Values for each line are separated with commas. In other words, the values of different variables are separated by commas in each row.
-* The first line is often, but not always, a *header* row indicating the names of the columns/variables.
-
-Second, an Excel `.xlsx` spreadsheet file. This format is based on Microsoft's proprietary Excel software. As opposed to bare-bones `.csv` files, `.xlsx` Excel files contain a lot of meta-data (data about data). Recall we saw a previous example of meta-data in Section \@ref(groupby) when adding "group structure" meta-data to a data frame by using the `group_by()` verb. Some examples of Excel spreadsheet meta-data include the use of bold and italic fonts, colored cells, different column widths, and formula macros.
-
-Third, a [Google Sheets](https://www.google.com/sheets/about/) file, which is a "cloud" or online-based way to work with a spreadsheet. Google Sheets allows you to download your data in both comma separated values `.csv` and Excel `.xlsx` formats. To import Google Sheets data in R use the [`googlesheets4`](https://googlesheets4.tidyverse.org/) package.
-
-Let's import a Comma Separated Values `.csv` file that exists on the internet. The `.csv` file `dem_score.csv` contains ratings of the level of democracy in different countries spanning 1952 to 1992 and is accessible at <https://moderndive.com/data/dem_score.csv>. Let's use the `read_csv()` function from the **readr** [@R-readr] package to read it off the web, import it into R, and save it in a data frame called `dem_score`.
-
-```{r message=FALSE, eval=FALSE}
-library(readr)
-dem_score <- read_csv("https://moderndive.com/data/dem_score.csv")
-dem_score
-```
-```{r message=FALSE, echo=FALSE}
-dem_score <- read_csv("01-visualization/data/dem_score.csv")
-dem_score
-```
-
-In this `dem_score` data frame, the minimum value of `-10` corresponds to a highly autocratic nation, whereas a value of `10` corresponds to a highly democratic nation. Note also that backticks surround the different variable names.  Variable names in R by default are not allowed to start with a number nor include spaces, but we can get around this fact by surrounding the column name with backticks. We'll revisit the `dem_score` data frame in a case study in the upcoming Section \@ref(case-study-tidy).
-
-Note that the `read_csv()` function included in the **readr** package is different than the `read.csv()` function that comes installed with R. While the difference in the names might seem trivial (an `_` instead of a `.`), the `read_csv()` function is, in our opinion, easier to use since it can more easily read data off the web and generally imports data at a much faster speed. Furthermore, the `read_csv()` function included in the **readr** saves data frames as `tibbles` by default. 
 
 <!-- 6) Conclusion
 a) What have we learned / what can you do now?
 b) What's coming next 
 -->
-
-<!-- Maybe don't talk about dplyr or other specific packages so much? No one cares which package `glimpse()` comes from, beyond knowing that it is part of the tidyverse. -->
 
 <!-- Use r scales::comma() throughout -->
 
