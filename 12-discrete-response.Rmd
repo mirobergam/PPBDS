@@ -276,17 +276,18 @@ We have previously defined the following three concepts for a linear regression:
 
 We obtained these values and other values using the `augment()` function from the **broom** package. Recall too that we used the `.se.fit` column to construct confidence intervals.  We'll see here how we can apply these same concepts to logistic regression.
 
-<!-- MB: .se.fit into cooksd???-->
-```{r, eval=FALSE}
+<!-- MB: This entire part has to be redone in tidymodels because augment doesn't work anymore
+
+
 regression_points <- race_fit %>%
   augment() %>%
   mutate(conf.low = .fitted - 2 * .cooksd,
          conf.high = .fitted + 2 * .cooksd) %>%
   select(approval, race, .fitted, conf.low, conf.high, .resid)
 regression_points
-```
 
-```{r, echo=FALSE}
+
+
 regression_points <- augment(race_fit) %>%
   mutate(conf.low = .fitted - 2 * .cooksd,
          conf.high = .fitted + 2 * .cooksd) %>%
@@ -295,20 +296,20 @@ regression_points %>%
   slice(1:10) %>%
   gt() %>%
   tab_source_note(md("Regression points (First 10 out of 60,000 voters)"))
-```
+
 
 The syntax is the same, but the interpretation has to change, since the `.fitted`, `conf.low`, and `conf.high` columns are all on the logit scale.  While we could try to interpret these values, `augment()` has the argument `type.predict = "response"` that allow us to present the results in terms of *predicted probabilities*:
 
-```{r, eval=FALSE}
+
 regression_points <- race_fit %>%
   augment(type.predict = "response") %>%
   mutate(conf.low = .fitted - 2 * .cooksd,
          conf.high = .fitted + 2 * .cooksd) %>%
   select(approval, race, .fitted, conf.low, conf.high, .resid)
 regression_points
-```
 
-```{r, echo=FALSE}
+
+
 regression_points <- augment(race_fit,
                              type.predict = "response") %>%
   mutate(conf.low = .fitted - 2 * .cooksd,
@@ -318,7 +319,7 @@ regression_points %>%
   slice(1:10) %>%
   gt() %>%
   tab_source_note(md("Regression points (First 10 out of 60,000 voters)"))
-```
+
 
 Now each of the `.fitted` values is a *predicted probability* of a Democratic victory from our model for a particular district and the confidence intervals are confidence intervals around that predicted probability. You'll notice how the fitted value in this table is the same as the probabilities we calculated by hand using the standard logistical function.
 
@@ -335,9 +336,7 @@ The sum of the individual deviance residuals is referred to as the **deviance** 
 
 However, you can also have `augment()` report residuals as differences between the observed outcome and the predicted probabilities by using `type.residuals = "deviance"`:
 
-<!-- type.residuals from response to deviance -->
 
-```{r, eval=FALSE}
 regression_points <- race_fit %>%
   augment(type.predict = "response",
           type.residuals = "deviance") %>%
@@ -345,9 +344,9 @@ regression_points <- race_fit %>%
          conf.high = .fitted + 2 * .cooksd) %>%
   select(approval, race, .fitted, conf.low, conf.high, .resid)
 regression_points
-```
 
-```{r, echo=FALSE}
+
+
 regression_points <- augment(race_fit,
                              type.predict = "response",
                              type.residuals = "deviance") %>%
@@ -358,9 +357,11 @@ regression_points %>%
   slice(1:10) %>%
   gt() %>%
   tab_source_note(md("Regression points (First 10 out of 60,000 voters)"))
-```
+
 
 Now, the `.resid` value is the difference between the actual outcome (`approval`) and the predicted probability.
+
+-->
 
 ### One numerical explanatory variable
 
@@ -463,15 +464,7 @@ logistic_fit$fit %>%
 
 This table may at first seem a bit intimidating, but once we understand how to use the coefficients, the model becomes more simple to interpret.
 
-You may notice that the coefficient associated with each race has changed significantly from `race_model`. Here is the output of `race_model` alone.
-
-```{r}
-tidy(race_model) %>%
-  select(term, estimate) %>%
-  gt()
-```
-
-The reason these numbers are significantly different is because our model now incorporates gender, age, and how age changes by gender. An observation's fitted value is now the sum of their race's coefficient, whether or not they are a male, and the age coefficient corresponding to their race. For example, the fitted value of a 21-year-old white man is addition of raceWhite + the genderMale  + 21 * raceWhite:age. The fitted value of an 45-year-old Asian woman is the addition of (Intercept) + 45 * age; this model uses Asian as the default race, which is why we use the (Intercept) and age coefficients.
+You may notice that the coefficient associated with each race and age has changed significantly from `race_model` and `age_model`. The reason these numbers are significantly different is because our model now incorporates gender, age, and how age changes by gender. An observation's fitted value is now the sum of their race's coefficient, whether or not they are a male, and the age coefficient corresponding to their race. For example, the fitted value of a 21-year-old white man is addition of raceWhite + the genderMale  + 21 * raceWhite:age. The fitted value of an 45-year-old Asian woman is the addition of (Intercept) + 45 * age; this model uses Asian as the default race, which is why we use the (Intercept) and age coefficients.
 
 ### K-Fold Cross-Validation
 
@@ -601,7 +594,7 @@ Now that we have the object `tree_mod` and our formula, we can use `fit()` to co
 <!-- MB: Trees cannot handle interaction terms, so how should I compare the models? -->
 
 ```{r}
-cart_tree <- fit(tree_mod,
+cart_fit <- fit(tree_mod,
                  cart_formula,
                  cart_training)
 ```
@@ -611,15 +604,15 @@ As you can see, **tidymodels** has the same workflow for creating a CART as it d
 What was the result of our tree?
 
 ```{r}
-approval_tree
+cart_fit
 ```
 
-It's not helpful to look at the results of a tree as text.  In order to visualize the tree, we'll use the `prp()` function in the **rpart.plot** package.  Remember that the model object is stored in `approval_tree$fit`.
+It's not helpful to look at the results of a tree as text.  In order to visualize the tree, we'll use the `prp()` function in the **rpart.plot** package.  Remember that the model object is stored in `cart_fit$fit`.
 
 ```{r, message = FALSE}
 library(rpart.plot)
 
-cart_tree$fit %>%
+cart_fit$fit %>%
   prp(extra = 6, varlen = 0, faclen = 0)
 ```
 
@@ -628,7 +621,7 @@ The arguments `varlen = 0` and `faclen = 0` ensure that the full variable names 
 ```{r}
 prp_ch12 <- function(x, ...) prp(x, extra = 6, varlen = 0, faclen = 0, ...)
 
-approval_tree$fit %>%
+cart_fit$fit %>%
   prp_ch12()
 ```
 
@@ -694,9 +687,10 @@ Let's now use our tree to make some predictions. When used on trees, the `predic
 ```{r}
 
 newdata <- tibble(race = c("Asian", "Black", "White", "Native American"),
-                  age = c(54, 41, 56, 70))
+                  age = c(54, 41, 56, 70),
+                  gender = c("Male", "Female", "Male", "Female"))
 
-predict(approval_tree, new_data = newdata) 
+predict(cart_fit, new_data = newdata) 
 
 ```
 
