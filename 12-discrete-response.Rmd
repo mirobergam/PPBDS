@@ -4,9 +4,8 @@ output_yaml:
 ---
 
 <!-- Questions
-- Streamining tidymodels workflow
-- tree can't handle interaction terms, so how do I compare the performances?
-- tree becomes overly basic when I include a third term
+- Streamining tidymodels workflow across chapters
+- tree can't handle interaction terms
 -->
 
 
@@ -863,7 +862,7 @@ newdata <- tibble(race = c("Asian", "Black", "White", "Native American"),
                   age = c(54, 41, 56, 70),
                   gender = c("Female", "Male", "Female", "Male"))
 
-predict(final_model, new_data = newdata) 
+predict(forest_fit, new_data = newdata) 
 
 ```
 
