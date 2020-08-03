@@ -277,7 +277,6 @@ We obtained these values and other values using the `augment()` function from th
 
 <!-- MB: This entire part has to be redone in tidymodels because augment doesn't work anymore
 
-
 regression_points <- race_fit %>%
   augment() %>%
   mutate(conf.low = .fitted - 2 * .cooksd,
@@ -286,27 +285,12 @@ regression_points <- race_fit %>%
 regression_points
 
 
-
-regression_points <- augment(race_fit) %>%
-  mutate(conf.low = .fitted - 2 * .cooksd,
-         conf.high = .fitted + 2 * .cooksd) %>%
-  select(approval, race,  .fitted, conf.low, conf.high, .resid)
-regression_points %>%
-  slice(1:10) %>%
-  gt() %>%
-  tab_source_note(md("Regression points (First 10 out of 60,000 voters)"))
-
-
-The syntax is the same, but the interpretation has to change, since the `.fitted`, `conf.low`, and `conf.high` columns are all on the logit scale.  While we could try to interpret these values, `augment()` has the argument `type.predict = "response"` that allow us to present the results in terms of *predicted probabilities*:
-
-
 regression_points <- race_fit %>%
   augment(type.predict = "response") %>%
   mutate(conf.low = .fitted - 2 * .cooksd,
          conf.high = .fitted + 2 * .cooksd) %>%
   select(approval, race, .fitted, conf.low, conf.high, .resid)
 regression_points
-
 
 
 regression_points <- augment(race_fit,
@@ -344,8 +328,6 @@ regression_points <- race_fit %>%
   select(approval, race, .fitted, conf.low, conf.high, .resid)
 regression_points
 
-
-
 regression_points <- augment(race_fit,
                              type.predict = "response",
                              type.residuals = "deviance") %>%
@@ -365,6 +347,7 @@ Now, the `.resid` value is the difference between the actual outcome (`approval`
 ### One numerical explanatory variable
 
 We'll now predict `approval` with a single numerical explanatory variable, `age` using **tidymodels**. We'll begin, once again, by setting our engine to `glm`.
+
 
 ```{r}
 age_mod <- logistic_reg() %>%
@@ -431,6 +414,7 @@ This time, we'll do it slightly differently. We'll still be using **tidymodels**
 
 ```{r}
 log_split <- initial_split(ch12)
+
 
 log_training <- log_split %>% training()
 log_testing <- log_split %>% testing()
