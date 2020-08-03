@@ -404,9 +404,11 @@ Here is where we can use the *divide by 4 rule* that we discussed before.  A log
 
 Therefore, you can divide a logistic regression coefficient by 4 to get an upper bound on the effect a one-unit change in that predictor will have on the predicted probability of your outcome.  In this case, the approximation tells us that each additional year of age is associated with about a $0.023 / 4 = 0.005$ increase in the predicted probability of a voter approving of the President.
 
-While `race_model` and `age_model` both tell us something interesting, we could learn more with an *interaction model* that includes both of our predictors.
+While `race_model` and `age_model` both tell us something interesting, we could learn more with an *interaction model* that includes multiple predictors.
 
-### One numerical and one categorical explanatory variable
+### Multiple explanatory variables
+
+<!-- MB: age, race, gender, and interaction btwn race:age-->
 
 We'll now predict `approval` with two variables, `race` and `age`, as well as the interaction between the two.
 
@@ -416,8 +418,6 @@ This time, we'll do it slightly differently. Rather than using `glm()` like we d
 library(tidymodels)
 ```
 
-**tidymodels** includes many packages, but we'll start by showing how to use **parsnip** to fit a logistic regression. 
-
 First, in the **tidymodels** workflow, we have to save the *model specification*.  We do that using two functions: `logistic_reg()` and `set_engine()`.
 
 ```{r}
@@ -425,13 +425,13 @@ logistic_mod <- logistic_reg() %>%
   set_engine("glm")
 ```
 
-`logistic_reg()` says that we want to fit a logistic regression, and `set_engine("glm")` specifies that we want to do it using `glm()`.  Behind the scenes, **parsnip** uses many other packages to fit its models, but by unifying the syntax, it means that you don't have to memorize how a lot of different functions work.
+`logistic_reg()` says that we want to fit a logistic regression, and `set_engine("glm")` specifies that we want to do it using `glm()`. By unifying the syntax, it means that you don't have to memorize how a lot of different functions work to use different model types, from glm to random forests that we'll use later in the chapter.
 
-Note that our new object, `logistic_mod`, doesn't contain our data or a formula.  In order actually to fit our model, we need to feed `logistic_mod` to a function called `fit()`.  `fit()` is the general purpose function in **parsnip** for fitting any model specification.  It takes as its first argument the model specification, but otherwise it operates similarly to `lm()` and `glm()`. We have to wrap `approval` in `factor()`, because `fit()` is more careful than `glm()` in requiring that classification models actually have categorical outcomes.
+Note that our new object, `logistic_mod`, doesn't contain our data or a formula.  In order actually to fit our model, we need to feed `logistic_mod` to a function called `fit()`.  `fit()` takes as its first argument the model specification, but otherwise it operates similarly to `lm()` and `glm()`. We have to wrap `approval` in `factor()`, because `fit()` is more careful than `glm()` in requiring that classification models actually have categorical outcomes. For our final glm, we will be using 3 explanatory variables and the interaction term between race and age.
 
 ```{r}
 logistic_fit <- fit(logistic_mod,
-                    factor(approval) ~ race * age,
+                    factor(approval) ~ race + age + gender + race:age,
                     data = ch12)
 ```
 
@@ -443,6 +443,18 @@ logistic_fit$fit %>%
   select(term, estimate, conf.low, conf.high) %>%
   gt()
 ```
+
+This table may at first seem a bit intimidating, but once we understand how to use the coefficients, the model becomes more simple to interpret.
+
+You may notice that the coefficient associated with each race has changed significantly. Here is the output of `race_model` alone.
+
+```{r}
+tidy(race_model) %>%
+  select(term, estimate) %>%
+  gt()
+```
+
+The reason these numbers are significantly different is because our model now incorporates gender, age, and how age changes by gender. An observation's fitted value is now the sum of their race's coefficient, whether or not they are a male, and the age coefficient corresponding to their race. For example, the fitted value of a 21-year-old white man is addition of raceWhite + the genderMale  + 21 * raceWhite:age. The fitted value of an 45-year-old Asian woman is the addition of (Intercept) + 45 * age; this model uses Asian as the default race, which is why we use the (Intercept) and age coefficients.
 
 ### Cross-Validation
 
