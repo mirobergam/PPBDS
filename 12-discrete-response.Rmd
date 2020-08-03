@@ -439,12 +439,25 @@ logistic_mod <- logistic_reg() %>%
   set_engine("glm")
 ```
 
-For our multi-variable logistic regression, we'll be using 3 different explanatory variables, as well as the interaction between 2 of those variables, `race` and `age`.
+For our multi-variable logistic regression, we'll be using 3 different explanatory variables, as well as the interaction between 2 of those variables, `race` and `age`. We will begin by defining the recipe, or formula, of our model. In our last two examples, we constructed our formulas directly in `fit()`. This time, we will do it seperately, as the recipe will be used seperately later when cross-validating our results.
 
 ```{r}
-logistic_fit <- fit(logistic_mod,
-                    factor(approval) ~ race + age + gender + race:age,
-                    data = ch12)
+log_recipe <- recipe(approval ~ age + gender + race, data = log_training) %>%
+  step_normalize(all_numeric()) %>%
+  step_knnimpute(all_predictors())
+```
+
+One thing is missing from this recipe: the interaction between age and race. `recipe()` does not allow you to include interaction terms right in the formula, so you have to add them using another step:
+
+```{r}
+log_recipe <- log_recipe %>%
+  step_interact(terms = ~ race:age)
+```
+
+
+
+```{r}
+logistic_fit <- fit(logistic_mod, log_recipe)
 
 logistic_fit$fit %>%
   tidy(conf.int = TRUE) %>%
