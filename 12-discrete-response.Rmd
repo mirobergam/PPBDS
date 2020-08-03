@@ -421,15 +421,13 @@ While `race_model` and `age_model` both tell us something interesting, we could 
 
 We'll now predict `approval` with three variables, `race`, `age` and `gender`, as well as the interaction between the `race` and `age`.
 
-This time, we'll do it slightly differently. We'll still be using **tidymodels**, but this time we will split the data into a testing set and training set. The training dataset will be used to create our model and the testing dataset will be used to test our final model’s performance. This is a typical part of the tidymodels workflow; it was omitted in our previous two examples because we were not testing the performance of either models. 
+This time, we'll do it slightly differently. We'll still be using **tidymodels**, but this time we will split the data into a testing set and training set. The training dataset will be used to create our model and the testing dataset will be used to test our final model’s performance. This is a typical part of the tidymodels workflow; it was omitted in our previous two examples because we were not testing the performance of either models. The `initial_split()` function reserves 25% of the data for testing by default. 
 
 ```{r}
-
 log_split <- initial_split(ch12)
 
 log_training <- log_split %>% training()
 log_testing <- log_split %>% testing()
-
 ```
 
 Then, let's set the *model specification* to be a logistic regression using `glm`.
@@ -439,25 +437,16 @@ logistic_mod <- logistic_reg() %>%
   set_engine("glm")
 ```
 
-For our multi-variable logistic regression, we'll be using 3 different explanatory variables, as well as the interaction between 2 of those variables, `race` and `age`. We will begin by defining the recipe, or formula, of our model. In our last two examples, we constructed our formulas directly in `fit()`. This time, we will do it seperately, as the recipe will be used seperately later when cross-validating our results.
+For our multi-variable logistic regression, we'll be using 3 different explanatory variables, as well as the interaction between 2 of those variables, `race` and `age`. We will begin by defining the formula of our model. In our last two examples, we constructed our formulas directly in `fit()`. This time, we will do it seperately, as the formula will be used seperately later when cross-validating our results.
 
 ```{r}
-log_recipe <- recipe(approval ~ age + gender + race, data = log_training) %>%
-  step_normalize(all_numeric()) %>%
-  step_knnimpute(all_predictors())
+log_formula <- formula(approval ~ age + gender + race + race:age)
 ```
 
-One thing is missing from this recipe: the interaction between age and race. `recipe()` does not allow you to include interaction terms right in the formula, so you have to add them using another step:
+Finally, let's fit our model. `fit()` will take in our model specification `logistic_mod`, our formula, and our training set of data. We are reserving our testing set for later.
 
 ```{r}
-log_recipe <- log_recipe %>%
-  step_interact(terms = ~ race:age)
-```
-
-
-
-```{r}
-logistic_fit <- fit(logistic_mod, log_recipe)
+logistic_fit <- fit(logistic_mod, log_formula, log_training)
 
 logistic_fit$fit %>%
   tidy(conf.int = TRUE) %>%
@@ -468,7 +457,7 @@ logistic_fit$fit %>%
 
 This table may at first seem a bit intimidating, but once we understand how to use the coefficients, the model becomes more simple to interpret.
 
-You may notice that the coefficient associated with each race has changed significantly. Here is the output of `race_model` alone.
+You may notice that the coefficient associated with each race has changed significantly from `race_model`. Here is the output of `race_model` alone.
 
 ```{r}
 tidy(race_model) %>%
@@ -478,65 +467,63 @@ tidy(race_model) %>%
 
 The reason these numbers are significantly different is because our model now incorporates gender, age, and how age changes by gender. An observation's fitted value is now the sum of their race's coefficient, whether or not they are a male, and the age coefficient corresponding to their race. For example, the fitted value of a 21-year-old white man is addition of raceWhite + the genderMale  + 21 * raceWhite:age. The fitted value of an 45-year-old Asian woman is the addition of (Intercept) + 45 * age; this model uses Asian as the default race, which is why we use the (Intercept) and age coefficients.
 
-### Cross-Validation
+### K-Fold Cross-Validation
+
+We can check whether the model we created is accurate by using cross-validation. Recall that when we first started constructing this model, we used `initial_split()` to reserves 25% of the data for testing and 75% of the data for creating the model. By doing so, the model avoids the issue of overtraining.
+
+The function `vfold_cv()` splits your training set into `v` smaller sections. We will be using `v = 5` so that the small, individual sections are still large enough to train the model. The first four folds will be used to train the model, and the last fold is always used to assess the accuracy of the model.
 
 ```{r}
-log_recipe <- recipe(approval ~ age + gender + race, data = ch12) %>%
-  step_normalize(all_numeric()) %>%
-  step_knnimpute(all_predictors())
-
 log_folds <- log_training %>%
   vfold_cv(v = 5)
+```
 
+Now, we create the recipe for our cross-validation. A recipe is the same thing as a formula, except it includes the dataset that the formula is enacted upon (`log_training` in our case).
+
+```{r}
+log_recipe <- recipe(approval ~ age + gender + race, data = log_training) 
+```
+
+You'll notice that our interaction term is missing from this recipe. In order to add interaction terms to a recipe, you must take the additional step of using `step_interact`.
+
+```{r}
+log_recipe <- log_recipe %>%
+  step_interact(terms = ~ age:race)
+```
+
+Finally, we'll use `fit_resamples()` to run our logistic model on the different folds we created in the training set. `fit_resamples()` takes in our model specification, our recipe, and the folds we created. This will give us our `accuracy` and `roc_auc` values. 
+
+```{r, message = FALSE, warning = FALSE}
 fit_resamples(logistic_mod,
               log_recipe,
               log_folds) %>%
   collect_metrics()
 ```
+<!-- MB: interpret these values -->
 
+Now that we saw how the training set performed, it's time to use our testing set. We do so by applying `log_testing` to `predict()`.
 
-### Prediction
-
-As you can see, this generates the same results as when we used `glm()` directly. Now we can see how the effect of `age` varies by `race`. Looking at predicted probabilities of these numbers can put this model in perspective.  Let's use `augment()` to generate the predictions.  Remember that `type.predict = "response"` and `type.residuals = "deviance"` put the fitted values and the residuals on the probability scale.
-
-
-<!-- MB: This doesn't work, yoou need to find a way to do it in tidymodels. It is a dataframe not a model -->
-
-```{r, eval=FALSE}
-
-interact_model <- logistic_fit$fit %>%
-  tidy(conf.int = TRUE) %>%
-  select(term, estimate, conf.low, conf.high)
-
-# regression_points <- interact_model %>%
-#   augment(type.predict = "response",
-#           type.residuals = "deviance") %>%
-#   mutate(conf.low = .fitted - 2 * .cooksd,
-#          conf.high = .fitted + 2 * .cooksd) %>%
-#   select(approval, race, age, .fitted, conf.low, conf.high, .resid)
-# regression_points
-
+```{r}
+logistic_mod %>%
+  fit(log_formula, data = log_training) %>%
+  predict(new_data = log_testing)
 ```
 
-```{r, echo=FALSE}
-# 
-# regression_points <- augment(interact_model,
-#                              type.predict = "response",
-#                              type.residuals = "deviance") %>%
-#   mutate(conf.low = .fitted - 2 * .cooksd,
-#          conf.high = .fitted + 2 * .cooksd) %>%
-#   select(approval, race, age, .fitted, conf.low, conf.high, .resid)
-# regression_points %>%
-#   slice(1:10) %>%
-#   knitr::kable(
-#     digits = 3,
-#     caption = "Regression points (First 10 out of 60,000 voters)",
-#     booktabs = TRUE,
-#     linesep = ""
-#   ) %>%
-#   gt()
+Here, the model created by the training set predicts whether the observations in testing set would approve or disapprove of the President. While this is an interesting set of predictions, it doesn't tell us much about how well our model performed. So, we need to solve for the rmse, or the mean squared error.
 
+To extract the rmse, we set the "truth" to `approval` so this function can compare our predicted values to the true values.
+
+```{r}
+logistic_mod %>%
+  fit(log_formula, data = log_training) %>%
+  predict(new_data = log_testing) %>%
+  bind_cols(log_testing) %>%
+  rmse(truth = as.numeric(approval), estimate = as.numeric(.pred_class))
 ```
+
+The mean squared error is about 0.62.
+
+<!-- MB: interpret thi value -->
 
 ## Classification and regression trees (CART)
 
