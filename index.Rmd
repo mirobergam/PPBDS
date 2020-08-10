@@ -1,7 +1,5 @@
 --- 
-title: "We R Who We R: Preceptor's Primer for Bayesian Data Science"
-author: David Kane
-date: "`r format(Sys.time(), '%B %d, %Y')`"
+title: "Gov 50: Data"
 site: bookdown::bookdown_site
 bibliography: [bib/references.bib, bib/packages.bib]
 biblio-style: apalike
@@ -14,22 +12,19 @@ github-repo: davidkane9/PPBDS
 graphics: yes
 ---
 
-# Cover {-}
+# {-}
 
-<!-- This is not a bad cover. But we really should do more. First, we need a good close up of each of the 4 cardinal virtues. It is hard to see them in this shot. Then we need Kesha to be placed in parallel to them. She is not so much the fifth virtue as she is us, aspiring to practice these virtues. Then, we might add some text about each of the virtues, beginning with the Latin term. Of course, we don't have the space to go into how these terms connect to concepts in data science. Also, it might be nice to tie the book title more closely into this display. Also, maybe we should be using the full width here.  -->
+<!-- This is not a bad cover. But we really should do more. We should add some text about each of the virtues, beginning with the Latin term. Of course, we don't have the space to go into how these terms connect to concepts in data science. Also, it might be nice to tie the book title more closely into this display. -->
 
-```{r, echo=FALSE}
-knitr::include_graphics("other/images/virtues.jpg") 
+<!-- Kay had me take out Ke$ha, but I would like to bring her back as an avatar for students. She is not so much the fifth virtue as she is us, aspiring to practice these virtues. -->
+
+::: {.fullwidth}
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("other/images/cover.jpg", ) 
 ```
 
-The [Cardinal Virtues](https://en.wikipedia.org/wiki/Cardinal_virtues) of Bayesian data science are [Prudence](https://en.wikipedia.org/wiki/Prudence), [Justice](https://en.wikipedia.org/wiki/Justice_(virtue)), [Courage](https://en.wikipedia.org/wiki/Courage), and [Temperance](https://en.wikipedia.org/wiki/Temperance_(virtue)). Come learn them with us.
-
-```{r, echo=FALSE}
-knitr::include_graphics("other/images/kesha.jpg") 
-```
-
-[Kesha's](https://en.wikipedia.org/wiki/Kesha) "[We R Who We R](https://en.wikipedia.org/wiki/We_R_Who_We_R)" is the official theme song of this book.
-
+:::
 
 # Preamble {-}
 
@@ -51,7 +46,7 @@ This work builds on the contributions of many people in the R and Open Source co
 knitr::include_graphics("other/images/team.png") 
 ```
  
-Thanks to contributions from Harvard students, colleagues and random people I met on the internet: Albert Rivero, Nicholas Dow, Celine Vendler, Sophia Zheng, Maria Burzillo, Robert McKenzie, Deborah Gonzalez, Beau Meche, Evelyn Cai, Miro Bergam, Jessica Edwards, Emma Freeman, Cassidy Bargell, Yao Yu, Vivian Zhang, Ishan Bhatt,  Mak Famulari, Tahmid Ahmed, Eliot Min, Hannah Valencia, Asmer Safi, Erin Guetzloe, Shea Jenkins, Thomas Weiss, Diego Martinez, Andy Wang, Tyler Simko, Jake Berg, Connor Rust and Liam Rust.
+Thanks to contributions from Harvard students, colleagues and random people I met on the internet: Albert Rivero, Nicholas Dow, Celine Vendler, Sophia Zheng, Maria Burzillo, Robert McKenzie, Deborah Gonzalez, Beau Meche, Evelyn Cai, Miro Bergam, Jessica Edwards, Emma Freeman, Cassidy Bargell, Yao Yu, Vivian Zhang, Ishan Bhatt,  Mak Famulari, Tahmid Ahmed, Eliot Min, Hannah Valencia, Asmer Safi, Erin Guetzloe, Shea Jenkins, Thomas Weiss, Diego Martinez, Andy Wang, Tyler Simko, Jake Berg, Connor Rust, Liam Rust, Alla Baranovsky, Carine Hajjar, and Stephanie Yao.
 
 I would like to gratefully acknowledge funding from [The Derek Bok Center for Teaching and Learning](https://bokcenter.harvard.edu/) at Harvard University, via its [Digital Teaching Fellows](https://bokcenter.harvard.edu/graduate-fellows-0) and [Learning Lab Undergraduate Fellows](https://bokcenter.harvard.edu/undergraduate-fellows) programs.
 
