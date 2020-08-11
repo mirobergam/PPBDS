@@ -159,7 +159,23 @@ ch12 %>%
        title = "Presidential Approval by State")
 ```
 
-<!-- MB: Summary says -->
+### Themes
+
+As stated at the beginning of the chapter, this chapter will look into three different types of models, all modelling presidential approval against several explanatory variables. Before we do so, let's take a moment to discuss our themes of prudence, courage, temperance, and justice.
+
+*Prudence* addresses the matter of *validity*. Validity is the measure of how well our data captures the concept we are setting out to analyze and the relevance of the estimand for which we are modelling. So, is `approval` a good measure of what we are trying to estimate? The most obvious problem is that the `approval` variable began as a 5-point scale from "Strongly Disapprove" to "Strongly Approve". Converting this to a binary variable of 0 and 1 may not be a valid measure of presidential approval; think to yourself, would our data be the same if we asked the exact same respondents to respond to a "Yes" or "No" question of presidential approval rather than transforming their data? Finally, does stating your approval or disapproval of the president on a survey capture what we are trying to study? Perhaps, but in a practical application, it may be true that whether or not an individual donated money to the President's campaign or if they voted for him in 2016 more accurately capture what we are setting out to study. Finally, are our right hand side variables valid? For example, the 5 point scale of `ideology` from "Strongly Liberal" to "Strongly Conservative" seems rather subjective. 
+
+*Justice* deals with the theme of *model structure*. When establishing your model structure, there are a few steps. Firstly, will our model be predictive or causal? This chapter deals with passing our data through three different model types to predict presidential approval. We are not trying to measure the causal effect of any specific treatment variable, so these will be predictive models. Next, we must make a mathematical formula for our models. Because we are doing several different model types, our formula can be abstracted to... 
+
+$$y_i = f(x_{1i}, x_{2i}, ... )$$
+
+$f()$ represents the different models we will pass our data into, $x_i$ represents our data points, and $y_i$ represents `approval`. Finally, we will construct a preceptor table for this dataset. 
+
+<!-- preceptor table -->
+
+Our discussion of *courage*, or the *data-generating mechanism*, will be brief, as we will discuss our three model types in-depth throughout the chapter. We will begin with a logistical regression using `glm()`, like in previous chapters. Then we will use a regression tree, which creates partitions based on the right hand side variables and has a prediction of `approval` for each partition. Finally, we will use random forests, which are created by generating and averaging many different regression trees. Each of these models will use the binary variable of `approval` as their left hand variable.
+
+Finally, *temperance* (or *humility*). Because the world is extremely complex and ever-changing, our models are never as good as they appear. We will hold off on our full discussion of *temperance* until the end of the chapter when we've completed the models. Until then, keep in mind these questions: Is our model *representative* of the greater world? How accurately does our model predict *unknown unknowns*? What are the flaws in our modelling process?
 
 ## Logistic regression
 
@@ -879,6 +895,7 @@ fit_resamples(forest_mod,
               forest_recipe, 
               forest_folds) %>% collect_metrics()
 ```
+
 Based on `accuracy`, the random forest performed best by a small margin, followed by logistic regression and then CART. `accuracy` is the percentage of observations in the testing set that the model (which was constructed using the training set) was able to successfully predict. All of the models performed within a margin of 0.01 of eachother. However, it makes sense that random forest was the most successful. By generating many prediction trees and averaging them rather than relying on one, random forest is a more precise form of modelling than CART. 
 
 <!-- MB: Is it a worthwhile discussion to include graphs for roc_auc or -->
@@ -889,6 +906,6 @@ In the case of the `roc_auc`, our logistic regression performed best, followed b
 
 <!-- MB: Say something about log being better than RF -->
 
-
+<!-- MB: bring back discussion of humility -->
 
 
