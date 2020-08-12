@@ -713,6 +713,11 @@ predict(cart_fit, new_data = newdata)
 
 As you can see, the tree predicted that our first two new voters would disapprove of the President while our second two would approve based on their age and race.
 
+```{r}
+#library(rstanarm)
+#posterior_linpred(cart_fit, newdata)
+```
+
 ## Random forests
 
 ### What are random forests?
@@ -881,15 +886,20 @@ Let's use our final forest model to make some predictions. We'll be passing in t
 # values in the newdata.
 
 
-# newdata <- tibble(race = c("Asian", "Black", "White", "Native American"),
-#                   age = c(54, 41, 56, 70),
-#                   gender = c("Female", "Male", "Female", "Male"))
-# 
-# predict(forest_fit, new_data = newdata) 
+newdata <- tibble(race = c("Asian", "Black", "White", "Native American"),
+                  age = c(54, 41, 56, 70),
+                 gender = c("Female", "Male", "Female", "Male"))
+
+predict(forest_fit, new_data = newdata) 
 
 ```
 
 Our forest predicted that the first three voters would disaprove of the President and that our final voter would approve. These predictions differ from our CART predictions most likely because of the added variable: gender. Because females disapproved of the President at higher rates, the third voter was predicted to disapprove instead.
+
+```{r}
+#posterior_linpred(forest_fit, newdata)
+```
+
 
 ## Comparing Models
 
