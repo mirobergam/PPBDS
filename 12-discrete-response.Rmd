@@ -571,8 +571,7 @@ Once we are done partitioning the predictor space into regions, in each region a
 
 Classification trees have certain advantages that make them very useful. They are highly interpretable, even more so than linear models. They are easy to visualize (if small enough).  Finally, they can model human decision processes. However, in terms of accuracy, they are rarely the best performing method since they are not very flexible. Random forests, explained in the next section, improve on some of the shortcomings of classification trees.
 
-<!-- Validity/model fitting the world. bias/variance  overfitting/underfitting. goal of the model -->
-<!-- MB: Use overfitting to discuss validity/model fitting the world-->
+One limitation of CART is its lack of fitted values. Unlike a `glm()`, you can't clean predicted probabilities or point estimates from CART. Rather, you simply get a prediction of 0 or 1 for whatever observation you pass through the tree.  
 
 ### Multivariate CART
 
@@ -584,7 +583,6 @@ cart_split <- initial_split(ch12)
 cart_training <- cart_split %>% training()
 cart_testing <- cart_split %>% testing()
 ```
-
 
 To create a CART using multiple variables, we'll use the `decision_tree()` model specification and the `"rpart"` engine.  The syntax is very similar to when we used `logistic_reg()`.  Note that our binary response variable has to be a factor, just like with `logistic_reg()`. 
 
@@ -756,7 +754,7 @@ forest_test <- testing(forest_split)
 
 Next, we will use the `rand_forest()` function to create our model specification, setting the engine to `"randomForest"` and the mode to `"classification"`. 
 
-```{r}
+```{r, message = FALSE}
 library(randomForest)
 
 forest_mod <- 
@@ -778,18 +776,16 @@ Finally, let's fit our model. `fit()` will take in our model specification `logi
 forest_fit <- fit(forest_mod, forest_formula, forest_train)
 ```
 
-<!-- We see under "OOB estimate of error rate" that this model has an error rate of 18.67% (or, looking at it the other way, an accuracy of 81.33%). We can see how the error rate of our algorithm changes as we add trees by looking at `house_forest$fit$err.rate[, "OOB"]`.  By default, `randomForest()` (the engine we specified) grows 500 trees. -->
+If we graph the "OOB estimate of error rate", we can see that this model settles around an error rate of just under 40% (or, looking at it the other way, an accuracy of 60%). We can see how the error rate of our algorithm changes as we add trees by looking at `forest_fit$fit$err.rate[, "OOB"]`.  By default, `randomForest()` (the engine we specified) grows 500 trees. -->
 
+```{r}
+tibble(`Error rate` = forest_fit$fit$err.rate[, "OOB"], Trees = 1:500) %>%
+  ggplot(aes(x = Trees, y = `Error rate`)) +
+  geom_line() + 
+  theme_classic()
+```
 
-<!-- tibble(`Error rate` = approval_forest$fit$err.rate[, "OOB"], -->
-<!--        Trees = 1:500) %>% -->
-<!--   ggplot(aes(x = Trees, y = `Error rate`)) + -->
-<!--   geom_line() + -->
-<!--   theme_classic() -->
-
-
-<!-- We can see that in this case, the accuracy improves as we add more trees until about 50 trees where accuracy stabilizes. Random forests often perform better than other methods. However, a disadvantage of random forests is that we lose interpretability---we don't get anything like the coefficients from a logistic regression or the single tree from CART. -->
-
+We can see that in this case, the accuracy improves as we add more trees until about 50 trees where accuracy stabilizes. Random forests often perform better than other methods. However, a disadvantage of random forests is that we lose interpretability---we don't get anything like the coefficients from a logistic regression or the single tree from CART. 
 
 ### K-Fold Cross-Validation
 
@@ -835,7 +831,7 @@ forest_metrics %>% collect_metrics()
 Now that we saw how the training set performed, we'll use our testing set. We do so by applying `forest_test` to `predict()`.
 
 ```{r}
-logistic_mod %>%
+forest_mod %>%
   fit(forest_formula, data = forest_train) %>%
   predict(new_data = forest_test)
 ```
@@ -936,5 +932,14 @@ In the case of the `roc_auc`, our logistic regression performed best, followed b
 <!-- MB: Say something about log being better than RF -->
 
 <!-- MB: bring back discussion of humility -->
+
+## The Problem
+
+There are an infinite numbers of comparisons to be made within this dataset. 
+
+```{r}
+
+```
+
 
 
