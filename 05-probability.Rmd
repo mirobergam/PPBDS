@@ -5,21 +5,21 @@ output_yaml:
 
 # Probability
 
-<!-- 0) Section headings are in sentence case (with only the first word capitalized, unless it is something always capitalized) rather than title case, which is what they are now. Section heading do not end with a period. -->
+<!-- 0) Section headings are in sentence case (with only the first word capitalized, unless it is something always capitalized) rather than title case, which is what they are now. Section heading do not end with a period. Done VZ -->
 
-<!-- 1a) Add 4th sub-subpart to first part explaining Joint Distributions. Do this at the end of probability distribution part.  Example is one die with 50% likelihood of coming up 6 (and other faces at 10%) and second die 50% likelihood. Don't only care about the total. In this situation, you need a 3d plot. p(A, B) is p(Result of Die 1, Result of Die 2). Just one empirical plot of 100 rolls. Almost done, making 3D graph right now VZ -->
+<!-- 1a) Add 4th sub-subpart to first part explaining Joint Distributions. Do this at the end of probability distribution part.  Example is one die with 50% likelihood of coming up 6 (and other faces at 10%) and second die 50% likelihood. Don't only care about the total. In this situation, you need a 3d plot. p(A, B) is p(Result of Die 1, Result of Die 2). Just one empirical plot of 100 rolls. Done VZ - figuring out how to change the axis titles on the rayshader plot -->
 
 <!-- DK: Update. I think that either plotly (https://plotly.com/r/3d-surface-plots/) or rayshader (https://www.rayshader.com/#3d-plotting-with-rayshader-and-ggplot2) is the way to go. These are the future of 3d plots in R, not plot3D. -->
 
-<!-- 1b) Add a section called "Unnormalized distributions" just before "Joint distributions" in the first part. These are just probability distributions with raw counts. In other words, they are not actual probability distributions (since the sum of the values is not 1) but they are easy to turn into probability distributions by dividing all the outcome counts by the sum of all outcome counts. They are handy because, sometimes, you don't want to bother to normalize everything until the end. -->
+<!-- 1b) Add a section called "Unnormalized distributions" just before "Joint distributions" in the first part. These are just probability distributions with raw counts. In other words, they are not actual probability distributions (since the sum of the values is not 1) but they are easy to turn into probability distributions by dividing all the outcome counts by the sum of all outcome counts. They are handy because, sometimes, you don't want to bother to normalize everything until the end. - done VZ-->
 
-<!-- 2) Make this point more often: A probability distribution is an object with a domain of outcomes, example: sum of two die. (You don't care which die has what value.) Another example, result of two die and you care which die came which way. Each element in the domain is *mapped* to a probability value, which is a number between 0 and 1 inclusive. The sum of all the mappings equals 1. -->
+<!-- 2) Make this point more often: A probability distribution is an object with a domain of outcomes, example: sum of two die. (You don't care which die has what value.) Another example, result of two die and you care which die came which way. Each element in the domain is *mapped* to a probability value, which is a number between 0 and 1 inclusive. The sum of all the mappings equals 1. - done VZ -->
 
 <!-- 3) Adding three model example. Situation is that there is a bag with two marbles: either both white, both black or one of each. Those are the three models. Then, you take (and then replace) one marble three times. Possible values you can get: three blacks, two blacks, one black, zero blacks. So, we have three models and four possible experimental results. This is the bridge between the simple Bayes example with two models (disease or no) and two possible experiment results (positibe test or negative test) and the N model example. -->
 
 <!-- 4) Change $p$, meaning the probability of heads, to $p_h$ everywhere, This is much clearer. -->
 
-<!-- 5)  The use of $p_h$ allows us to draw a distinction between different concepts. First, we have the probability that the coin will come up heads. This is a single (unknown) number. We use $p_h$ to refer to that number. Second, once you know $p_h$, you also know the probability the coin comes up tails ($p_t$), since $p_t = 1 - p_h$. But neither of these things is a probability distribution! Recall that a probability distribution is a list of outcomes, each mapped to a probability, with all of those values summing to 1. So, a probability of coin outcomes is the set: H = $p_h$ and  T = $p_t$, such that $p_t + p_h = 1$ and both $p_t$ and $p_h$ are greater than or equal to zero. Call this probability distribution $p(coin)$.  (Maybe that is a good distinction. If you are talking about a specific probability, with a single value, like $p_h$, you use a small $p$ with a subscript. If you are talking about the entire probability distribution over a set of outcomes, you use $p(something)$, where the something gives a clue about the set of outcomes. (Still this entire paragraph, clean it up and put it somewhere.) -->
+<!-- 5)  The use of $p_h$ allows us to draw a distinction between different concepts. First, we have the probability that the coin will come up heads. This is a single (unknown) number. We use $p_h$ to refer to that number. Second, once you know $p_h$, you also know the probability the coin comes up tails ($p_t$), since $p_t = 1 - p_h$. But neither of these things is a probability distribution! Recall that a probability distribution is a list of outcomes, each mapped to a probability, with all of those values summing to 1. So, a probability of coin outcomes is the set: H = $p_h$ and  T = $p_t$, such that $p_t + p_h = 1$ and both $p_t$ and $p_h$ are greater than or equal to zero. Call this probability distribution $p(coin)$.  (Maybe that is a good distinction. If you are talking about a specific probability, with a single value, like $p_h$, you use a small $p$ with a subscript. If you are talking about the entire probability distribution over a set of outcomes, you use $p(something)$, where the something gives a clue about the set of outcomes. (Still this entire paragraph, clean it up and put it somewhere.) - done VZ -->
 
 <!-- Parameter means no parathesis. Anytime you talk about a specific p, you must add a subscript, otherwise how do you know what you are talking about. But, at the same time, it is annoying to write long subscripts, like $p_{Bidengets370electorvotes}$, so it is better to just come up with a short subscript, like $p_370$, where the context makes clear what this refers to. -->
 
@@ -88,7 +88,7 @@ knitr::opts_chunk$set(tidy = FALSE, cache.extra = packageVersion('tufte'))
 
 The central tension, and opportunity, in data science is the interplay between the *data* and the *science*, between our empirical observations and the models which we use to understand them. Probability is the language we use to explore that interplay; it connects models to data, and data to models.
 
-## Probability Distributions
+## Probability distributions
 
 <!-- Read Topic 14 in Bayesian Workshop. Lots of interesting ideas and examples there for this first section of the chapter. Any coding examples should be simple, with  no list-columns and map_* functions. Basic tool we are introducing is doing simulation within a tibble. Consider doing some of the sample problems from STAT 110, many of which are hard to do analytically but easy to do with simulation. -->
 
@@ -117,15 +117,17 @@ equally likely.
 
 This allows us to make the following statements:
 
+<!-- What kind of notation should I use for these bullet points? -->
+
 * The p(rolling 1 or 2) is 2/6, or 1/3.  
 * The p(rolling 1, 2, 3, 4, 5, or 6) is 1.  
 * The p(flipping a coin and getting tails) is 1/2.
 
-<!-- Be precise about technical terms: outcome and domain. Be more smooth. -->
+For the purposes of this course, a *probability distribution* is a mathematical object that covers a set of outcomes, where each distinct outcome has a chance of occurring between 0 and 1 inclusive. The set of possible outcomes --- heads or tails for the coin, 1 through 6 for the die --- can be either discrete or continuous. This set of outcomes is the *domain* of the probability distribution. There are three types of probability distributions: mathematical, empirical, and posterior. Let's walk through some examples to better understand each type of probability distribution.
 
-For the purposes of this course, a *probability distribution* is a mathematical object that covers a set of outcomes, where each distinct outcome has a chance of occurring between 0 and 1. The sum of all chances equals to 1. The set of possible outcomes --- heads or tails for the coin, 1 through 6 for the die --- can be either discrete or continuous. This set of possible outcomes is the *domain* of the probability distribution. There are three types of probability distributions: mathematical, empirical, and posterior. Let's walk through some examples to better understand each type of probability distribution.
+Before we continue, we should be familiar with the notation used in this chapter. Whenever we are talking about a specific probability (represented by a single value), we will use $p$ with a *subscript*. For instance, $p_h$ = 0.5 denotes the probability of getting heads on a coin toss when the coin is fair. $p_t$ denotes the probability of getting tails on the coin toss. However, when we are referring to the entire probability distribution over a set of outcomes, we will use $p$ with *parentheses*. For example, the probability distribution of a coin toss is $p(coin)$. That said, $p(coin)$ is derived from the sum of all the specific probabilities mapped up in the domain. Coin tosses are simple and only have two outcomes: heads and tails. Note that $p(coin)$ is thus equal to $p_t$ + $p_h$.
 
-### Flipping a coin.
+### Flipping a coin
 
 A *mathematical distribution* is based on mathematical formulas. Assuming that the dice is perfectly fair, we should get heads as many times as we get tails.
 
@@ -138,8 +140,7 @@ mydata <- tibble(results = c(rep(0, 50),
 
 ggplot(mydata, aes(x = results)) +
   geom_histogram(aes(y = ..count../sum(..count..)), 
-                 binwidth = 0.5, 
-                 fill = "dark gray", color = "white") +
+                 binwidth = 0.5, color = "white") +
   labs(title = "Mathematical Probability Distribution",
        subtitle = "Flipping One Coin",
        x = "Outcome\nResult of Coin Flip",
@@ -168,7 +169,7 @@ mydata <- tibble(results)
 
 ggplot(mydata, aes(x = results)) +
   geom_histogram(aes(y=..count../sum(..count..)), binwidth = 0.5, 
-                 fill = "dark gray", color = "white") +
+                 color = "white") +
   labs(title = "Empirical Probability Distribution",
        subtitle = "Flipping One Coin A Hundred Times",
        x = "Outcome\nResult of Coin Flip",
@@ -179,7 +180,9 @@ ggplot(mydata, aes(x = results)) +
 
 An *posterior distribution* is based on beliefs and expectations. It displays your belief about things you can't see right now. You may have posterior distributions for events in the past, present, or future.
 
-In the case of the coin toss, the posterior distribution changes depending on your beliefs. For instance, let's say your friend brought a coin to school and asked to bet you. If the result is heads, you have to pay them $5. This makes you suspicious; your posterior distribution would reflect this. You might believe that p(Heads) is 0.95 while p(Tails) is 0.05.
+In the case of the coin toss, the posterior distribution changes depending on your beliefs. For instance, let's say your friend brought a coin to school and asked to bet you. If the result is heads, you have to pay them $5. 
+
+This makes you suspicious; your posterior distribution would reflect this. You might believe that $p_h$ is 0.95 while $p_t$ is 0.05.
 
 ```{r, echo = FALSE}
 
@@ -190,7 +193,7 @@ mydata <- tibble(results = c(rep(0, 95),
 
 ggplot(mydata, aes(x = results)) +
   geom_histogram(aes(y=..count../sum(..count..)), binwidth = 0.5, 
-                 fill = "dark gray", color = "white") +
+                 color = "white") +
   labs(title = "Posterior Probability Distribution",
        subtitle = "Your Beliefs About Flipping One Coin to Bet Your Friend",
        x = "Outcome\nResult of Coin Flip",
@@ -199,7 +202,7 @@ ggplot(mydata, aes(x = results)) +
 
 ```
 
-### Rolling two die.
+### Rolling two die
 
 Our *mathematical distribution* tells us that, with a fair dice, the probability of getting 1, 2, 3, 4, 5, and 6 are equal: there is a 1/6 chance of each. When we roll two die at the same time and sum the values, the numbers closes to the middle (ex. 6, 7, 8) are more common sums than numbers at the very edge (ex. 2, 12) because there are more combinations of numbers that add up to the middle values.
 
@@ -219,7 +222,7 @@ mydata <- mydata %>%
 
 ggplot(mydata, aes(x = sum)) +
   geom_histogram(aes(y=..count../sum(..count..)), binwidth = 1, 
-                 fill = "dark gray", color = "white") +
+                 color = "white") +
   labs(title = "Mathematical Probability Distribution",
        subtitle = "Sum from Rolling Two Die",
        x = "Outcome\nSum of Two Die",
@@ -229,7 +232,7 @@ ggplot(mydata, aes(x = sum)) +
 
 ```
 
-We get an *empirical distribution* by running a simulation and rolling two die a hundred times. The result is not as perfect and even as the mathematical distribution, but we can observe that the p(2) and p(12), which are displayed on the left and right most ends of the distribution, are far lower than the p(values near the center of the distribution).
+We get an *empirical distribution* by running a simulation and rolling two die a hundred times. The result is not as perfect and even as the mathematical distribution, but we can observe that the $p_2$ and $p_12$, which are displayed on the left and right most ends of the distribution, are far lower than the p(values near the center of the distribution).
 
 ```{r, echo=FALSE}
 
@@ -249,7 +252,7 @@ mydata <- mydata %>%
 
 ggplot(mydata, aes(x = sum)) +
   geom_histogram(aes(y=..count../sum(..count..)), binwidth = 1, 
-                 fill = "dark gray", color = "white") +
+                 color = "white") +
   labs(title = "Empirical Probability Distribution",
        subtitle = "Sum from Rolling Two Die A Hundred Times",
        x = "Outcome\nSum of Two Die",
@@ -271,7 +274,7 @@ mydata <- tibble(results = c(rep(2, 30),rep(3, 15),rep(4, 15),rep(5, 3),
 
 ggplot(mydata, aes(x = results)) +
   geom_histogram(aes(y=..count../sum(..count..)), binwidth = 1, 
-                 fill = "dark gray", color = "white") +
+                 color = "white") +
   labs(title = "Posterior Probability Distribution",
        subtitle = "Your Belief About Rolling Two Die at a Crooked Casino",
        x = "Outcome\nSum of Two Die",
@@ -281,11 +284,11 @@ ggplot(mydata, aes(x = results)) +
 
 ```
 
-### Presidential Elections
+### Presidential elections
 
-Now we let's say we are building probability distributions for political events, like a presidential election. We want to know p(Democrats win x electoral votes), where x represents the range of possible outcomes from 0 to 538.
+Now we let's say we are building probability distributions for political events, like a presidential election. We want to know the probability that Democratic candidate wins x electoral votes, where x represents the range of possible outcomes from 0 to 538.
 
-It would be incredibly naive to create the following *mathematical distribution*. We create a distribution by running a simulation 10,000 times, where the chances of the Democrats winning any given electoral vote is 0.5.
+It would be incredibly naive to create the following *mathematical distribution*. We create a distribution by running a simulation 10,000 times, where the chances of the Democratic candidate winning any given electoral vote is 0.5.
 
 ```{r, echo=FALSE}
 
@@ -301,6 +304,7 @@ result <- tibble(total = (matrix(rbinom(sims*length(ev),
 ggplot(data = result, aes(total)) +
   geom_histogram(aes(y=..count../sum(..count..)), binwidth = 1) +
   labs(title = "Mathematical Probability Distribution",
+       subtitle = "Presidential Elections",
        y = "Probability",
        x = "Outcome\nElectoral Vote Total for Democratic Candidate") +
   theme_classic()
@@ -319,7 +323,7 @@ mydata <- tibble(electoral_votes = c(486,191,17,297,49,13,111,370,379,
                       271,286,365,332,304))
 
 ggplot(mydata, aes(x = electoral_votes)) +
-  geom_histogram(aes(y=..count../sum(..count..)), bins = 100, fill = "gray", color = "white") +
+  geom_histogram(aes(y=..count../sum(..count..)), bins = 100, color = "white") +
   labs(title = "Empirical Probability Distribution",
        subtitle = "Electoral Votes from Previous Elections",
        x = "Outcome\nElectoral Vote Total for Democratic Candidate",
@@ -342,35 +346,50 @@ There are many political science questions you could explore with posterior dist
 * Present: What is the median height of Harvard students?
 * Future: How many electoral votes will a presidential candidate win?
 
-<!-- We need a continuous distribution. -->
+### Unnormalized distributions
 
-<!-- Add 4th subsubpart to first part explaining Joint Distributions. Do this at the end of probability distribution part.  Example is one die with 50% likelihood of coming up 6 (and other faces at 10%) and second die 50% likelihood. Don't only care about the total. In this situation, you need a 3d plot. p(A, B) is p(Result of Die 1, Result of Die 2). Just one empirical plot of 100 roles. -->
+Remember that probability distributions are mathematical objects that cover a set of outcomes, where each outcome in the domain is mapped to a probability value between 0 and 1 inclusive and the sum of all mappings is 1. Sometimes, you may see distributions similar to probability distributions, only the y-axis displays raw counts instead of proportions. Unnormalized distributions are not probability distributions, but it is easy to convert between the two. You simply divide all the outcome counts on the y-axis by the sum of all outcome counts to "normalize" and unnormalized distribution. Unnormalized distributions are often an intermediary step; it is often handy to work with counts until the very end.
 
-### Joint Distributions
-
-Now we understand that p(A) can represent the probability distribution of outcomes for event A. Let's talk about joint distributions, which can be represented by p(A, B). Joint distributions are also mathematical objects that cover a set of outcomes, where each distinct outcome has a chance of occurring between 0 and 1 and the sum of all chances equals to 1. The key to a joint distribution is it measures the chance that both events A and B will occur simultaneously.
-
-Let's say that you are rolling two six-sided die simultaneously. One is weighted so that there is a 50% chance of rolling a 6 and a 10% chance of each of the other values. The other is weighted so there is a 50% chance of rolling a 5 and a 10% chance of rolling each of the other values. Let's roll both die 1000 times. In previous examples involving two die, we cared about the sum of results and not the outcomes of the first versus the second rolls of each simulation. With a joint distributions, the order matters so instead of 11 possible outcomes on the x-axis of our distribution graph (ranging from 2 to 12), we have 36. Furthermore, a 2D probability distribution is not sufficient to represent all of the variables involved, so the joint distribution for this example should be displayed using a 3D plot.
+For instance, we can generate the following unnormalized distribution for the sum of rolling two die (empirical distribution from running this simulation 100 times). You may notice that the shape of the distribution is the same as the empirical probability distribution we generated earlier, only the y-axis is labeled differently.
 
 ```{r, echo=FALSE}
-mydata <- tibble(die.1 = sample(1:6, size = 1000, prob =
-                                  c(0.1,0.1,0.1,0.1,0.1,0.5), replace = TRUE),
-                 die.2 = sample(1:6, size = 1000, prob =
-                                  c(0.1,0.1,0.1,0.1,0.5,0.1), replace = TRUE)) %>%
-  group_by(die.1, die.2) %>%
-  summarize(total = n()) %>%
-  ungroup() %>%
-  mutate(probability = total/sum(total))
-mydata
+
+set.seed(1)
+
+dice <- c(1:6)
+
+sims <- 100
+
+mydata <- tibble(dice_1 = sample(dice, size = sims, replace = TRUE),
+                 dice_2 = sample(dice, size = sims, replace = TRUE))
+
+mydata <- mydata %>%
+  mutate(sum = (dice_1 + dice_2))
+
+ggplot(mydata, aes(x = sum)) +
+  geom_histogram(binwidth = 1, color = "white") +
+  labs(title = "Empirical Unnormalized Distribution",
+       subtitle = "Sum from Rolling Two Die A Hundred Times",
+       x = "Outcome\nSum of Two Die",
+       y = "Count") +
+  scale_x_continuous(breaks = seq(0,12,1), labels = 0:12) +
+  theme_classic()
+
 ```
 
-The fact that we're talking about joint distributions where we roll two die doesn't change the meaning of a probability distribution. As you can see through the tibble, the sum of the probabilities of all the outcomes is 1.
+### Joint distributions
 
-```{r}
-sum(mydata$probability)
+Now we understand that $p_A$ can represent the probability distribution of outcomes for event A. Let's talk about joint distributions, which can be represented by p(A, B). Joint distributions are also mathematical objects that cover a set of outcomes, where each distinct outcome has a chance of occurring between 0 and 1 and the sum of all chances equals to 1. The key to a joint distribution is it measures the chance that both events A and B will occur simultaneously.
+
+Let's say that you are rolling two six-sided die simultaneously. One is weighted so that there is a 50% chance of rolling a 6 and a 10% chance of each of the other values. The other is weighted so there is a 50% chance of rolling a 5 and a 10% chance of rolling each of the other values. Let's roll both die 1000 times. In previous examples involving two die, we cared about the sum of results and not the outcomes of the first versus the second rolls of each simulation. With a joint distributions, the order matters so instead of 11 possible outcomes on the x-axis of our distribution graph (ranging from 2 to 12), we have 36. Furthermore, a 2D probability distribution is not sufficient to represent all of the variables involved, so the joint distribution for this example is displayed using a 3D plot.
+
+```{r, echo=FALSE, fig.fullwidth = TRUE, caption = "Economist Posterior from August 8, 2020"}
+
+knitr::include_graphics("05-probability/images/rayshader1.png")
+
 ```
 
-## Tree Diagrams
+## Tree diagrams
 
 ### Independence
 
@@ -579,7 +598,7 @@ text(340,150,"P(Positive | No Disease)",cex=.5)
 
 This concept of conditional probability is relevant in our everyday lives. For example, the probability of Trump's re-election might be different than the probability of Trump's re-election *given* that we are in a recession. The probability of you reading a textbook might vary, *depending* on the likelihood of your instructor cold-calling you in class. Whenever you encounter a question involving conditional probability, drawing a tree diagram is a very useful approach to visualization.
 
-### Two Diagrams for One Set of Coin Flips
+### Two diagrams for one set of coin flips
 
 In our histogram probability distribution, we didn't care what combinations of numbers made each sum. We only cared about the outcome. There are two ways of thinking about a coin toss as well. Your tree diagram should look different depending on whether the order of the results matters.
 
@@ -716,7 +735,7 @@ plot(rEG, edgeAttrs=eAttrs, attrs=attributes)
 
 ```
 
-### Joint Probability
+### Joint probability
 
 Now that we understand both p(A) and p(A|B), let's talk about what it means to calculate p(A, B). With p(A|B), we are considering the probability of A assuming event B has already occurred. p(A, B) is the chance that both events will occur at the same point in time.
 
@@ -748,7 +767,7 @@ sum(mydata$probability)
 <!-- 2 b) Another coding session, but this time with list-columns and map_functions. These do not have to be long. We just want to re-iterate the points we made in words. Maybe we don't need list-columns. Maybe just show map functions here. Again, the point of this section is ONLY to understand the key probabity concepts: joint, total, conditional and marginal. -->
 
 
-## Two Models
+## Two models
 
 <!-- # Section 3: Two Models, Scatterplots and Bayes Theorem -->
 
@@ -822,7 +841,7 @@ There's a population of 110 people who tested positive and only 10 of them have 
 Now, let's switch back to proportion-based probabilities and think about it. Just because the probability of having the disease is .1% and the test is 99% accurate, it doesn't mean that these are the exact numbers that always work out in the real world. That is, for a *sample* of 10,000, a disease frequency of .1% doesn't necessarily mean that 10 people have the disease. It could be 11. Or 9. Or 20! Given that uncertainty, we do what we did above. We model. We built and understanding of the world and expressed it in counts. We then used that to understand what the implications of an event (testing positive) are on our belief that we have the disease. In the next section, we'll follow the same principle but make this a little more complicated.
 
 
-## Three Models
+## Three models
 
 Now, imagine that your friend gives you a bag with two marbles. There could either be two white marbles, two black marbles, or one of each color. We can formalize this by setting three different values of p, where p represents the proportion of white marbles. The bag could contain 0% white marbles, 50% white marbles, or 100% white marbles. Therefore, p could only be 0, 0.5, or 1. If you take a marble out of the bag, would it be black or white? Let's make what we call a Bayes scatterplot out of this.
 
@@ -865,7 +884,7 @@ mixed_bw <- tibble(results = sample(0:1, size = 1000, prob = c(0.5, 0.5),
 <!-- # Section 5: 11 and the 1001 models. Same as coin example with unknown p as used in Albert example. First, p is 0, 0.1, 0.2, ... 0.9, 1.0. Make Bayes Scatterplot. Show marginals. Then, extend it so p takes on 1,001 values. This is how we go from discrete to continuous. All the same tricks apply. -->
 
 
-## N Models
+## N models
 
 <!-- 5 a) Now go on to Rethinking approach. I think that chapter 2 is just genius. Bayesian is really just counting. Maybe we do a very similar example to what he does? Maybe different? I am still pondering this myself. I think that there is a deep relationship here. In the simple Bayes rule decision trees, we know all the probabilities. But what if we don't? Instead, we get to observe lots of data (which are counts!) and then, from that data, figure out the probabilities. (Note that Rethinking does not talk like this --- after all, we know all the probabilities since each marble has a 20% chance of being drawn --- but I think it is implicit in his approach.) Key issue: Can we connect this in a sensible way to Bayesian scatterplot. There is always the data and the model and the relationship between the two. (And "the model" means, mainly, the parameter estimates thereof.) Tell me the data, and I will tell you the model. Tell me the model, and I will tell you the model. -->
 
@@ -937,7 +956,7 @@ x %>%
 <!-- DK: Then, finally, we do the experiment. We get 8 heads. What does that mean?  -->
 
 
-## Posterior Distribution
+## Posterior distribution
 
 
 We don't really care about the p($models$, $data$), the joint distribution of the models-which-might-be-true and the data-which-our-experiment-might-generate. Instead, we want to estimate $p$, the unknown parameter which determines the probability that this coin will come up heads when tossed. The joint distribution alone can't tell us that. We *created* the joint distribution before we had even conducted the experiment. It is our creation, a tool which we use to make infernences. Instead, we want the conditional distribution, p($models$ | $data = 8$). We have the results of the experiment. What do those results tell us about the probability distribution of $p$? 
@@ -994,7 +1013,7 @@ Models are useless unless we use them for something. Let's make some predictions
 <!-- DK: Two ways to do this. First (and best?) using x_with_heads_equal_8 and just draw samples from this vector. Second feeding p_posterior directly to rbinom, with one column the p and one column the probs.  -->
 
 
-## Testing is Evil
+## Testing is evil
 
 <!-- Introduce concepts like the null model, testing, and p-values. Connect to permutation tests from chapter 3.  Side note quotation: "Amatuers test. Professionals summarize." Maybe we should pick an example in which the number of heads is low enough to provide some reasonable evidence against p = 0.5. -->
 
@@ -1006,7 +1025,7 @@ Models are useless unless we use them for something. Let's make some predictions
 
 
 
-## Key Themes
+## Key themes
 
 The PPBDS contains several important themes that are relevant in all chapters. As you move through the textbook, you will be building on and refining these concepts. In this chapter, you will learn about model structure, predictive uncertainty, parameter uncertainty, unmodeled variation, and unknown unknowns.
 
@@ -1020,11 +1039,11 @@ knitr::include_graphics("05-probability/images/coin_flip.jpg")
 
 Suppose your friend sets up a pseudo-casino in the playground of the neighborhood school. He's offering everyone the opportunity to play probability games and bet money. The first game is simple: coin tosses. If the coin lands on heads, you get five dollars. If it lands on tails, you pay three dollars.
 
-### Model Structure
+### Model structure
 
 Is $P_h$ constant?
 
-### Predictive Uncertainty
+### Predictive uncertainty
 
 ```{r, echo=FALSE, fig.margin=TRUE, fig.cap="PROBABILITY DOES NOT EXIST."}
 
@@ -1036,11 +1055,11 @@ A wise, Italian statistician named Bruno de Finetti once famously said "PROBABIL
 
 <!-- Still conditional on model structure. p(result from experiment to come) -->
 
-### Parameter Uncertainty
+### Parameter uncertainty
 
 You have a sneaking suspicion that the coin isn't fair and you ask your friend to flip it 10 times to test your theory. However, you must not be overconfident. 10 observations might be too few to judge the fairness of the coin. Perhaps your friend secretly switches coins when it comes time for the actual betting and your sample in the initial simulation is not representative. You might be nervous about losing your money and even miscount the number of heads and tails. These are all examples of *parameter uncertainty*. Sometimes, a model has the correct form, but it's not practical to run the simulation millions of times to be certain of the outcome. It's not possible to be absolutely certain that your friend isn't switching coins. A perfect world does not exist, so we must have reservations when drawing likely conclusions.
 
-### Unmodeled Variation
+### Unmodeled variation
 
 (This may be difficult to talk about since we don't (?) write down formulas with error terms.) But each chapter should discuss the concept of a residual. Even if we have perfect parameter estimates for a model structure which matches the unknown data generating mechanism, we still won't make perfect predictions. Some randomness is intrinsic. Example: prediction for an individual.
 
@@ -1052,7 +1071,7 @@ unmodeled variation. *residual*; *fitted value* *expected value*
 
 result = fitted (expected) value + residual
 
-### Unknown Unknowns
+### Unknown unknowns
 
 ```{r, echo=FALSE, fig.margin=TRUE, fig.cap="Donald Rumsfeld."}
 
