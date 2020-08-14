@@ -274,7 +274,7 @@ tibble(subject = c("1", "2", "...", "10,052", "...", "120,892", "20,400,100", ".
 The purpose of a Preceptor Table is to capture all of the data such that if the question marks were filled out, one wouldn't need to construct a model. The rows in this Preceptor Table represent the full population of N American voters that the cces sampled from for this dataset. For this reason, some have recorded data while other do not. If all of the "?"s were filled out, we would not need to make a predictive model for approval because we know everyone's value for approval. 
 
 ```{r echo=FALSE, fig.margin=TRUE}
-knitr::include_graphics("other/images/courage.jpg")
+#knitr::include_graphics("other/images/courage.jpg")
 ```
 
 Our discussion of *courage*, or the *data-generating mechanism*, will be brief, as we will discuss our three model types in-depth throughout the chapter. We will begin with a logistical regression using `glm()`, like in previous chapters. Then we will use a regression tree, which creates partitions based on the right hand side variables and has a prediction of `approval` for each partition. Finally, we will use random forests, which are created by generating and averaging many different regression trees. Each of these models will use the binary variable of `approval` as their left hand variable.
