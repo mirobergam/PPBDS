@@ -159,6 +159,68 @@ ch12 %>%
        title = "Presidential Approval by State")
 ```
 
+## The Question
+
+Now that we've seen some EDA for the general dataset, let's narrow our focus. When creating models, it is important to have a specific question in mind that you can use your model to answer. For our chapter, that question will be "How do Blacks and Hispanic voters vary in their support of the President?" At the end of this chapter, we'll use the three models we created to address answer this. Before then, however, we'll do some exploratory data analysis on this part of the data. 
+
+First, we'll filter `race` to two groups: Black or Hispanic. We'll also code approval to be an integer, which will help when doing the math for our graphs.
+
+```{r}
+ch12 <- ch12 %>% 
+  filter(race == "Black" | race == "Hispanic") %>%
+  mutate(approval = as.integer(approval)) %>%
+  mutate(approval = case_when(
+    approval == 1 ~ 0,
+    approval == 2 ~ 1))
+```
+
+Now, let's look at a basic comparison of their rates of approval. 
+
+```{r}
+ch12 %>%
+  ggplot(aes(x = approval, fill = race)) +
+  geom_bar() + 
+  labs(y = "Count",
+       x = "Presidential Approval",
+       title = "Presidential Approval in 2018 for Black and Hispanic voters") +
+  facet_wrap(~ race)
+```
+
+We can get two important pieces of information from this graph. The first observation is that, although it seems there are a few more black voters, these populations are very similar in size. The second is there is slightly stronger disapproval of the President among Black voters. 
+
+However, we must do further analyses to better understand Black and Hispanic voters. Looking at how different covariates affect approval rate within the group is a great next step. Let's start with age:
+
+```{r, message = FALSE}
+ch12 %>%
+  group_by(age, race) %>%
+  summarise(approval_rate = sum(approval)/n()) %>%
+  ggplot(aes(x = age, y = approval_rate, group = race, color = race)) +
+  geom_point() +
+  geom_line() + 
+  labs(x = "Age",
+       y = "Approval Rate",
+       title = "Presidential Approval Rate by Age")
+```
+
+You can see that the difference in the approval ratings increases with age. Older Hispanic voters approve more strongly of the President while older Black voters approve of the President at even lower rates than younger Black voters. This graph shows us why covariates are important. Even adding just one -- age -- added a new complexity to our understanding of question at hand. 
+
+Now, let's add another variable by throwing gender in the mix.
+
+```{r, message = FALSE}
+ch12 %>%
+  group_by(age, race, gender) %>%
+  summarise(approval_rate = sum(approval)/n()) %>%
+  ggplot(aes(x = age, y = approval_rate, group = race, color = race)) +
+  geom_point() +
+  geom_line() + 
+  facet_wrap(~gender)+
+  labs(x = "Age",
+       y = "Approval Rate",
+       title = "Presidential Approval Rate by Age and Gender")
+```
+
+Now that we've faceted by gender, we can see that the trends from the previous graph don't vary much from male to female. 
+
 ### Themes
 
 As stated at the beginning of the chapter, this chapter will look into three different types of models, all modelling presidential approval against several explanatory variables. Before we do so, let's take a moment to discuss our themes of prudence, courage, temperance, and justice.
@@ -941,72 +1003,15 @@ In the case of the `roc_auc`, our logistic regression performed best, followed b
 
 There are an infinite numbers of comparisons to be made within this dataset. Let's return to our original question of how Blacks and Hispanics specifically vary in their support of the president. 
 
-First, we'll transform the data to categorize `race` into two groups: Black/Hispanic or other. We'll also code approval to be an integer, which will help when doing the math for our graphs.
-
-```{r}
-ch12 <- ch12 %>% 
-  mutate(bh = case_when(
-    race == "Black" ~ "Black/Hispanic",
-    race == "Hispanic" ~ "Black/Hispanic",
-    race == "White" ~ "Other",
-    race == "Native American" ~ "Other",
-    race == "Asian" ~ "Other",
-    race == "Other" ~ "Other",
-    race == "Middle Eastern" ~ "Other",
-    race == "Mixed" ~ "Other")) %>%
-  mutate(approval = as.integer(approval)) %>%
-  mutate(approval = case_when(
-    approval == 1 ~ 0,
-    approval == 2 ~ 1))
-```
-
-Now, let's look at a basic comparison of their rates of approval. 
-
-```{r}
-ch12 %>%
-  ggplot(aes(x = approval, fill = bh)) +
-  geom_bar() + 
-  labs(y = "Count",
-       x = "Presidential Approval",
-       title = "Presidential Approval in 2018 by Race") +
-  facet_wrap(~ bh)
-```
-
-We can get two important pieces of information from this graph. The first observation is that there are far more observations in the non-Black/Hispanic group. The second is there is noticeably stronger disapproval of the President among Blacks and Hispanics than the rest of the population. 
-
-However, we must do further analyses to better understand Black and Hispanic voters. Looking at how different covariates affect approval rate within the group is a great next step. Let's start with age:
-
-```{r, message = FALSE}
-ch12 %>%
-  group_by(age, bh) %>%
-  summarise(approval_rate = sum(approval)/n()) %>%
-  ggplot(aes(x = age, y = approval_rate, group = bh, color = bh)) +
-  geom_point() +
-  geom_line() + 
-  labs(x = "Age",
-       y = "Approval Rate",
-       title = "Presidential Approval Rate by Race and Age")
-```
-
-In keeping with our previous chart, the presidential approval is consistently higher for all ages among non-Blacks and Hispanics. You can also see that the non-Black/Hispanic population increases in their support of the president on average as they get older. Black and Hispanic voters, however continue to hover at around 25% approval, albeit with greater variation. 
-
-Now, let's add another variable by throwing gender in the mix.
-
-```{r, message = FALSE}
-ch12 %>%
-  group_by(age, bh, gender) %>%
-  summarise(approval_rate = sum(approval)/n()) %>%
-  ggplot(aes(x = age, y = approval_rate, group = bh, color = bh)) +
-  geom_point() +
-  geom_line() + 
-  facet_wrap(~gender)+
-  labs(x = "Age",
-       y = "Approval Rate",
-       title = "Presidential Approval Rate by Race, Age, and Gender")
-```
-
-Now that we've faceted by gender, we can see that the trends from the previous graph don't vary much from male to female. You could argue, based on this graph, that presidential support is mildly higher for Black/Hispanic males than Black/Hispanic females. 
-
 Now that we've done some analysis, let's use our models to help answer more questions about how Black and Hispanic voters vary in their support of the President. 
+
+Let's use our random forest first, as that model performed with the highest accuracy.
+
+```{r}
+
+
+
+```
+
 
 
